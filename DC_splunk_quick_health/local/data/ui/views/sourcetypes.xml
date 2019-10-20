@@ -1,0 +1,210 @@
+<dashboard stylesheet="dark.css">
+  <label>sourcetypes</label>
+  <search id="baseSearch_2">
+    <query>| metadata type=sourcetypes index=*</query>
+    <earliest>-30d@d</earliest>
+    <latest>now</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <row>
+    <panel>
+      <title>total sourcetypes</title>
+      <single>
+        <search base="baseSearch_2">
+          <query>| table sourcetype, firstTime, lastTime, recentTime
+| rename totalCount as Count firstTime as "First_Event" lastTime as "Last_Event" recentTime as "Last_Update" 
+| fieldformat Count=tostring(Count, "commas") 
+| fieldformat "First_Event"=strftime('First_Event', "%c") 
+| fieldformat "Last_Event"=strftime('Last_Event', "%c")
+| fieldformat "Last_Update"=strftime('Last_Update', "%c")
+| stats dc(sourcetype) as sourcetypecount</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xf58f39","0xf58f39"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">all source types</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>new sourcetypes added last 30 days</title>
+      <single>
+        <search base="baseSearch_2">
+          <query>
+| table sourcetype, firstTime, lastTime, recentTime
+| rename totalCount as Count firstTime as "First_Event" lastTime as "Last_Event" recentTime as "Last_Update" 
+| fieldformat Count=tostring(Count, "commas") 
+| fieldformat "First_Event"=strftime('First_Event', "%c") 
+| fieldformat "Last_Event"=strftime('Last_Event', "%c")
+| fieldformat "Last_Update"=strftime('Last_Update', "%c")
+| where First_Event &gt;= relative_time(now(), "-30d")
+| stats dc(sourcetype) as sourcetypecount</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xf58f39","0xf58f39"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">sourcetype added</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>sourcetypes not logged data last 30 days</title>
+      <single>
+        <search base="baseSearch_2">
+          <query>
+| table sourcetype, firstTime, lastTime, recentTime
+| rename totalCount as Count firstTime as "First_Event" lastTime as "Last_Event" recentTime as "Last_Update" 
+| fieldformat Count=tostring(Count, "commas") 
+| fieldformat "First_Event"=strftime('First_Event', "%c") 
+| fieldformat "Last_Event"=strftime('Last_Event', "%c")
+| fieldformat "Last_Update"=strftime('Last_Update', "%c")
+| where Last_Update &lt;= relative_time(now(),"-30d") 
+| stats dc(sourcetype) as sourcetypecount</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xf58f39","0xf58f39"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">sourctypes not logged</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>all sourcetypes</title>
+      <table>
+        <search base="baseSearch_2">
+          <query>
+| table sourcetype, firstTime, lastTime, recentTime
+| rename totalCount as Count firstTime as "First_Event" lastTime as "Last_Event" recentTime as "Last_Update" 
+| fieldformat Count=tostring(Count, "commas") 
+| fieldformat "First_Event"=strftime('First_Event', "%c") 
+| fieldformat "Last_Event"=strftime('Last_Event', "%c")
+| fieldformat "Last_Update"=strftime('Last_Update', "%c")</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>top_sourcetypes</title>
+      <table>
+        <search>
+          <query>index=* | top limit=100 sourcetype | eval percent = round(percent,2)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>all new sourcetype add in the last 30 days</title>
+      <table>
+        <search base="baseSearch_2">https://10.155.255.139:8000/en-US/app/search/reassure_assets_dashboard/editxml#<query>
+| table sourcetype, firstTime, lastTime, recentTime
+| rename totalCount as Count firstTime as "First_Event" lastTime as "Last_Event" recentTime as "Last_Update" 
+| fieldformat Count=tostring(Count, "commas") 
+| fieldformat "First_Event"=strftime('First_Event', "%c") 
+| fieldformat "Last_Event"=strftime('Last_Event', "%c")
+| fieldformat "Last_Update"=strftime('Last_Update', "%c")
+| where First_Event &gt;= relative_time(now(), "-30d")</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>all sourcetypes not logged any data for 30 days</title>
+      <table>
+        <search base="baseSearch_2">
+          <query>
+| table sourcetype, firstTime, lastTime, recentTime
+| rename totalCount as Count firstTime as "First_Event" lastTime as "Last_Event" recentTime as "Last_Update" 
+| fieldformat Count=tostring(Count, "commas") 
+| fieldformat "First_Event"=strftime('First_Event', "%c") 
+| fieldformat "Last_Event"=strftime('Last_Event', "%c")
+| fieldformat "Last_Update"=strftime('Last_Update', "%c")| where Last_Update &lt;= relative_time(now(), "-30d")</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>licence_usage_by_sourcetype</title>
+      <table>
+        <search>
+          <query>index=_internal source=*license_usage.log type="Usage" 
+ | eval indexname = if(len(idx)=0 OR isnull(idx),"(UNKNOWN)",idx)
+ | eval sourcetypename = st
+ | bin _time span=1d 
+ | stats sum(b) as b by _time, pool, indexname, sourcetypename
+ | eval GB=round(b/1024/1024/1024, 3)
+ | fields _time, indexname, sourcetypename, GB</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

@@ -1,0 +1,138 @@
+<dashboard stylesheet="dark.css">
+  <label>indexer information</label>
+  <row>
+    <panel>
+      <title>indexing queue sizes</title>
+      <chart>
+        <search>
+          <query>index=_internal source=*metrics.log group=queue (name=parsingqueue OR name=indexqueue OR name=typingqueue OR name=aggqueue) | timechart avg(current_size) by name</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>index sizes</title>
+      <table>
+        <search>
+          <query>| rest /services/data/indexes  
+| rename title AS Index_Name
+| rename currentDBSizeMB AS Index_Size_MB
+| eval Index_Size_GB = Index_Size_MB/1024
+| stats values(Index_Size_MB) by Index_Name, splunk_server,Index_Size_GB,Index_Size_MB, maxDataSize, maxHotBuckets, homePath, summaryHomePath_expanded, tstatsHomePath 
+| sort - values(Index_Size_MB)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Indexer Retention Days</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=* /services/data/indexes | join type=outer title [
+| rest splunk_server=* /services/data/indexes-extended
+] | eval retentionInDays=frozenTimePeriodInSecs/86400
+| rename title AS index
+| dedup index
+| table index retentionInDays | sort - retentionInDays</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">true</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>index age</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=splunk1.ops.com /services/data/indexes
+| join title type=outer [
+| rest splunk_server=s1idx1.ops.com /services/data/indexes-extended
+| eval cold_bucket_size = if(isnotnull('bucket_dirs.cold.bucket_size'), 'bucket_dirs.cold.bucket_size', 'bucket_dirs.cold.size')
+| fields title, cold_bucket_size, total_size, total_bucket_count]
+| eval _dmc_title = if(isnotnull(title), title, 'data.name') | where NOT (_dmc_title == "history" OR _dmc_title == "_thefishbucket" OR _dmc_title == "_blocksignature") | fields - _dmc_title
+| fields title maxTotalDataSizeMB currentDBSizeMB frozenTimePeriodInSecs minTime coldPath.maxDataSizeMB homePath.maxDataSizeMB, homePath, coldPath, cold_bucket_size, total_size, total_bucket_count, totalEventCount
+| eval currentDBSizeGB = if(isnotnull(currentDBSizeMB), round(currentDBSizeMB / 1024, 2), 0)
+| eval maxTotalDataSizeGB = if((maxTotalDataSizeMB == 0) OR isnull(maxTotalDataSizeMB), "unlimited", round(maxTotalDataSizeMB / 1024, 2))
+| eval disk_usage_gb = currentDBSizeGB." / ".maxTotalDataSizeGB
+| eval currentTimePeriodDay = round((now() - strptime(minTime,"%Y-%m-%dT%H:%M:%S%z")) / 86400, 0)
+| eval currentTimePeriodDay = if(isnull(currentTimePeriodDay), 0, currentTimePeriodDay)
+| eval frozenTimePeriodDay = round(frozenTimePeriodInSecs / 86400, 0)
+| eval frozenTimePeriodDay = if(isnull(frozenTimePeriodDay) OR frozenTimePeriodDay == 0, "unlimited", frozenTimePeriodDay)
+| eval freeze_period_viz = currentTimePeriodDay." / ".frozenTimePeriodDay
+| eval total_bucket_count = if(isnotnull(total_bucket_count), total_bucket_count, 0)
+| eval totalEventCount = if(isnotnull(totalEventCount), totalEventCount, 0)
+| eval home_bucket_size_gb = round((total_size - if(isnull(cold_bucket_size), 0, cold_bucket_size)) / 1024, 2)
+| eval home_bucket_size_gb = if(isnull(home_bucket_size_gb), 0, home_bucket_size_gb)
+| eval home_bucket_capacity_gb = if(isnull('homePath.maxDataSizeMB') OR 'homePath.maxDataSizeMB' = 0, "unlimited", round('homePath.maxDataSizeMB' / 1024, 2))
+| eval home_bucket_usage_gb = home_bucket_size_gb." / ".home_bucket_capacity_gb
+| eval cold_bucket_size_gb = if(isnull(cold_bucket_size), 0, round(cold_bucket_size / 1024, 2))
+| eval cold_bucket_capacity_gb = if(isnull('coldPath.maxDataSizeMB') OR 'coldPath.maxDataSizeMB' = 0, "unlimited", round('coldPath.maxDataSizeMB' / 1024, 2))
+| eval cold_bucket_usage_gb = cold_bucket_size_gb." / ".cold_bucket_capacity_gb
+| fields title, freeze_period_viz, disk_usage_gb, home_bucket_usage_gb, cold_bucket_usage_gb, total_bucket_count, totalEventCount, currentDBSizeGB,
+      cold_bucket_size_gb, home_bucket_size_gb, homePath, coldPath | fields title, freeze_period_viz, disk_usage_gb, home_bucket_usage_gb, cold_bucket_usage_gb, totalEventCount, total_bucket_count
+            | eval total_bucket_count=tostring(total_bucket_count, "commas")
+            | eval totalEventCount=tostring(totalEventCount, "commas")
+            | rename title as Index, disk_usage_gb as "Index Usage (GB)", freeze_period_viz as "Data Age vs Frozen Age (days)", home_bucket_usage_gb as "Home Path Usage (GB)", cold_bucket_usage_gb as "Cold Path Usage (GB)", total_bucket_count as "Total Bucket Count", totalEventCount as "Total Event Count" | sort - "Index Usage (GB)"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">50</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

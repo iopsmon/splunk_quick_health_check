@@ -1,0 +1,66 @@
+<dashboard stylesheet="dark.css">
+  <label>splunk inventory and uf status</label>
+  <row>
+    <panel>
+      <title>inventory</title>
+      <table>
+        <search>
+          <query>index="_internal" source="*metrics.log*" group=tcpin_connections 
+| dedup hostname| table hostname,sourceIp,fwdType,guid,version,build,os,arch </query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">true</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>forwarder status</title>
+      <table>
+        <search>
+          <query>| metadata type=hosts index=_internal | search NOT host=towclalsh01.abaco.local 
+| eval server=lower(host)
+| table server, recentTime 
+| eval age=now()-recentTime 
+| eval status=if(age&lt;300,"UP","DOWN")
+| table server, status</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>top_forwarders</title>
+      <chart>
+        <search>
+          <query>index=_internal  source="*metrics.log" sourcetype=splunkd  group=per_host_thruput 
+| eval megabytes=(kb/1024)
+| timechart  sum(megabytes) as kb by series useother=false limit=10</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>

@@ -1,0 +1,5 @@
+<nav search_view="search" color ="#e6e600" >
+   <view name="splunk_status" default='true' />
+   <view name="reports" />
+     <view name="search" />
+</nav>
