@@ -26,7 +26,7 @@
       <title>forwarder status</title>
       <table>
         <search>
-          <query>| metadata type=hosts index=_internal | search NOT host=towclalsh01.abaco.local 
+          <query>| metadata type=hosts index=_internal 
 | eval server=lower(host)
 | table server, recentTime 
 | eval age=now()-recentTime 
