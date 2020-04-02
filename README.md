@@ -34,6 +34,9 @@ Features:
     Datamodel Details
     Top Sourcetypes
 
+
+![](images/health.jpg)
+
 Config:
 
     Change the 'License Usage' widget search to inlude your license server
