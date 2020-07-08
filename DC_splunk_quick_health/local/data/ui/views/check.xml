@@ -1,5 +1,5 @@
 <form theme="dark">
-  <label>splunk quick health monitor</label>
+  <label>Splunk Quick Health Monitor</label>
   <!-- <This is for the latency dashboard</choice> -->
 <init>
     <set token="showExpandLink1">true</set>
@@ -20,7 +20,7 @@
 
   <row>
     <panel>
-      <title>license usage</title>
+      <title>license Usage</title>
       <single>
         <search>
           <query>index=_internal source=*license_usage.log* host=splunk2.ops.com type=Usage 
@@ -54,7 +54,7 @@ earliest=-1d@d latest=@d
       </single>
     </panel>
     <panel>
-      <title>total event count</title>
+      <title>Total Events </title>
       <single>
         <search>
           <query>| tstats count WHERE index=*</query>
@@ -80,7 +80,7 @@ earliest=-1d@d latest=@d
       </single>
     </panel>
     <panel>
-      <title>dispatcher que</title>
+      <title>Disatcher Queue</title>
       <single>
         <search>
           <query>index=_internal source=*splunkd.log* log_level!=info   DispatchManager - Queued job id sourcetype=splunkd reason="The maximum number of concurrent historical searches on this instance has been reached*" 
@@ -114,7 +114,7 @@ earliest=-1d@d latest=@d
   </row>
   <row>
     <panel>
-      <title>GB volume Limit Chart</title>
+      <title>GB Volume Limit</title>
       <chart>
         <search>
           <query>index=_internal source="*metrics.log" group=per_index_thruput NOT series=_* earliest=-7d 
@@ -158,7 +158,7 @@ earliest=-1d@d latest=@d
       </chart>
     </panel>
     <panel>
-      <title>gb avg and peak</title>
+      <title>GB Avg And Peak Usage </title>
       <chart>
         <search>
           <query>index=_internal host=splunk2.ops.com source=*license_usage.log* type="RolloverSummary" earliest=-30d@d 
@@ -206,7 +206,7 @@ earliest=-1d@d latest=@d
       </chart>
     </panel>
     <panel>
-      <title>Average eps</title>
+      <title>Average EPS</title>
       <chart>
         <search>
           <query>| tstats count where index=* by  index _time span=1s | stats avg(count) as avg by _time | trendline sma2(avg) AS trend</query>
@@ -253,7 +253,7 @@ earliest=-1d@d latest=@d
   
     <row>
     <panel id="panel1">
-      <title>splunk file system usage</title>
+      <title>Splunk File System Usage</title>
       <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -332,7 +332,7 @@ earliest=-1d@d latest=@d
   
    <row>
     <panel id="panel2">
-      <title>Internal_Index ERROR / WARN</title>
+      <title>Internal Index ERROR / WARN</title>
       <input id="linkCollapse2" type="link" token="tokLinkCollapse2" searchWhenChanged="true" depends="$showCollapseLink2$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -485,7 +485,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
   
    <row>
     <panel id="panel4">
-      <title>Skipped Searches  </title>
+      <title>Skipped Searches Check  </title>
       <input id="linkCollapse4" type="link" token="tokLinkCollapse4" searchWhenChanged="true" depends="$showCollapseLink4$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -558,7 +558,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
   
    <row>
     <panel id="panel5">
-      <title>Searche Duration Check  </title>
+      <title>Search Duration Check  </title>
       <input id="linkCollapse5" type="link" token="tokLinkCollapse5" searchWhenChanged="true" depends="$showCollapseLink5$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -785,7 +785,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
   
   <row>
     <panel id="panel8">
-      <title> concurrency search check  </title>
+      <title> Concurrency Search Check  </title>
       <input id="linkCollapse8" type="link" token="tokLinkCollapse8" searchWhenChanged="true" depends="$showCollapseLink8$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -930,7 +930,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
 
   <row>
     <panel id="panel10">
-      <title> Cluster events Splunkd.log  </title>
+      <title> Cluster Events Splunkd.log  </title>
       <input id="linkCollapse10" type="link" token="tokLinkCollapse10" searchWhenChanged="true" depends="$showCollapseLink10$">
         <label></label>
         <choice value="collapse">-</choice>
