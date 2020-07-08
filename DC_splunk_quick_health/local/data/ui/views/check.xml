@@ -24,8 +24,8 @@
       <single>
         <search>
           <query>index=_internal source=*license_usage.log* host=splunk2.ops.com type=Usage 
-earliest=-1d@d latest=@d 
-| eval My_Size_GB=round(b/1024/1024/1024,4)
+earliest=-1d@d latest=now 
+| eval My_Size_GB=round(b/1024/1024/1024,0)
 | rename st AS Sourcetype
 | stats sum(My_Size_GB) AS Size_GB by Sourcetype   
 | stats sum(Size_GB)</query>
@@ -83,9 +83,10 @@ earliest=-1d@d latest=@d
       <title>Dispatcher Queue</title>
       <single>
         <search>
-          <query>index=_internal source=*splunkd.log* log_level!=info   DispatchManager - Queued job id sourcetype=splunkd reason="The maximum number of concurrent historical searches on this instance has been reached*" 
-| timechart span=5m count
-| eval "NoResults"="No Data Found" | where count=0</query>
+          <query>index=_internal source=*splunkd.log* log_level!=info   DispatchManager - Queued job id sourcetype=splunkd reason="The maximum number of concurrent historical searches on this instance has been reached*"
+| stats count as jobs
+| eval queue=if((jobs==0), "No Queue", "Queued")
+| fields - jobs</query>
           <earliest>-15m</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -277,15 +278,18 @@ earliest=-1d@d latest=@d
       </input>
       <table rejects="$showExpandLink1$">
         <search>
-          <query>
-          | rest  /services/server/status/partitions-space 
+          <query>| rest  /services/server/status/partitions-space 
 | eval myCapacityGB=round(capacity/1024)
 | eval myFreeGB=round(free/1024)
-| eval pct_usage = round(myFreeGB / capacity * 100, 2) 
+
+| eval space_free_GB = (myCapacityGB-myFreeGB)
+| eval pct_usage = round(myFreeGB/myCapacityGB*100,2)
 | stats first(fs_type) as fs_type first(myCapacityGB) as capacity_GB first(myFreeGB) as usage_GB  
-  first(pct_usage) as pct_usage_% by mount_point, splunk_server
- </query>
+  first(pct_usage) as pct_usage_% first(space_free_GB) as free_space by mount_point, splunk_server</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
         </search>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
   </row>
