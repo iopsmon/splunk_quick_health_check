@@ -16,8 +16,33 @@
     <set token="showExpandLink12">true</set>
     <set token="showExpandLink13">true</set>
     <set token="showExpandLink14">true</set>
+    <set token="showExpandLink15">true</set>
   </init>
   <fieldset submitButton="false"></fieldset>
+  <row depends="$alwaysHideCSSPanel$">
+    <panel>
+      <!-- This changes the font sizes -->
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+     
+      </style>
+      </html>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>license Usage</title>
@@ -97,8 +122,8 @@ earliest=-1d@d latest=now
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
         <option name="numberPrecision">0</option>
-        <option name="rangeColors">["0x53a051","0xf1813f","0xdc4e41"]</option>
-        <option name="rangeValues">[0,10]</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
         <option name="showSparkline">1</option>
         <option name="showTrendIndicator">1</option>
@@ -289,7 +314,7 @@ earliest=-1d@d latest=now
           <earliest>-60m@m</earliest>
           <latest>now</latest>
         </search>
-        <option name="refresh.display">progressbar</option>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
@@ -361,6 +386,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
           <earliest>-60m@m</earliest>
           <latest>now</latest>
         </search>
+        <option name="drilldown">none</option>
         <format type="color" field="log_level">
           <colorPalette type="expression">case (like(value,"ERROR%"),"#FF3300")</colorPalette>
         </format>
@@ -430,6 +456,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
@@ -496,6 +523,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
           <earliest>-4h@m</earliest>
           <latest>now</latest>
         </search>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
@@ -569,6 +597,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
@@ -637,6 +666,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
@@ -906,6 +936,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
           <earliest>-60m@m</earliest>
           <latest>now</latest>
         </search>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
@@ -972,6 +1003,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
           <earliest>-60m@m</earliest>
           <latest>now</latest>
         </search>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
@@ -1110,6 +1142,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
           <earliest>-15m</earliest>
           <latest>now</latest>
         </search>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
@@ -1182,6 +1215,7 @@ index=_audit action=search info=granted search=* NOT "search_id='scheduler" NOT 
           <earliest>-30m</earliest>
           <latest>now</latest>
         </search>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
@@ -1214,6 +1248,74 @@ index=_audit action=search info=granted search=* NOT "search_id='scheduler" NOT 
           }
         </style>
       </html>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel15">
+      <title>Installed Apps - Versions</title>
+      <input id="linkCollapse15" type="link" token="tokLinkCollapse15" searchWhenChanged="true" depends="$showCollapseLink15$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink15"></unset>
+            <set token="showExpandLink15">true</set>
+            <unset token="form.tokLinkCollapse15"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand15" type="link" token="tokLinkExpand15" searchWhenChanged="true" depends="$showExpandLink15$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink15">true</set>
+            <unset token="showExpandLink15"></unset>
+            <unset token="form.tokLinkExpand15"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink15$">
+        <search>
+          <query>| rest /services/apps/local 
+           | table label version 
+          | dedup label
+          </query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$alwaysHideCSSStyleOverride$">
+    <panel>
+      <html>
+        <style>
+          div[id^="linkCollapse"],
+          div[id^="linkExpand"]{
+            width: 32px !important;
+            float: right;
+          }
+          div[id^="linkCollapse"] button,
+          div[id^="linkExpand"] button{
+            flex-grow: 0;
+            border-radius: 25px;
+            border-width: thin;
+            border-color: lightgrey;
+            border-style: inset;
+            width: 32px;
+            padding: 0px;
+          }
+          div[id^="linkCollapse"] label,
+          div[id^="linkExpand"] label{
+            display:none;
+          }
+          div[id^="panel"].fieldset{
+            padding: 0px;
+          }
+        </style>
       </html>
     </panel>
   </row>
