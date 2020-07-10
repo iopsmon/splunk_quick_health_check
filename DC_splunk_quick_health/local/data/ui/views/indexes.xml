@@ -5,18 +5,7 @@
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
     <set token="showExpandLink3">true</set>
-    <set token="showExpandLink4">true</set>
-    <set token="showExpandLink5">true</set>
-    <set token="showExpandLink6">true</set>
-    <set token="showExpandLink7">true</set>
-    <set token="showExpandLink8">true</set>
-    <set token="showExpandLink9">true</set>
-    <set token="showExpandLink10">true</set>
-    <set token="showExpandLink11">true</set>
-    <set token="showExpandLink12">true</set>
-    <set token="showExpandLink13">true</set>
-    <set token="showExpandLink14">true</set>
-    <set token="showExpandLink15">true</set>
+
   </init>
   
   <row>
@@ -119,36 +108,7 @@
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-    </panel>
-  </row>
+
   
   
   <row>
@@ -172,7 +132,7 @@
           <condition value="expand">
             <set token="showCollapseLink2">true</set>
             <unset token="showExpandLink2"></unset>
-            <unset token="form.tokLinkExpand1"></unset>
+            <unset token="form.tokLinkExpand2"></unset>
           </condition>
         </change>
       </input>
@@ -192,36 +152,7 @@
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-    </panel>
-  </row>
+
   
   <row>
     <panel id="panel3">

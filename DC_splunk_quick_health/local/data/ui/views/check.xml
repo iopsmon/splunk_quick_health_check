@@ -19,7 +19,7 @@
     <set token="showExpandLink15">true</set>
   </init>
   <fieldset submitButton="false"></fieldset>
-  <row depends="$alwaysHideCSSPanel$">
+  <row >
     <panel>
       <!-- This changes the font sizes -->
       <html>
@@ -318,38 +318,7 @@ earliest=-1d@d latest=now
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+ 
   <row>
     <panel id="panel2">
       <title>Internal Index ERROR / WARN</title>
@@ -393,38 +362,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+ 
   <row>
     <panel id="panel3">
       <title>Data Model Search</title>
@@ -460,38 +398,8 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+ 
+ 
   <row>
     <panel id="panel4">
       <title>Skipped Searches Check</title>
@@ -527,38 +435,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+
   <row>
     <panel id="panel5">
       <title>Search Duration Check</title>
@@ -601,38 +478,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+ 
   <row>
     <panel id="panel6">
       <title>Users And Roles</title>
@@ -670,38 +516,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+  
   <row>
     <panel id="panel7">
       <title>Alerts Status</title>
@@ -738,38 +553,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+ 
   <row>
     <panel id="panel8">
       <title>Concurrency Search Check</title>
@@ -804,38 +588,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </chart>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+ 
   <row>
     <panel id="panel9">
       <title>Memory Usage Per Search Type</title>
@@ -873,38 +626,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </chart>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+ 
   <row>
     <panel id="panel10">
       <title>Cluster Events Splunkd.log</title>
@@ -940,38 +662,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+ 
   <row>
     <panel id="panel11">
       <title>Splunk CPU - Memory Use</title>
@@ -1007,38 +698,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+  
   <row>
     <panel id="panel12">
       <title>Splunk Restart Log</title>
@@ -1076,38 +736,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+
   <row>
     <panel id="panel13">
       <title>Users Logged Into Splunk</title>
@@ -1146,38 +775,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+  
   <row>
     <panel id="panel14">
       <title>User Searches</title>
@@ -1219,38 +817,7 @@ index=_audit action=search info=granted search=* NOT "search_id='scheduler" NOT 
       </table>
     </panel>
   </row>
-  <row depends="$alwaysHideCSSStyleOverride$">
-    <panel>
-      <html>
-      <html>
-        <style>
-          div[id^="linkCollapse"],
-          div[id^="linkExpand"]{
-            width: 32px !important;
-            float: right;
-          }
-          div[id^="linkCollapse"] button,
-          div[id^="linkExpand"] button{
-            flex-grow: 0;
-            border-radius: 25px;
-            border-width: thin;
-            border-color: lightgrey;
-            border-style: inset;
-            width: 32px;
-            padding: 0px;
-          }
-          div[id^="linkCollapse"] label,
-          div[id^="linkExpand"] label{
-            display:none;
-          }
-          div[id^="panel"].fieldset{
-            padding: 0px;
-          }
-        </style>
-      </html>
-      </html>
-    </panel>
-  </row>
+ 
   <row>
     <panel id="panel15">
       <title>Installed Apps - Versions</title>
