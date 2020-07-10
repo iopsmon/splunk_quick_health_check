@@ -1,5 +1,47 @@
-<dashboard stylesheet="dark.css">
+<dashboard theme="dark">
   <label>index Information</label>
+  
+    <init>
+    <set token="showExpandLink1">true</set>
+    <set token="showExpandLink2">true</set>
+    <set token="showExpandLink3">true</set>
+    <set token="showExpandLink4">true</set>
+    <set token="showExpandLink5">true</set>
+    <set token="showExpandLink6">true</set>
+    <set token="showExpandLink7">true</set>
+    <set token="showExpandLink8">true</set>
+    <set token="showExpandLink9">true</set>
+    <set token="showExpandLink10">true</set>
+    <set token="showExpandLink11">true</set>
+    <set token="showExpandLink12">true</set>
+    <set token="showExpandLink13">true</set>
+    <set token="showExpandLink14">true</set>
+    <set token="showExpandLink15">true</set>
+  </init>
+  
+  <row>
+    <panel>
+      <!-- This changes the font sizes -->
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+         </style>
+      </html>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>indexing queue sizes</title>
@@ -36,12 +78,34 @@
       </chart>
     </panel>
   </row>
-  <row>
-    <panel>
-      <title>index sizes</title>
-      <table>
+    <row>
+    <panel id="panel1">
+      <title>Index Sizes </title>
+      <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink1"></unset>
+            <set token="showExpandLink1">true</set>
+            <unset token="form.tokLinkCollapse1"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand1" type="link" token="tokLinkExpand1" searchWhenChanged="true" depends="$showExpandLink1$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink1">true</set>
+            <unset token="showExpandLink1"></unset>
+            <unset token="form.tokLinkExpand1"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink1$">
         <search>
-          <query>| rest /services/data/indexes  
+    <query>| rest /services/data/indexes  
 | rename title AS Index_Name
 | rename currentDBSizeMB AS Index_Size_MB
 | eval Index_Size_GB = Index_Size_MB/1024
@@ -51,22 +115,70 @@
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
-  <row>
+  <row depends="$alwaysHideCSSStyleOverride$">
     <panel>
+      <html>
+        <style>
+          div[id^="linkCollapse"],
+          div[id^="linkExpand"]{
+            width: 32px !important;
+            float: right;
+          }
+          div[id^="linkCollapse"] button,
+          div[id^="linkExpand"] button{
+            flex-grow: 0;
+            border-radius: 25px;
+            border-width: thin;
+            border-color: lightgrey;
+            border-style: inset;
+            width: 32px;
+            padding: 0px;
+          }
+          div[id^="linkCollapse"] label,
+          div[id^="linkExpand"] label{
+            display:none;
+          }
+          div[id^="panel"].fieldset{
+            padding: 0px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+  
+  
+  <row>
+    <panel id="panel2">
       <title>Indexer Retention Days</title>
-      <table>
+      <input id="linkCollapse2" type="link" token="tokLinkCollapse2" searchWhenChanged="true" depends="$showCollapseLink2$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink2"></unset>
+            <set token="showExpandLink2">true</set>
+            <unset token="form.tokLinkCollapse2"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand2" type="link" token="tokLinkExpand2" searchWhenChanged="true" depends="$showExpandLink2$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink2">true</set>
+            <unset token="showExpandLink2"></unset>
+            <unset token="form.tokLinkExpand1"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink2$">
         <search>
-          <query>| rest splunk_server=* /services/data/indexes | join type=outer title [
+<query>| rest splunk_server=* /services/data/indexes | join type=outer title [
 | rest splunk_server=* /services/data/indexes-extended
 ] | eval retentionInDays=frozenTimePeriodInSecs/86400
 | rename title AS index
@@ -76,22 +188,69 @@
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">true</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
-  <row>
+  <row depends="$alwaysHideCSSStyleOverride$">
     <panel>
-      <title>index age</title>
-      <table>
+      <html>
+        <style>
+          div[id^="linkCollapse"],
+          div[id^="linkExpand"]{
+            width: 32px !important;
+            float: right;
+          }
+          div[id^="linkCollapse"] button,
+          div[id^="linkExpand"] button{
+            flex-grow: 0;
+            border-radius: 25px;
+            border-width: thin;
+            border-color: lightgrey;
+            border-style: inset;
+            width: 32px;
+            padding: 0px;
+          }
+          div[id^="linkCollapse"] label,
+          div[id^="linkExpand"] label{
+            display:none;
+          }
+          div[id^="panel"].fieldset{
+            padding: 0px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+  
+  <row>
+    <panel id="panel3">
+      <title>Index Age </title>
+      <input id="linkCollapse3" type="link" token="tokLinkCollapse3" searchWhenChanged="true" depends="$showCollapseLink3$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink3"></unset>
+            <set token="showExpandLink3">true</set>
+            <unset token="form.tokLinkCollapse3"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand3" type="link" token="tokLinkExpand3" searchWhenChanged="true" depends="$showExpandLink3$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink3">true</set>
+            <unset token="showExpandLink3"></unset>
+            <unset token="form.tokLinkExpand3"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink3$">
         <search>
-          <query>| rest splunk_server=splunk2.ops.com /services/data/indexes
+    <query>| rest splunk_server=splunk2.ops.com /services/data/indexes
 | join title type=outer [
 | rest splunk_server=s1idx1.ops.com /services/data/indexes-extended
 | eval cold_bucket_size = if(isnotnull('bucket_dirs.cold.bucket_size'), 'bucket_dirs.cold.bucket_size', 'bucket_dirs.cold.size')
@@ -124,15 +283,40 @@
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">50</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
-        <option name="percentagesRow">false</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
+  <row depends="$alwaysHideCSSStyleOverride$">
+    <panel>
+      <html>
+        <style>
+          div[id^="linkCollapse"],
+          div[id^="linkExpand"]{
+            width: 32px !important;
+            float: right;
+          }
+          div[id^="linkCollapse"] button,
+          div[id^="linkExpand"] button{
+            flex-grow: 0;
+            border-radius: 25px;
+            border-width: thin;
+            border-color: lightgrey;
+            border-style: inset;
+            width: 32px;
+            padding: 0px;
+          }
+          div[id^="linkCollapse"] label,
+          div[id^="linkExpand"] label{
+            display:none;
+          }
+          div[id^="panel"].fieldset{
+            padding: 0px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+  
+  
 </dashboard>
