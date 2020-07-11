@@ -1,4 +1,10 @@
 <form theme="dark">
+  <init>
+    <set token="showExpandLink1">true</set>
+    <set token="showExpandLink2">true</set>
+    <set token="showExpandLink3">true</set>
+     <set token="showExpandLink4">true</set>
+  </init>
   <label>sourcetypes</label>
   <search id="baseSearch_2">
     <query>| metadata type=sourcetypes index=*
@@ -24,6 +30,29 @@
   </fieldset>
   <row>
     <panel>
+      <!-- This changes the font sizes -->
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+         </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <title>total sourcetypes</title>
       <single>
         <search base="baseSearch_2">
@@ -34,7 +63,7 @@
         <option name="colorMode">block</option>
         <option name="drilldown">all</option>
         <option name="numberPrecision">0</option>
-        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
         <option name="showSparkline">1</option>
@@ -46,7 +75,7 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <drilldown>
-          <link target="_self">search?q=%7C%20metadata%20type=sourcetypes%20index=*%20%0A%7C%20table%20sourcetype,%20firstTime,%20lastTime,%20recentTime%0A%7C%20rename%20totalCount%20as%20Count%20firstTime%20as%20%22First_Event%22%20lastTime%20as%20%22Last_Event%22%20recentTime%20as%20%22Last_Update%22%20%0A%7C%20fieldformat%20Count=tostring(Count,%20%22commas%22)%20%0A%7C%20fieldformat%20%22First_Event%22=strftime('First_Event',%20%22%25c%22)%20%0A%7C%20fieldformat%20%22Last_Event%22=strftime('Last_Event',%20%22%25c%22)%0A%7C%20fieldformat%20%22Last_Update%22=strftime('Last_Update',%20%22%25c%22)%0A%7C%20table%20sourcetype,%20First_Event,%20Last_Event,%20Last_Update&amp;earliest=-30d@d&amp;latest=now</link>
+          <link target="_blank">search?q=%7C%20metadata%20type=sourcetypes%20index=*%20%0A%7C%20table%20sourcetype,%20firstTime,%20lastTime,%20recentTime%0A%7C%20rename%20totalCount%20as%20Count%20firstTime%20as%20%22First_Event%22%20lastTime%20as%20%22Last_Event%22%20recentTime%20as%20%22Last_Update%22%20%0A%7C%20fieldformat%20Count=tostring(Count,%20%22commas%22)%20%0A%7C%20fieldformat%20%22First_Event%22=strftime('First_Event',%20%22%25c%22)%20%0A%7C%20fieldformat%20%22Last_Event%22=strftime('Last_Event',%20%22%25c%22)%0A%7C%20fieldformat%20%22Last_Update%22=strftime('Last_Update',%20%22%25c%22)%0A%7C%20table%20sourcetype,%20First_Event,%20Last_Event,%20Last_Update&amp;earliest=-30d@d&amp;latest=now</link>
         </drilldown>
       </single>
     </panel>
@@ -61,9 +90,9 @@
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">block</option>
-        <option name="drilldown">all</option>
+        <option name="drilldown">none</option>
         <option name="numberPrecision">0</option>
-        <option name="rangeColors">["0xf58f39","0xf58f39"]</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
         <option name="rangeValues">[0]</option>
         <option name="showSparkline">1</option>
         <option name="showTrendIndicator">1</option>
@@ -105,69 +134,185 @@
     </panel>
   </row>
   <row>
-    <panel>
+    <panel id="panel1">
       <title>top_sourcetypes</title>
-      <table>
+      <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink1"></unset>
+            <set token="showExpandLink1">true</set>
+            <unset token="form.tokLinkCollapse1"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand1" type="link" token="tokLinkExpand1" searchWhenChanged="true" depends="$showExpandLink1$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink1">true</set>
+            <unset token="showExpandLink1"></unset>
+            <unset token="form.tokLinkExpand1"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink1$">
         <search>
           <query>index=* | top limit=100 sourcetype | eval percent = round(percent,2)</query>
           <earliest>$global_time_tok.earliest$</earliest>
           <latest>$global_time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
       </table>
     </panel>
   </row>
   <row>
-    <panel>
+    <panel id="panel2">
       <title>licence_usage_by_sourcetype</title>
-      <table>
+      <input id="linkCollapse2" type="link" token="tokLinkCollapse2" searchWhenChanged="true" depends="$showCollapseLink2$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink2"></unset>
+            <set token="showExpandLink2">true</set>
+            <unset token="form.tokLinkCollapse2"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand2" type="link" token="tokLinkExpand2" searchWhenChanged="true" depends="$showExpandLink2$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink2">true</set>
+            <unset token="showExpandLink2"></unset>
+            <unset token="form.tokLinkExpand2"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink2$">
         <search>
           <query>index=_internal source=*license_usage.log type="Usage" 
  | eval indexname = if(len(idx)=0 OR isnull(idx),"(UNKNOWN)",idx)
  | eval sourcetypename = st
  | bin _time span=1d 
  | stats sum(b) as b by _time, pool, indexname, sourcetypename
- | eval GB=round(b/1024/1024/1024, 3)
- | fields _time, indexname, sourcetypename, GB</query>
+ | eval MB=round(b/1024/1024,0)
+ | fields _time, indexname, sourcetypename, MB
+ | sort - MB</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
   </row>
   <row>
-    <panel>
+    <panel id="panel3">
       <title>all sourcetypes</title>
-      <table>
+      <input id="linkCollapse3" type="link" token="tokLinkCollapse3" searchWhenChanged="true" depends="$showCollapseLink3$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink3"></unset>
+            <set token="showExpandLink3">true</set>
+            <unset token="form.tokLinkCollapse3"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand3" type="link" token="tokLinkExpand3" searchWhenChanged="true" depends="$showExpandLink3$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink3">true</set>
+            <unset token="showExpandLink3"></unset>
+            <unset token="form.tokLinkExpand3"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink3$">
         <search base="baseSearch_2">
           <query>| table sourcetype, First_Event, Last_Event, Last_Update  
-</query>
+         </query>
         </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
-        <option name="percentagesRow">false</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
+  
+  
+  <row>
+    <panel id="panel4">
+      <title>bad sourcetypes </title>
+      <input id="linkCollapse4" type="link" token="tokLinkCollapse4" searchWhenChanged="true" depends="$showCollapseLink4$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink4"></unset>
+            <set token="showExpandLink4">true</set>
+            <unset token="form.tokLinkCollapse4"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand4" type="link" token="tokLinkExpand4" searchWhenChanged="true" depends="$showExpandLink4$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink4">true</set>
+            <unset token="showExpandLink4"></unset>
+            <unset token="form.tokLinkExpand4"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink4$">
+        <search>
+          <query>index=* (sourcetype=*-* OR sourcetype=*too_small) 
+          | stats count by sourcetype
+         </query>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$alwaysHideCSSStyleOverride$">
+    <panel>
+      <html>
+        <style>
+          div[id^="linkCollapse"],
+          div[id^="linkExpand"]{
+            width: 32px !important;
+            float: right;
+          }
+          div[id^="linkCollapse"] button,
+          div[id^="linkExpand"] button{
+            flex-grow: 0;
+            border-radius: 25px;
+            border-width: thin;
+            border-color: lightgrey;
+            border-style: inset;
+            width: 32px;
+            padding: 0px;
+          }
+          div[id^="linkCollapse"] label,
+          div[id^="linkExpand"] label{
+            display:none;
+          }
+          div[id^="panel"].fieldset{
+            padding: 0px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+  
 </form>
