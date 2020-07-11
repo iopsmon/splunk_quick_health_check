@@ -204,8 +204,8 @@
  | eval MB=round(b/1024/1024,0)
  | fields _time, indexname, sourcetypename, MB
  | sort - MB</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
+        <earliest>$global_time_tok.earliest$</earliest>
+          <latest>$global_time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="drilldown">none</option>
@@ -279,6 +279,8 @@
           <query>index=* (sourcetype=*-* OR sourcetype=*too_small) 
           | stats count by sourcetype
          </query>
+            <earliest>-24h@h</earliest>
+          <latest>now</latest>
         </search>
         <option name="drilldown">none</option>
       </table>
