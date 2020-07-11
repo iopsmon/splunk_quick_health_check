@@ -52,10 +52,11 @@
 earliest=-1d@d latest=now 
 | lookup my_splunk_server splunk_server OUTPUT splunk_server 
 | eval splunk_server=splunk_server
-| eval My_Size_MB=round(b/1024/2)
+| eval My_Size_MB=round(b/1024,2)
+| eval My_Size_GB=round(My_Size_MB/1024,2)
 | rename st AS Sourcetype
-| stats sum(My_Size_MB) AS Size_MB by Sourcetype   
-| stats sum(Size_MB)</query>
+| stats sum(My_Size_GB) AS Size_GB by Sourcetype
+| stats sum(Size_GB)</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
