@@ -1,12 +1,11 @@
-<dashboard theme="dark">
+<form theme="dark">
   <label>index Information</label>
-  
-    <init>
+  <init>
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
     <set token="showExpandLink3">true</set>
   </init>
-  
+  <fieldset submitButton="false"></fieldset>
   <row>
     <panel>
       <!-- This changes the font sizes -->
@@ -62,13 +61,17 @@
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.labels">[parsingqueue,aggqueue,typingqueue,indexqueue]</option>
         <option name="charting.legend.placement">right</option>
+        <drilldown>
+          <link target="_blank">https://wiki.splunk.com/Community:HowIndexingWorks</link>
+        </drilldown>
       </chart>
     </panel>
   </row>
-    <row>
+  <row>
     <panel id="panel1">
-      <title>Index Sizes </title>
+      <title>Index Sizes</title>
       <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -93,7 +96,7 @@
       </input>
       <table rejects="$showExpandLink1$">
         <search>
-    <query>| rest /services/data/indexes  
+          <query>| rest /services/data/indexes  
 | rename title AS Index_Name
 | rename currentDBSizeMB AS Index_Size_MB
 | eval Index_Size_GB = Index_Size_MB/1024
@@ -107,9 +110,6 @@
       </table>
     </panel>
   </row>
-
-  
-  
   <row>
     <panel id="panel2">
       <title>Indexer Retention Days</title>
@@ -137,7 +137,7 @@
       </input>
       <table rejects="$showExpandLink2$">
         <search>
-<query>| rest splunk_server=* /services/data/indexes | join type=outer title [
+          <query>| rest splunk_server=* /services/data/indexes | join type=outer title [
 | rest splunk_server=* /services/data/indexes-extended
 ] | eval retentionInDays=frozenTimePeriodInSecs/86400
 | rename title AS index
@@ -151,11 +151,9 @@
       </table>
     </panel>
   </row>
-
-  
   <row>
     <panel id="panel3">
-      <title>Index Age </title>
+      <title>Index Age</title>
       <input id="linkCollapse3" type="link" token="tokLinkCollapse3" searchWhenChanged="true" depends="$showCollapseLink3$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -180,7 +178,7 @@
       </input>
       <table rejects="$showExpandLink3$">
         <search>
-    <query>| rest splunk_server=splunk2.ops.com /services/data/indexes
+          <query>| rest splunk_server=splunk2.ops.com /services/data/indexes
 | join title type=outer [
 | rest splunk_server=s1idx1.ops.com /services/data/indexes-extended
 | eval cold_bucket_size = if(isnotnull('bucket_dirs.cold.bucket_size'), 'bucket_dirs.cold.bucket_size', 'bucket_dirs.cold.size')
@@ -247,6 +245,4 @@
       </html>
     </panel>
   </row>
-  
-  
-</dashboard>
+</form>
