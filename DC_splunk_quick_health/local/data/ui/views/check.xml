@@ -191,7 +191,7 @@ earliest=-1d@d latest=now
       <title>GB Avg And Peak Usage</title>
       <chart>
         <search>
-          <query>index=_internal host=splunk2.ops.com source=*license_usage.log* type="RolloverSummary" earliest=-30d@d 
+          <query>index=_internal host=UKLH-DNC-VLSPK01 source=*license_usage.log* type="RolloverSummary" earliest=-30d@d 
 | eval _time=_time - 43200 | bin _time span=1d | stats latest(b) AS b by slave, pool, _time 
 | stats sum(b) AS volume by _time 
 | stats avg(volume) AS avgVolume max(volume) AS maxVolume 
@@ -347,18 +347,23 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </input>
       <table rejects="$showExpandLink1$">
         <search>
-          <query>| rest  /services/server/status/partitions-space 
-| eval myCapacityGB=round(capacity/1024)
-| eval myFreeGB=round(free/1024)
-
-| eval space_free_GB = (myCapacityGB-myFreeGB)
-| eval pct_usage = round(myFreeGB/myCapacityGB*100,2)
-| stats first(fs_type) as fs_type first(myCapacityGB) as capacity_GB first(myFreeGB) as usage_GB  
-  first(pct_usage) as pct_usage_% first(space_free_GB) as free_space by mount_point, splunk_server</query>
+          <query>| rest splunk_server=* /services/server/status/partitions-space
+| join type=outer splunk_server, mount_point
+    [| rest splunk_server=* /services/server/status/resource-usage/iostats
+    | eval iops = round(reads_ps + writes_ps)
+    | fields splunk_server, mount_point, iops, cpu_pct]
+| eval free = if(isnotnull(available), available, free)
+| eval usage = round((capacity - free) / 1024, 2)
+| eval capacity = round(capacity / 1024, 2)
+| eval compare_usage = usage." / ".capacity
+| eval pct_usage = round(usage / capacity * 100, 2)
+| stats first(fs_type) as fs_type first(compare_usage) as compare_usage first(pct_usage) as pct_usage, first(iops) as iops, first(cpu_pct) as cpu_pct by mount_point
+| rename mount_point as "Mount Point", fs_type as "File System Type", compare_usage as "Disk Usage (GB)", capacity as "Capacity (GB)", pct_usage as "Disk Usage (%)", iops as "I/O operations per second", cpu_pct as "I/O Bandwidth Utilization(%)"</query>
           <earliest>-60m@m</earliest>
           <latest>now</latest>
         </search>
         <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
   </row>
