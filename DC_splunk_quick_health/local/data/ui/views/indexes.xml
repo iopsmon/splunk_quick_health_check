@@ -34,7 +34,13 @@
       <title>indexing queue sizes</title>
       <chart>
         <search>
-          <query>index=_internal source=*metrics.log group=queue (name=parsingqueue OR name=indexqueue OR name=typingqueue OR name=aggqueue) | timechart avg(current_size) by name</query>
+          <query>index=_internal  source=*metrics.log sourcetype=splunkd group=queue (name=parsingqueue OR name=aggqueue OR name=typingqueue OR name=indexqueue) | eval name=case(name=="aggqueue","2 - Aggregation Queue",name=="indexqueue","4 - Indexing Queue",name=="parsingqueue","1 - Parsing Queue",name=="typingqueue","3 - Typing Queue")
+| eval ingest_pipe = if(isnotnull(ingest_pipe), ingest_pipe, "none")
+| search ingest_pipe=*
+| eval max=if(isnotnull(max_size_kb),max_size_kb,max_size)
+| eval curr=if(isnotnull(current_size_kb),current_size_kb,current_size)
+| eval fill_perc=round((curr/max)*100,2)
+| timechart minspan=30s  Median(fill_perc) by name useother=false limit=15</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -63,6 +69,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.labels">[parsingqueue,aggqueue,typingqueue,indexqueue]</option>
         <option name="charting.legend.placement">right</option>
+        <option name="refresh.display">progressbar</option>
         <drilldown>
           <link target="_blank">https://wiki.splunk.com/Community:HowIndexingWorks</link>
         </drilldown>
