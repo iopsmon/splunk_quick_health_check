@@ -9,6 +9,8 @@
 <view name="sourcetypes" />
 <divider />
 <view name="assets" />
+<divider />
+<view name="dma_checks" />
 </collection>
 <view name="search" />
 </nav>
