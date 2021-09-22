@@ -1,0 +1,349 @@
+<form theme="dark">
+  <label>disc capacity calc</label>
+  <description>REF 1000000 = 1TB - 100000 = 100GB 10000 = 10GB</description>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="text" token="mb_size" searchWhenChanged="false">
+      <label>mb_size_per_indexer_limit</label>
+      <default>10000</default>
+    </input>
+    <input type="text" token="my_total_volume_mb" searchWhenChanged="false">
+      <label>mb_size_total_volume_limit</label>
+      <default>30000</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <!-- This changes the font sizes -->
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+     
+      </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>disk_table_per Indexer</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=s1idx1.ops.com /services/data/index-volumes 
+| fields + title, total_size, max_size, volume_path 
+| eval _dmc_volume=if(isnotnull(title),title,'data.name') 
+| where (true() XOR ('_dmc_volume' == "_splunk_summaries")) 
+| fields - _dmc_volume 
+| eval total_size_gb=if(isnull(total_size),"-",round((total_size / 1024),3)), max_size_gb=if((isnull(max_size) OR (max_size == "infinite")),"unlimited",round((max_size / 1024),2)), disk_usage_gb=((total_size_gb . " / ") . max_size_gb) 
+
+| fields * 
+
+| eval date_today=strftime(now(), "%d-%m-%Y")
+| eval one_monthdate=strftime(relative_time(now(), "+30d@d" ), "%d-%m-%Y")
+| eval three_monthsdate=strftime(relative_time(now(), "+90d@d" ), "%d-%m-%Y")
+| eval eight_monthsdate=strftime(relative_time(now(), "+240d@d" ), "%d-%m-%Y")
+|  eval one_month=relative_time(now(), "+1d@d")
+
+```| eval my_local_disk_limit=round(1000000/1024,3)```
+```| eval my_local_disk_limit=$mb_size$```
+| eval my_local_disk_limit=round($mb_size$/1024,2)
+```100000 = 100GB```
+```100000 = 1TB```
+
+| eval disk_today=(max_size_gb*1)
+| eval disk_1_month=(max_size_gb*30)
+| eval disk_3_months=(max_size_gb*90)
+| eval disk_8_months=(max_size_gb*240) 
+
+| eval disk_left_today=(my_local_disk_limit-disk_today). " Date "  .date_today
+| eval disk_left_1_month=(my_local_disk_limit-disk_1_month)  
+| eval disk_left_3_month=(my_local_disk_limit-disk_3_months)
+| eval disk_left_8_month=(my_local_disk_limit-disk_8_months)
+
+
+
+| rename title as Volume, disk_usage_gb as "Volume Usage (GB)", max_size_gb as "indexes_conf_limit", volume_path as "Volume Path"
+|  table   "Volume Path" "Volume Usage (GB)" indexes_conf_limit my_local_disk_limit,  disk_left_today, disk_left_1_month, disk_left_3_month, disk_left_8_month,</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="disk_left_1_month">
+          <colorPalette type="list">["#FF5733","#228B22"]</colorPalette>
+          <scale type="threshold">-1</scale>
+        </format>
+        <format type="color" field="disk_left_3_month">
+          <colorPalette type="list">["#FF5733","#228B22"]</colorPalette>
+          <scale type="threshold">-1</scale>
+        </format>
+        <format type="color" field="disk_left_8_month">
+          <colorPalette type="list">["#FF5733","#228B22"]</colorPalette>
+          <scale type="threshold">-1</scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>GB_size_per_index</title>
+      <table>
+        <search>
+          <query>| rest /services/data/indexes splunk_server_group="dmc_group_indexer" splunk_server_group="*" 
+| join type=outer splunk_server title 
+    [| rest "/services/data/indexes-extended" splunk_server_group="dmc_group_indexer" splunk_server_group="*"] 
+| eval _dmc_title=if(isnotnull(title),title,'data.name') 
+| where (true() XOR ((('_dmc_title' == "history") OR ('_dmc_title' == "_thefishbucket")) OR ('_dmc_title' == "_blocksignature"))) 
+| fields - _dmc_title 
+| eval elapsedTime=(now() - strptime(minTime,"%Y-%m-%dT%H:%M:%S%z")) 
+| eval dataAge=ceil((elapsedTime / 86400)) 
+| eval indexSizeGB=if(((currentDBSizeMB &gt;= 1) AND (totalEventCount &gt;= 1)),(currentDBSizeMB / 1024),null()) 
+| eval maxSizeGB=(maxTotalDataSizeMB / 1024) 
+| eval sizeUsagePerc=((indexSizeGB / maxSizeGB) * 100) 
+| stats sum(indexSizeGB) as totalSize dc(splunk_server) as instances 
+| eval my_local_disk_limit=round($mb_size$/1024,2)
+| eval averageAggregateIndexesSizePerInstance=(round((totalSize / instances),2) ) 
+| rename averageAggregateIndexesSizePerInstance as avg_per_indexer
+| eval total_left_per_indexer=round(my_local_disk_limit - avg_per_indexer)
+| table avg_per_indexer total_left_per_indexer my_local_disk_limit</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>total_GB_size_across_all_indexers</title>
+      <table>
+        <search>
+          <query>| rest /services/data/indexes splunk_server_group="dmc_group_indexer" splunk_server_group="*" 
+| join type=outer splunk_server title 
+    [| rest "/services/data/indexes-extended" splunk_server_group="dmc_group_indexer" splunk_server_group="*"] 
+| eval _dmc_title=if(isnotnull(title),title,'data.name') 
+| where (true() XOR ((('_dmc_title' == "history") OR ('_dmc_title' == "_thefishbucket")) OR ('_dmc_title' == "_blocksignature"))) 
+| fields - _dmc_title 
+| eval elapsedTime=(now() - strptime(minTime,"%Y-%m-%dT%H:%M:%S%z")) 
+| eval dataAge=ceil((elapsedTime / 86400)) 
+| eval indexSizeGB=if(((currentDBSizeMB &gt;= 1) AND (totalEventCount &gt;= 1)),(currentDBSizeMB / 1024),null()) 
+| eval maxSizeGB=(maxTotalDataSizeMB / 1024) 
+| eval sizeUsagePerc=((indexSizeGB / maxSizeGB) * 100) 
+| stats sum(indexSizeGB) as totalSize 
+| eval totalSize=round(totalSize,2) 
+| eval my_total_disk_limit=round($my_total_volume_mb$/1024,2)  
+| eval my_total_disk_left=(my_total_disk_limit - totalSize) 
+| table totalSize, my_total_disk_left, my_total_disk_limit</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Enter in MB to show how much extra is required for storage</title>
+      <input type="text" token="add_data" searchWhenChanged="false">
+        <label>add_more_data_mb</label>
+        <default>0</default>
+      </input>
+      <single>
+        <title>REF 1000000 = 1TB - 100000 = 100GB 10000 = 10GB</title>
+        <search>
+          <query>| makeresults 
+| eval msg="Add Data Volume Metrics "
+| table msg</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <done>
+            <unset token="form.add_data"></unset>
+          </done>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051", "0x0877a6", "0xf8be34", "0xf1813f", "0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>GB_size_per_indexer</title>
+      <table>
+        <search>
+          <query>| rest /services/data/indexes splunk_server_group="dmc_group_indexer" splunk_server_group="*" 
+| join type=outer splunk_server title 
+    [| rest "/services/data/indexes-extended" splunk_server_group="dmc_group_indexer" splunk_server_group="*"] 
+| eval _dmc_title=if(isnotnull(title),title,'data.name') 
+| where (true() XOR ((('_dmc_title' == "history") OR ('_dmc_title' == "_thefishbucket")) OR ('_dmc_title' == "_blocksignature"))) 
+| fields - _dmc_title 
+| eval elapsedTime=(now() - strptime(minTime,"%Y-%m-%dT%H:%M:%S%z")) 
+| eval dataAge=ceil((elapsedTime / 86400)) 
+| eval indexSizeGB=if(((currentDBSizeMB &gt;= 1) AND (totalEventCount &gt;= 1)),(currentDBSizeMB / 1024),null()) 
+| eval maxSizeGB=(maxTotalDataSizeMB / 1024) 
+| eval sizeUsagePerc=((indexSizeGB / maxSizeGB) * 100) 
+| stats sum(indexSizeGB) as totalSize dc(splunk_server) as instances 
+| eval my_local_disk_limit=round(10000/1024,2)
+| eval averageAggregateIndexesSizePerInstance=(round((totalSize / instances),2) ) 
+| rename averageAggregateIndexesSizePerInstance as avg_per_indexer
+| eval total_left_per_indexer=round(my_local_disk_limit - avg_per_indexer)
+| eval my_add_data=round($add_data$/1024,2) / instances
+| eval avg_per_indexer = avg_per_indexer + my_add_data 
+| eval total_left_per_indexer = total_left_per_indexer -  avg_per_indexer
+| table avg_per_indexer total_left_per_indexer my_local_disk_limit, my_add_data</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>GB_total_size_across_all_indexers</title>
+      <table>
+        <search>
+          <query>| rest /services/data/indexes splunk_server_group="dmc_group_indexer" splunk_server_group="*" 
+| join type=outer splunk_server title 
+    [| rest "/services/data/indexes-extended" splunk_server_group="dmc_group_indexer" splunk_server_group="*"] 
+| eval _dmc_title=if(isnotnull(title),title,'data.name') 
+| where (true() XOR ((('_dmc_title' == "history") OR ('_dmc_title' == "_thefishbucket")) OR ('_dmc_title' == "_blocksignature"))) 
+| fields - _dmc_title 
+
+| eval elapsedTime=(now() - strptime(minTime,"%Y-%m-%dT%H:%M:%S%z")) 
+| eval dataAge=ceil((elapsedTime / 86400)) 
+| eval indexSizeGB=if(((currentDBSizeMB &gt;= 1) AND (totalEventCount &gt;= 1)),(currentDBSizeMB / 1024),null()) 
+| eval maxSizeGB=(maxTotalDataSizeMB / 1024) 
+| eval sizeUsagePerc=((indexSizeGB / maxSizeGB) * 100) 
+| stats sum(indexSizeGB) as totalSize 
+| eval totalSize=round(totalSize,2) 
+| eval my_total_disk_limit=round(30000/1024,2)  
+| eval my_total_disk_left=(my_total_disk_limit - totalSize) 
+| eval my_add_data=round($add_data$/1024,2) 
+| eval totalSize = round(totalSize + my_add_data,2)
+
+| eval date_today=strftime(now(), "%d-%m-%Y")
+| eval one_monthdate=strftime(relative_time(now(), "+30d@d" ), "%d-%m-%Y")
+| eval three_monthsdate=strftime(relative_time(now(), "+90d@d" ), "%d-%m-%Y")
+| eval eight_monthsdate=strftime(relative_time(now(), "+240d@d" ), "%d-%m-%Y")
+|  eval one_month=relative_time(now(), "+1d@d")
+
+| eval disk_today=(totalSize*1)
+| eval disk_1_month=(disk_today*30)
+| eval disk_3_months=(disk_today*90)
+| eval disk_8_months=(disk_today*240) 
+
+| eval disk_left_today=(my_total_disk_limit - disk_today)
+| eval disk_left_1_month=(my_total_disk_limit - disk_1_month)  
+| eval disk_left_3_month=(my_total_disk_limit - disk_3_months)
+| eval disk_left_8_month=(my_total_disk_limit - disk_8_months)
+
+
+| table totalSize, my_total_disk_left, my_total_disk_limit, disk_left_today,  disk_left_1_month, disk_left_3_month, disk_left_8_month</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="disk_left_1_month">
+          <colorPalette type="list">["#FF5733","#228B22"]</colorPalette>
+          <scale type="threshold">-1</scale>
+        </format>
+        <format type="color" field="disk_left_3_month">
+          <colorPalette type="list">["#FF5733","#228B22"]</colorPalette>
+          <scale type="threshold">-1</scale>
+        </format>
+        <format type="color" field="disk_left_8_month">
+          <colorPalette type="list">["#FF5733","#228B22"]</colorPalette>
+          <scale type="threshold">-1</scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>volumes_indexes_config</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=s1idx1.ops.com /services/configs/conf-indexes
+| search eai:acl.app= scc2_all_indexer_volume_indexes
+| rename eai:acl.app AS base_config_app 
+| fields maxVolumeDataSizeMB maxVolumeDataSizeMB maxWarmDBCount metric.maxHotBuckets path title homePath.maxDataSizeMB coldPath.maxDataSizeMB base_config_app 
+| table  base_config_app title path maxVolumeDataSizeMB maxVolumeDataSizeMB maxWarmDBCount metric.maxHotBuckets homePath.maxDataSizeMB coldPath.maxDataSizeMB</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
