@@ -34,16 +34,17 @@
       <title>Splunk inventory</title>
       <table>
         <search>
-          <query>| rest /services/server/info
+          <query>| rest /services/server/info splunk_server=*
 | table host, licenseState, numberOfCores, os_name, os_version, physicalMemoryMB, product_type, version, server_roles</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">20</option>
+        <option name="count">5</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">true</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
@@ -199,6 +200,46 @@
           }
         </style>
       </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>fowarder_send_status_idx</title>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=splunkd log_level=INFO TcpOutputProc Connected | stats dc(idx) AS idx_count values(idx) by host  | eventstats mode(idx_count) AS mode_idx | eval Status=if(mode_idx!=idx_count, "severe", "low")  | eval indexer_deviation=idx_count-mode_idx  | fields - mode* | sort 0 Status  | where 1==1</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>throttle_checks</title>
+      <table>
+        <search>
+          <query>index=_internal earliest=-24h sourcetype=splunkd ThruputProcessor data maxKBps | rex "throughput\s\((?&lt;maxKBps&gt;\d+)" | stats count sparkline(count) avg(maxKBps) by host | eval avg(maxKBps)=round('avg(maxKBps)', 2) | sort 0 - count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
     </panel>
   </row>
 </form>

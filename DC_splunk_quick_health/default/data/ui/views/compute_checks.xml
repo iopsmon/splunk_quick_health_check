@@ -1,0 +1,468 @@
+<dashboard theme="dark">
+  <label>compute checks</label>
+  <row>
+    <panel>
+      <!-- This changes the font sizes -->
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+         </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults 
+| eval env="IDX IO Stats" | fields - _time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>last_30_min_io_checks</title>
+      <table>
+        <search>
+          <query>index=linux host=s1idx* sourcetype=iostat
+earliest=-30m latest=now
+| fields _time, latency, host 
+| stats max(latency) as io_latency by host
+| where io_latency&gt;=10
+| eval compute_high_risk = case(io_latency &lt;=10,"Idx Compute Good", io_latency &gt;=10 ,"Idx Compute High - Last 30 Mins", io_latency &gt;=20,"Idx Compute High -  Business Impact - Last 30 Mins ")</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="compute_high_risk">
+          <colorPalette type="expression">if (match(value,"High"),"#FF5733","#228B22")</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <title>i/o_stats_by_host</title>
+      <chart>
+        <search>
+          <query>index=linux host=s1idx* sourcetype=iostat| timechart avg(latency) by host useother=f span=15m
+| eval bad=10</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults 
+| eval env="IDX Compute Stats" | fields - _time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>idx_mem_stats</title>
+      <table>
+        <search>
+          <query>| rest `my_idx_servers`  /services/server/status/resource-usage/hostwide
+| eval percentage = round(mem_used/mem,3)*100
+| eval severity_level = if(percentage &gt;= 60,  "Critical", "OK") 
+| fields splunk_server, mem, mem_used, , percentage, severity_level
+| rename splunk_server AS instance, mem AS "Physical memory installed (MB)", percentage AS "Memory used (%)", mem_used AS "Memory used (MB)"</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="severity_level">
+          <colorPalette type="expression">if (match(value,"Critical"),"#FF5733","#228B22")</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <title>idx_cpu_stats</title>
+      <table>
+        <search>
+          <query>| rest `my_idx_servers` /services/server/status/resource-usage/hostwide
+| eval normalized_load_avg_1min = if(isnull(normalized_load_avg_1min), "N/A", normalized_load_avg_1min)
+| eval core_info = if(isnull(cpu_count), "N/A", cpu_count)." / ".if(isnull(virtual_cpu_count), "N/A", virtual_cpu_count)
+| eval cpu_usage = 'cpu_system_pct' + 'cpu_user_pct'
+| fields splunk_server, normalized_load_avg_1min, core_info, cpu_usage, cpu_count, virtual_cpu_count, cpu_system_pct, cpu_user_pct
+| fields splunk_server,  core_info, cpu_usage, normalized_load_avg_1min
+| eval severity_level = if( fill_perc &gt; 60, "Critical", "OK")
+| sort - cpu_usage
+| rename splunk_server AS Instance, normalized_load_avg_1min AS "Load Average", core_info AS "CPU Cores (Physical / Virtual)", cpu_usage AS "CPU Usage (%)"</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="severity_level">
+          <colorPalette type="expression">if (match(value,"Critical"),"#FF5733","#228B22")</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults 
+| eval env="ES Cluster Stats" | fields - _time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>es_shc_mem_stats</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=s1sh* /services/server/status/resource-usage/hostwide
+| eval percentage = round(mem_used/mem,3)*100
+| eval severity_level = if(percentage &gt;= 60,  "Critical", "OK") 
+| fields splunk_server, mem, mem_used, , percentage, severity_level
+| rename splunk_server AS instance, mem AS "Physical memory installed (MB)", percentage AS "Memory used (%)", mem_used AS "Memory used (MB)"</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="severity_level">
+          <colorPalette type="expression">if (match(value,"Critical"),"#FF5733","#228B22")</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <title>es_shc_cpu_stats</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=s1sh* /services/server/status/resource-usage/hostwide
+| eval normalized_load_avg_1min = if(isnull(normalized_load_avg_1min), "N/A", normalized_load_avg_1min)
+| eval core_info = if(isnull(cpu_count), "N/A", cpu_count)." / ".if(isnull(virtual_cpu_count), "N/A", virtual_cpu_count)
+| eval cpu_usage = 'cpu_system_pct' + 'cpu_user_pct'
+| fields splunk_server, normalized_load_avg_1min, core_info, cpu_usage, cpu_count, virtual_cpu_count, cpu_system_pct, cpu_user_pct
+| fields splunk_server,  core_info, cpu_usage, normalized_load_avg_1min
+| eval severity_level = if(cpu_usage &gt;= 60,  "Critical", "OK") 
+| sort - cpu_usage
+| rename splunk_server AS Instance, normalized_load_avg_1min AS "Load Average", core_info AS "CPU Cores (Physical / Virtual)", cpu_usage AS "CPU Usage (%)"</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="severity_level">
+          <colorPalette type="expression">if (match(value,"Critical"),"#FF5733","#228B22")</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults 
+| eval env="Pipeline Queues" | fields - _time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>queues_percent_per_processor</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=* /services/server/introspection/queues
+| search title=parsingQueue* OR title=aggQueue* OR title=typingQueue* OR title=indexQueue*
+| eval fill_perc = round(current_size_bytes / max_size_bytes * 100,2)
+| rex field=title "(?&lt;queue_name&gt;^\w+)(?:\.(?&lt;pipeline_number&gt;\d+))?"
+| fields splunk_server fill_perc queue_name pipeline_number
+| eval severity_level = if( fill_perc &gt; 60, 2, 0)
+| eval fill_perc = if(isnotnull(pipeline_number), "pset".pipeline_number.": ".fill_perc, fill_perc)
+| chart values(fill_perc) AS fill_perc max(severity_level) AS severity_level over splunk_server by queue_name
+| rename "fill_perc: *" AS * "severity_level: *" AS "sev_*"
+| eval severity_level = max(sev_parsingQueue, sev_aggQueue, sev_typingQueue, sev_indexQueue)
+| fields splunk_server  parsingQueue aggQueue typingQueue indexQueue
+| rename splunk_server AS instance parsingQueue as "Parsing Queue Fill Ratio (%)", aggQueue as "Aggregation Queue Fill Ratio (%)", "typingQueue" as "Typing Queue Fill Ratio (%)", indexQueue as "Indexing Queue Fill Ratio (%)"</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>queue_per_processor</title>
+      <chart>
+        <search>
+          <query>index=_internal group=queue 
+| eval pc = (current_size_kb*100) / max_size_kb 
+| timechart perc90(pc) by name
+useother=f</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>pipeline_per_processor_cpu</title>
+      <chart>
+        <search>
+          <query>index = _internal group=pipeline processor!=sendout | timechart perc90(cpu_seconds) by processor
+useother=f</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>

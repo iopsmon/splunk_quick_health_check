@@ -1,0 +1,257 @@
+<form theme="dark">
+  <label>cim checks recommended fields - Run on ES SH</label>
+  <init>
+    <set token="showExpandLink1">true</set>
+    <set token="showExpandLink2">true</set>
+    <set token="showExpandLink3">true</set>
+    <set token="showExpandLink4">true</set>
+    <set token="showExpandLink5">true</set>
+    <set token="showExpandLink6">true</set>
+    <set token="showExpandLink7">true</set>
+    <set token="showExpandLink8">true</set>
+    <set token="showExpandLink9">true</set>
+    <set token="showExpandLink10">true</set>
+    <set token="showExpandLink11">true</set>
+    <set token="showExpandLink12">true</set>
+    <set token="showExpandLink13">true</set>
+    <set token="showExpandLink14">true</set>
+    <set token="showExpandLink15">true</set>
+    <set token="showExpandLink16">true</set>
+  </init>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <!-- This changes the font sizes -->-<html>
+ 
+<style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
+ 
+</html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>check_dma_data - After Dma has been generated</title>
+      <input type="dropdown" token="dm_model" searchWhenChanged="true">
+        <label>dm_model</label>
+        <fieldForLabel>dm_model</fieldForLabel>
+        <fieldForValue>dm_model</fieldForValue>
+        <search>
+          <query>| rest splunk_server=local count=0 /services/data/models | rename title as dm_model | table dm_model</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+      </input>
+      <input type="dropdown" token="my_index">
+        <label>index</label>
+        <fieldForLabel>index</fieldForLabel>
+        <fieldForValue>index</fieldForValue>
+        <search>
+          <query>| tstats count WHERE index=* by index | dedup index</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+      </input>
+      <input type="dropdown" token="my_sourcetype">
+        <label>sourcetype</label>
+        <fieldForLabel>sourcetype</fieldForLabel>
+        <fieldForValue>sourcetype</fieldForValue>
+        <search>
+          <query>| metadata type=sourcetypes index=$my_index$ | stats count by sourcetype</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+      </input>
+      <table>
+        <search>
+          <query>| datamodel $dm_model$ search
+| search index=$my_index$ sourcetype=$my_sourcetype$ | table *
+| fields - date_* host index punct _raw time* splunk_server sourcetype source eventtype linecount
+| fieldsummary</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">50</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>cim_get_recommnded_fields</title>
+      <input type="dropdown" token="my_dm" searchWhenChanged="true">
+        <label>dm</label>
+        <fieldForLabel>model</fieldForLabel>
+        <fieldForValue>model</fieldForValue>
+        <search>
+          <query>| rest splunk_server=s1sh* count=0 /services/data/models | rename title as model | table model</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+      </input>
+      <table>
+        <search>
+          <query>| rest splunk_server=s1sh1.ops.com count=0 /services/data/models/$my_dm$ | rename title as model,eai:data as data | spath input=data output=objects path=objects{} | mvexpand objects | spath input=objects output=object_name path=objectName | spath input=objects output=fields path=fields{} | appendpipe [| spath input=objects output=fields path=calculations{}.outputFields{}] | mvexpand fields | spath input=fields output=field_name path=fieldName | spath input=fields output=recommended path=comment.recommended | table model,object_name,field_name,recommended | sort model,object_name,field_name</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel">
+      <title>windows_authentication index=wineventlog sourcetype=xmlwineventlog tag=authentication</title>--<input token="tokLinkCollapse1" id="linkCollapse1" depends="$showCollapseLink1$" searchWhenChanged="true" type="link">
+        <label></label>
+        <choice value="collapse">-</choice>-<change>-<condition value="collapse">
+            <unset token="showCollapseLink1"></unset>
+            <set token="showExpandLink1">true</set>
+            <unset token="form.tokLinkCollapse1"></unset>
+          </condition>
+        </change>
+      </input>
+      <input token="tokLinkExpand1" id="linkExpand1" depends="$showExpandLink1$" searchWhenChanged="true" type="link">
+        <label></label>
+        <choice value="expand">+</choice>-<change>-<condition value="expand">
+            <set token="showCollapseLink1">true</set>
+            <unset token="showExpandLink1"></unset>
+            <unset token="form.tokLinkExpand1"></unset>
+          </condition>
+        </change>
+      </input>
+      <chart rejects="$showExpandLink1$">
+        <search>
+          <query>index="wineventlog"  sourcetype=xmlwineventlog tag=authentication
+| stats count(app) AS app , count(action) AS action, count(dest) AS dest count(signature) AS signature count(signature_id) AS signature_id count(src) AS src count(src_user) AS src_user count(user) AS user by index</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel id="pane2">
+      <title>cisco_asa_network - index=cisco sourcetype=cisco:asa tag=network</title>--<input token="tokLinkCollapse2" id="linkCollapse2" depends="$showCollapseLink2$" searchWhenChanged="true" type="link">
+        <label></label>
+        <choice value="collapse">-</choice>-<change>-<condition value="collapse">
+            <unset token="showCollapseLink2"></unset>
+            <set token="showExpandLink2">true</set>
+            <unset token="form.tokLinkCollapse2"></unset>
+          </condition>
+        </change>
+      </input>
+      <input token="tokLinkExpand2" id="linkExpand2" depends="$showExpandLink2$" searchWhenChanged="true" type="link">
+        <label></label>
+        <choice value="expand">+</choice>-<change>-<condition value="expand">
+            <set token="showCollapseLink2">true</set>
+            <unset token="showExpandLink2"></unset>
+            <unset token="form.tokLinkExpand2"></unset>
+          </condition>
+        </change>
+      </input>
+      <chart rejects="$showExpandLink2$">
+        <search>
+          <query>index=cisco sourcetype=cisco:asa tag=network earliest=-1d@d latest=now
+ | stats count(app) AS app, count(action) AS action , count(bytes_in) AS bytes_in, count(bytes_out) AS bytes_out count(dest) AS dest count(dest_ip) AS dest_ip count(dest_port) AS dest_port count(dest_mac) AS dest_mac count(protocol) AS protocol count(src) AS src count(src_ip) AS src_ip count(src_port) AS src_port count(user) AS user count(rule) AS rule count(dvc) AS dvc count(transport) AS transport count(vendor_product) AS vendor_product by index</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel id="pane3">
+      <title>cisco_asa_change index=cisco sourcetype=cisco:asa tag=change</title>--<input token="tokLinkCollapse3" id="linkCollapse3" depends="$showCollapseLink3$" searchWhenChanged="true" type="link">
+        <label></label>
+        <choice value="collapse">-</choice>-<change>-<condition value="collapse">
+            <unset token="showCollapseLink3"></unset>
+            <set token="showExpandLink3">true</set>
+            <unset token="form.tokLinkCollapse3"></unset>
+          </condition>
+        </change>
+      </input>
+      <input token="tokLinkExpand3" id="linkExpand3" depends="$showExpandLink3$" searchWhenChanged="true" type="link">
+        <label></label>
+        <choice value="expand">+</choice>-<change>-<condition value="expand">
+            <set token="showCollapseLink3">true</set>
+            <unset token="showExpandLink3"></unset>
+            <unset token="form.tokLinkExpand3"></unset>
+          </condition>
+        </change>
+      </input>
+      <chart rejects="$showExpandLink3$">
+        <search>
+          <query>index=cisco sourcetype=cisco:asa tag=change earliest=-1d@d latest=now
+ | stats count(action) AS action, count(change_type) AS change_type, count(command) AS command, count(dest) AS dest count(dvc) AS dvc count(object) AS object count(object_attrs) AS object_attrs count(object_category) AS object_category count(object_id) AS object_id count(object_path) AS object_path count(result) AS result count(result_id) AS result_id count(src) AS src count(user) AS user count(vendor_product) AS vendor_product count(src_user) AS  src_user by index</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel id="pane4">
+      <title>mcafee_epo_syslog index=mcafee sourcetype="mcafee:epo:syslog" tag=attack</title>--<input token="tokLinkCollapse4" id="linkCollapse4" depends="$showCollapseLink4$" searchWhenChanged="true" type="link">
+        <label></label>
+        <choice value="collapse">-</choice>-<change>-<condition value="collapse">
+            <unset token="showCollapseLink4"></unset>
+            <set token="showExpandLink4">true</set>
+            <unset token="form.tokLinkCollapse4"></unset>
+          </condition>
+        </change>
+      </input>
+      <input token="tokLinkExpand4" id="linkExpand4" depends="$showExpandLink4$" searchWhenChanged="true" type="link">
+        <label></label>
+        <choice value="expand">+</choice>-<change>-<condition value="expand">
+            <set token="showCollapseLink4">true</set>
+            <unset token="showExpandLink4"></unset>
+            <unset token="form.tokLinkExpand4"></unset>
+          </condition>
+        </change>
+      </input>
+      <chart rejects="$showExpandLink4$">
+        <search>
+          <query>index=mcafee sourcetype="mcafee:epo:syslog" tag=attack
+| stats count(action) AS action , count(category) AS category, count(date) AS date count(dest_nt_domain) AS dest_nt_domain count(severity) AS severity count(signature) AS signature count(user) AS user count(vendor_product) AS vendor_product count(product_version) AS product_version count(signature_version) AS signature_version count(dest) AS dest by index</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+<style>div[id^="linkCollapse"],div[id^="linkExpand"]{width: 32px !important;float: right;}div[id^="linkCollapse"] button,div[id^="linkExpand"] button{flex-grow: 0;border-radius: 25px;border-width: thin;border-color: lightgrey;border-style: inset;width: 32px;padding: 0px;}div[id^="linkCollapse"] label,div[id^="linkExpand"] label{display:none;}div[id^="panel"].fieldset{padding: 0px;} </style>
+</html>
+    </panel>
+  </row>
+</form>

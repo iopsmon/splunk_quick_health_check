@@ -34,13 +34,7 @@
       <title>indexing queue sizes</title>
       <chart>
         <search>
-          <query>index=_internal  source=*metrics.log sourcetype=splunkd group=queue (name=parsingqueue OR name=aggqueue OR name=typingqueue OR name=indexqueue) | eval name=case(name=="aggqueue","2 - Aggregation Queue",name=="indexqueue","4 - Indexing Queue",name=="parsingqueue","1 - Parsing Queue",name=="typingqueue","3 - Typing Queue")
-| eval ingest_pipe = if(isnotnull(ingest_pipe), ingest_pipe, "none")
-| search ingest_pipe=*
-| eval max=if(isnotnull(max_size_kb),max_size_kb,max_size)
-| eval curr=if(isnotnull(current_size_kb),current_size_kb,current_size)
-| eval fill_perc=round((curr/max)*100,2)
-| timechart minspan=30s  Median(fill_perc) by name useother=false limit=15</query>
+          <query>index=_internal source=*metrics.log group=queue (name=parsingqueue OR name=indexqueue OR name=typingqueue OR name=aggqueue) | timechart avg(current_size) by name</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -67,12 +61,50 @@
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.labels">[parsingqueue,aggqueue,typingqueue,indexqueue]</option>
         <option name="charting.legend.placement">right</option>
-        <option name="refresh.display">progressbar</option>
-        <drilldown>
-          <link target="_blank">https://wiki.splunk.com/Community:HowIndexingWorks</link>
-        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>event_spread_check</title>
+      <chart>
+        <search>
+          <query>| tstats count where index="*" by splunk_server, _time span=5m | timechart span=5m 
+sum(count) by splunk_server</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
       </chart>
     </panel>
   </row>
@@ -106,7 +138,7 @@
           <query>| rest /services/data/indexes  
 | rename title AS Index_Name
 | rename currentDBSizeMB AS Index_Size_MB
-| eval Index_Size_GB = round(Index_Size_MB/1024,3)
+| eval Index_Size_GB = Index_Size_MB/1024
 | stats values(Index_Size_MB) by Index_Name, splunk_server,Index_Size_GB,Index_Size_MB, maxDataSize, maxHotBuckets, homePath, summaryHomePath_expanded, tstatsHomePath 
 | sort - values(Index_Size_MB)</query>
           <earliest>-24h@h</earliest>
@@ -114,13 +146,12 @@
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="drilldown">none</option>
-        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
   </row>
   <row>
     <panel id="panel2">
-      <title>Indexer Retention Days</title>
+      <title>Index Retention Days</title>
       <input id="linkCollapse2" type="link" token="tokLinkCollapse2" searchWhenChanged="true" depends="$showCollapseLink2$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -186,7 +217,7 @@
       </input>
       <table rejects="$showExpandLink3$">
         <search>
-          <query>| rest splunk_server=splunk2.ops.com /services/data/indexes
+          <query>| rest splunk_server=* /services/data/indexes
 | join title type=outer [
 | rest splunk_server=s1idx1.ops.com /services/data/indexes-extended
 | eval cold_bucket_size = if(isnotnull('bucket_dirs.cold.bucket_size'), 'bucket_dirs.cold.bucket_size', 'bucket_dirs.cold.size')

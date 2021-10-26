@@ -1,0 +1,445 @@
+<dashboard theme="dark">
+  <label>core checks</label>
+  <row>
+    <panel>
+      <!-- This changes the font sizes -->
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+         </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>hardware_review</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=* /services/server/info  | eval cpu_core_count = if(isnotnull(numberOfVirtualCores), numberOfVirtualCores, numberOfCores) 
+| eval physical_memory_GB = round(physicalMemoryMB / 1024, 0)
+| fields splunk_server server_roles version cpu_core_count physical_memory_GB os_name
+| eval severity_level = case(cpu_core_count &lt;= 4 OR physical_memory_GB &lt;= 4, 2, cpu_core_count &lt; 12 OR physical_memory_GB &lt; 12, 1, cpu_core_count &gt;= 12 AND physical_memory_GB &gt;= 12, 0, true(), -1)
+| rename splunk_server AS instance cpu_core_count AS "cpu_core_count (current / recommended)" physical_memory_GB AS "physical_memory_GB (current / recommended)" 
+| fieldformat cpu_core_count (current / recommended) = 'cpu_core_count (current / recommended)'." / 12" 
+| fieldformat physical_memory_GB (current / recommended) = 'physical_memory_GB (current / recommended)'." / 12"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>ulimits_by_host</title>
+      <table>
+        <search>
+          <query>index=_internal "INFO  ulimit - Limit:" sourcetype=splunkd 
+          | streamstats max(_time) as LastTime by host 
+          | eval event_message=if(isnull(event_message),message,event_message)
+          | stats values(event_message) by host LastTime  
+          | dedup host 
+          | convert ctime(LastTime) as LastTime</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>ulimits_check</title>
+      <table>
+        <search>
+          <query>index=_internal earliest=-30d@d sourcetype=splunkd ulimit ("open files" OR "user processes" OR "data file size" OR "data segment size") | rex "files:\s+(?&lt;open_files&gt;\d+)" | rex "processes:\s+(?&lt;user_processes&gt;\d+)" | rex "data\sfile\ssize\:\s+(?&lt;data_file_size&gt;\w+)" | rex "data\ssegment\ssize\:\s+(?&lt;data_segment_size&gt;\w+)" | stats latest(open_files) AS open_files latest(user_processes) AS user_processes latest(data_segment_size) AS data_segment_size latest(data_file_size) AS data_file_size by host |  eval Status=case(open_files&lt;=8192 OR user_processes&lt;=8192 OR data_segment_size!="unlimited" OR data_file_size!="unlimited", "severe",1=1 ,"low") | sort 0 - Status | rename open_files AS "Open Files (-n)" user_processes AS "User Processes (-u)" data_segment_size AS "Data Segment Size (-d)" data_file_size AS "Data File Size (-f)"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>thp_check</title>
+      <table>
+        <search>
+          <query>index=_internal earliest=-30d@d sourcetype=splunkd ulimit transparent hugetables OR hugepage | stats latest(enabled) AS Enabled latest(defrag) AS Defrag BY host | eval Status=if(Enabled=="never" AND Defrag=="never", "low", "severe") | sort 0 – Status</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>data_distribution_across_indexes</title>
+      <chart>
+        <search>
+          <query>index=_internal earliest=-1d@d latest=@d sourcetype=splunkd source=*license_usage.log type=Usage | eval gb=round(b/1024/1024/1024,2) | chart usenull=false sum(gb) over i by idx</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>bucket_checks</title>
+      <table>
+        <search>
+          <query>|dbinspect index=* | fields index state bucketId | eval state=case(state=="warm" OR state=="hot","hot/warm",1=1, state) | chart dc(bucketId) over index by state</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>future_timestamps</title>
+      <table>
+        <search>
+          <query>| tstats count WHERE index=* earliest=+30min@m latest=+1y@y GROUPBY sourcetype source host | join type=left sourcetype [|metadata type=sourcetypes index=* | convert ctime(*Time)] | stats values(host) AS Hosts values(sourcetype) AS Sourcetype values(lastTime) AS "Furthest Out Event"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>auto_sourctypeing</title>
+      <table>
+        <search>
+          <query>| tstats summariesonly=t count AS event_count dc(source) AS source dc(host) AS hosts WHERE index=* GROUPBY sourcetype index | regex sourcetype="\-\d+$$|too_small"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>line_breaking_checks</title>
+      <table>
+        <search>
+          <query>index=_internal earliest=-24h sourcetype=splunkd component=LineBreakingProcessor OR component=DateParserVerbose OR component=Aggregator*  | eventstats sparkline by component | cluster showcount=t | table _time, component, sparkline message, source, data_sourcetype, cluster_count | sort 0 -cluster_count | rename sparkline AS sparkline_by_component</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>historical_concurrent_checks</title>
+      <chart>
+        <search>
+          <query>index=_internal source=*metrics.log group=search_concurrency "system total" NOT user=* | join host [| rest splunk_server=local /services/configs/conf-limits | fields base_max_searches max_searches_per_cpu splunk_server | search base_max_searches=* | join splunk_server [|rest splunk_server=local /services/server/info | fields splunk_server numberOfCores] | eval search_ceiling=base_max_searches+(max_searches_per_cpu*numberOfCores) | fields splunk_server search_ceiling | rename splunk_server AS host] | timechart max(active_hist_searches) AS "Max Concurrent Searches" max(search_ceiling) AS "Concurrent Search Limit"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>real_time_searches_check</title>
+      <chart>
+        <search>
+          <query>index=_internal source=*metrics.log group=search_concurrency "system total" NOT user=* | timechart max(active_realtime_searches) AS "Max Real-Time Searches" by host</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>user_time_frame_search_checks</title>
+      <table>
+        <search>
+          <query>index=_audit earliest=-24h@h action=search sourcetype=audittrail info=granted search_id=*
+| rex field=apiStartTime "\'?(?&lt;apiStartTime&gt;[^\']+)"
+| rex field=apiEndTime "\'?(?&lt;apiEndTime&gt;[^\']+)"
+| eval search_time=tostring(strptime(apiEndTime,"%a %b %d %H:%M:%S %Y")-strptime(apiStartTime,"%a %b %d %H:%M:%S %Y"))
+| eval search_range=case(apiStartTime=="ZERO_TIME","All Time", 
+search_time &lt;= 300, "5 Minutes", 
+search_time &lt;= 900 AND search_time &gt; 300, "15 Minutes", 
+search_time &lt;= 1800 AND search_time &gt; 1800, "30 Minutes",
+search_time &lt;= 3600 AND search_time &gt; 900, "1 Hour", 
+search_time &lt;= 14400 AND search_time &gt; 3600, "4 Hours", 
+search_time &lt;= 90000 AND search_time &gt; 14400, "1 Day", 
+search_time &lt;= 691200 AND search_time &gt; 90000, "7 Days", 
+search_time &lt;= 2678400 AND search_time &gt; 691200, "30 Days", 
+search_time &lt;= 3974400 AND search_time &gt; 2678400, "45 Days", 
+search_time &gt; 3974400, "45 Days +",
+search_time==search_time, "Other")
+|eval user=if(user="","N/A",user)
+|chart limit=0 count over user by search_range
+| fillnull user "5 Minutes" "15 Minutes" "30 Minutes" "1 Hour" "4 Hours" "1 Day" "7 Days" "30 Days" "45 Days" "45 Days +" "All Time" 
+| table user "5 Minutes" "15 Minutes" "30 Minutes" "1 Hour" "4 Hours" "1 Day" "7 Days" "30 Days" "45 Days" "45 Days +" "All Time" 
+| addcoltotals</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>user_roles</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local /services/authorization/roles | eval type=if(match(title,"^(?:admin|can_delete|power|splunk-system-role|user|ess_admin|ess_analyst|ess_user)$$"),"default","custom") | eval capabilities=(mvcount(mvappend(capabilities,"",imported_capabilities)) - 1) | fillnull value="" | rename title as role | eval imported_roles=mvjoin(imported_roles,", ") | eval srchIndexesAllowed=mvjoin(srchIndexesAllowed,", ") | eval srchIndexesDefault=mvjoin(srchIndexesDefault,", ") | join max=1 overwrite=1 type=inner usetime=0 [ | rest splunk_server=local /services/data/indexes | fields title | eval type=if(match(title,"^_\\w+$$"),"c_internal","c_non-internal") | eval x="woot" | stats count by type, x | xyseries x type count | fields - x] | makemv delim=", " srchIndexesAllowed | eval totalAccess=case((isnotnull(mvfind(srchIndexesAllowed,"^_\\*$$")) AND isnotnull(mvfind(srchIndexesAllowed,"^\\*$$"))),('c_non-internal' + c_internal),isnotnull(mvfind(srchIndexesAllowed,"^\\*$$")),('c_non-internal' + if(isnull(mvcount(mvfilter(match(srchIndexesAllowed,"^_[^\\*]+$$")))),0,mvcount(mvfilter(match(srchIndexesAllowed,"^_[^\\*]+$$"))))),isnotnull(mvfind(srchIndexesAllowed,"^_\\*$$")),(c_internal + if(isnull(mvcount(mvfilter(match(srchIndexesAllowed,"^[^_]+$$")))),0,mvcount(mvfilter(match(srchIndexesAllowed,"^[^_]+$$"))))),(srchIndexesAllowed == ""),0,(isnull(mvfind(srchIndexesAllowed,"^_\\*$$")) AND isnull(mvfind(srchIndexesAllowed,"^\\*$$"))),mvcount(srchIndexesAllowed)) | fillnull value="noidea" totalAccess | fields - c_* | rename srchIndexesAllowed as accessible_indexes | mvcombine accessible_indexes | rex field=accessible_indexes mode=sed "s/_\*/All internal indexes/g" | rex field=accessible_indexes mode=sed "s/\*/All non-internal indexes/g" | rex field=srchIndexesDefault mode=sed "s/_\*/All internal indexes/g" | rex field=srchIndexesDefault mode=sed "s/\*/All non-internal indexes/g" | fields role, type, capabilities, imported_roles, srchIndexesDefault, accessible_indexes, totalAccess | rename imported_roles as inherited, srchIndexesAllowed as "accessible indexes", srchIndexesDefault as "default searchable indexes", totalAccess as "accessible index count" | join max=1 overwrite=1 type=outer usetime=0 role [ | rest splunk_server=local /services/authentication/users | mvexpand roles | stats count AS "user count" by roles | rename roles as role] | fillnull value=0 "user count" | sort 0 - "user count"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>user_orphaned</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local /servicesNS/-/-/saved/searches | rename eai:acl.owner AS user | where user!="nobody"  AND user!="splunk-system-user" AND user!="admin" | stats count, list(is_scheduled) AS is_scheduled, list(eai:acl.app) AS app list(title) AS reports by user   | eval is_orphan="true" | join type=outer user [| rest splunk_server=local /services/authentication/users | stats count by title | rename title AS user | eval is_orphan="false"]  | where is_orphan="true"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>large_bundle_size</title>
+      <event>
+        <search>
+          <query>index=_internal sourcetype=splunkd component=DistributedBundleReplicationManager bundle_file_size=* | rex field=bundle_file_size "(?&lt;bundle_size&gt;\d+)" | eval bundle_size_mb=bundle_size/1024</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="list.drilldown">none</option>
+        <option name="list.wrap">1</option>
+        <option name="maxLines">5</option>
+        <option name="raw.drilldown">full</option>
+        <option name="rowNumbers">0</option>
+        <option name="table.drilldown">all</option>
+        <option name="table.sortDirection">asc</option>
+        <option name="table.wrap">1</option>
+        <option name="type">list</option>
+      </event>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>eps</title>
+      <chart>
+        <search>
+          <query>| tstats count where index=* by  index _time span=1s | stats avg(count) as avg by _time | trendline sma2(avg) AS trend</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>

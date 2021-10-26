@@ -1,0 +1,167 @@
+<form theme="dark">
+  <label>internal logs by hosts</label>
+  <description>internal_logs_checks</description>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <!-- This changes the font sizes -->-<html>
+ 
+<style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
+ 
+</html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>internal_logs_checks</title>
+      <input type="time" token="field1" searchWhenChanged="true">
+        <label></label>
+        <default>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <input type="dropdown" token="my_host" searchWhenChanged="true">
+        <label>select_host</label>
+        <fieldForLabel>host</fieldForLabel>
+        <fieldForValue>host</fieldForValue>
+        <search>
+          <query>| tstats count where index=_internal by host</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+      </input>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=splunkd host=$my_host$
+| stats count by host, sourcetype, source, _time</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>outputs -  Direct to Indexers</title>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=splunkd host=$my_host$ component=TcpOutputProc
+| rename idx AS route_tier splunk_server AS indexers
+| table _time host route_tier, indexers, event_message, log_level</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="log_level">
+          <colorPalette type="expression">case (like(value,"ERROR%"),"#FF3300")</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>file_tail_reader_permissions</title>
+      <table>
+        <search>
+          <query>index=_internal host=$my_host$ sourcetype=splunkd component=TailReader log_level!=INFO
+| table host, _time, component, event_message, log_level</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>watched_logs</title>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=splunkd host=$my_host$ log_level=INFO component=WatchedFile 
+| table host, _time, component, event_message, log_level</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>error_logs</title>
+      <table>
+        <search>
+          <query>index=_internal host=$my_host$  sourcetype=splunkd log_level=ERROR
+| table host, _time, log_level, component, event_message, log_level</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <option name="drilldown">none</option>
+        <format type="color" field="log_level">
+          <colorPalette type="expression">case (like(value,"ERROR%"),"#FF3300")</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>data_flow_check</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>index=_internal host=$my_host$ source=*metrics.log* group=tcpout_connections
+| stats sum(kb) by host, destIp, kb</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </viz>
+    </panel>
+  </row>
+</form>

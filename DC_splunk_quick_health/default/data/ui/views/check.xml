@@ -1,0 +1,818 @@
+<form theme="dark">
+  <label>quick health check</label>
+  <!-- <This is for the latency dashboard</choice> -->
+  <init>
+    <set token="showExpandLink1">true</set>
+    <set token="showExpandLink2">true</set>
+    <set token="showExpandLink3">true</set>
+    <set token="showExpandLink4">true</set>
+    <set token="showExpandLink5">true</set>
+    <set token="showExpandLink6">true</set>
+    <set token="showExpandLink7">true</set>
+    <set token="showExpandLink8">true</set>
+    <set token="showExpandLink9">true</set>
+    <set token="showExpandLink10">true</set>
+    <set token="showExpandLink11">true</set>
+    <set token="showExpandLink12">true</set>
+    <set token="showExpandLink13">true</set>
+    <set token="showExpandLink14">true</set>
+    <set token="showExpandLink15">true</set>
+    <set token="showExpandLink16">true</set>
+    <set token="showExpandLink17">true</set>
+    <set token="showExpandLink18">true</set>
+  </init>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <!-- This changes the font sizes -->
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+     
+      </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+            <h1>
+                Quick Health Check App 
+            </h1>
+            <p>The dashboards will provide the below details:</p>
+            <ul>
+           <li>Quick overview of the enviroments health</li>
+           <li>Index and Indexer health</li>
+           <li>Disk capacity health</li>
+           <li>Search health</li>
+           <li>Queues health</li>
+           <li>Inventory</li> 
+           <li>Troubleshooting help</li>
+           <li>ES Health </li> 
+         
+</ul>
+            
+        </html>
+    </panel>
+    <panel>
+      <title>check splunk server status</title>
+      <single>
+        <search>
+          <query>index="_audit"  host=s1* (action=splunkShuttingDown OR action=splunkStarting)  earliest=-5m@m latest=now
+| stats count BY host action _time 
+| eval color=case(action == "splunkStarting", 1,  action == "splunkShuttingDown", 3)
+| rangemap field=color low=1-1 severe=3-3
+| sort 0 - _time</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>1m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xdc4e41","0xdc4e41"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">server status</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+        <drilldown>
+          <link target="_blank">search?q=index%3D%22_audit%22%20%20host%3D*%20(action%3D%22restart_splunkd%22%20OR%20action%3D%22splunkStarting%22%20OR%20action%3D%22splunkShuttingDown%22)%20%0A%7C%20fields%20_time%2C%20user%2C%20host%2C%20action%0A%7C%20table%20_time%2C%20user%2C%20host%2C%20action%2C&amp;earliest=-4h@m&amp;latest=now</link>
+        </drilldown>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>GB Volume Limit</title>
+      <chart>
+        <search>
+          <query>index=_internal source="*metrics.log" group=per_index_thruput NOT series=_* earliest=-7d 
+| eval GB=kb/1024/1024 
+| timechart span=1d sum(GB) | `my_lic_limit`</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">linear</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>search avg count</title>
+      <single>
+        <search>
+          <query>index=_audit search_id!="'rsa_*" search_id!="'RemoteStorageRetrieveBuckets_*" search_id!="'searchparsetmp_*" search_id!="'remote_*" search_id=* total_run_time earliest=-7d@d latest=@d
+| eval host_sid = 'host'.":".'search_id'
+| bin _time span=1d
+| stats dc(host_sid) AS search_count by _time
+| stats avg(search_count) AS search_count_daily_avg</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">244</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">search_count_avg</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>license Usage</title>
+      <single>
+        <search>
+          <query>index=_internal source=*license_usage.log* type=Usage 
+earliest=-1d@d latest=now 
+| eval My_Size_GB=round(b/1024/1024,0)
+| rename st AS Sourcetype
+| stats sum(My_Size_GB) AS Size_GB by Sourcetype   
+| stats sum(Size_GB)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>59m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xf58f39","0xf58f39"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">license usage 1d</option>
+        <option name="unit">GB</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Total Events</title>
+      <single>
+        <search>
+          <query>| tstats count WHERE index=*</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Dispatcher Queue - Max Jobs Reached</title>
+      <single>
+        <search>
+          <query>index=_internal source=*splunkd.log* log_level!=info   DispatchManager - Queued job id sourcetype=splunkd reason="The maximum number of concurrent historical searches on this instance has been reached*"
+| stats count as jobs
+| eval queue=if((jobs==0), "GOOD", "BAD")
+| eval severity=case(queue="GOOD", 0, queue="BAD", 1)
+| rangemap field=severity low=0-0 default=severe
+| fields - jobs</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <drilldown>
+          <link target="_blank">/app/DC_splunk_quick_health/search_checks</link>
+        </drilldown>
+      </single>
+    </panel>
+    <panel>
+      <title>distinct_users</title>
+      <single>
+        <search>
+          <query>index=_internal sourcetype=splunk_web_access | timechart span=1d dc(user) as distinct_user | fields - _time</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unit">users</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+        <drilldown>
+          <link target="_blank">search?q=%7C%20rest%20%2Fservices%2Fauthentication%2Fhttpauth-tokens%20%60my_sh_servers%60%0A%7C%20search%20(NOT%20userName%3D%22splunk-system-user%22)%20searchId%3D%22%22%20%0A%7C%20table%20userName%20splunk_server%20timeAccessed%0A%7C%20dedup%20userName&amp;earliest=-15m&amp;latest=now</link>
+        </drilldown>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel1">
+      <title>Internal Index ERROR / WARN</title>
+      <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink1"></unset>
+            <set token="showExpandLink1">true</set>
+            <unset token="form.tokLinkCollapse1"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand1" type="link" token="tokLinkExpand1" searchWhenChanged="true" depends="$showExpandLink1$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink1">true</set>
+            <unset token="showExpandLink1"></unset>
+            <unset token="form.tokLinkExpand1"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink1$">
+        <search>
+          <query>
+index=_internal (log_level=ERROR OR log_level=WARN) 
+| fields _time, component, event_message, log_level, source, host
+| table _time, component, event_message, log_level, source, host
+| stats count by log_level, component, event_message, source, host
+| sort - count</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">5</option>
+        <option name="drilldown">none</option>
+        <format type="color" field="log_level">
+          <colorPalette type="expression">case (like(value,"ERROR%"),"#FF3300")</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel2">
+      <title>Splunk OS File System Usage For  Indexers</title>
+      <input id="linkCollapse2" type="link" token="tokLinkCollapse2" searchWhenChanged="true" depends="$showCollapseLink2$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink2"></unset>
+            <set token="showExpandLink2">true</set>
+            <unset token="form.tokLinkCollapse2"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand2" type="link" token="tokLinkExpand2" searchWhenChanged="true" depends="$showExpandLink2$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink2">true</set>
+            <unset token="showExpandLink2"></unset>
+            <unset token="form.tokLinkExpand2"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink2$">
+        <search>
+          <query>| rest  /services/server/status/partitions-space `my_idx_servers`
+| eval myCapacityGB=round(capacity/1024)
+| eval myFreeGB=round(free/1024)
+| eval space_free_GB = (myCapacityGB-myFreeGB)
+| eval pct_usage = round(myFreeGB/myCapacityGB*100,2)
+| stats first(fs_type) as fs_type first(myCapacityGB) as capacity_GB first(myFreeGB) as usage_GB  
+  first(pct_usage) as pct_usage_% first(space_free_GB) as free_space by mount_point, splunk_server</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel id="panel3">
+      <title>Hot / Cold Disk Capacity Left For  Indexers</title>
+      <input id="linkCollapse3" type="link" token="tokLinkCollapse3" searchWhenChanged="true" depends="$showCollapseLink3$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink3"></unset>
+            <set token="showExpandLink3">true</set>
+            <unset token="form.tokLinkCollapse3"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand3" type="link" token="tokLinkExpand3" searchWhenChanged="true" depends="$showExpandLink3$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink3">true</set>
+            <unset token="showExpandLink3"></unset>
+            <unset token="form.tokLinkExpand3"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink3$">
+        <search>
+          <query>| rest /services/data/index-volumes `my_idx_servers`
+| fields + title, total_size, max_size, volume_path splunk_server
+| eval _dmc_volume=if(isnotnull(title),title,'data.name') 
+| where (true() XOR ('_dmc_volume' == "_splunk_summaries")) 
+| fields - _dmc_volume 
+| eval total_size_gb=if(isnull(total_size),"-",round((total_size / 1024),3)), max_size_gb=if((isnull(max_size) OR (max_size == "infinite")),"unlimited",round((max_size / 1024),2)), disk_usage_gb=((total_size_gb . " / ") . max_size_gb) 
+
+
+
+| eval date_today=strftime(now(), "%d-%m-%Y")
+| eval one_monthdate=strftime(relative_time(now(), "+30d@d" ), "%d-%m-%Y")
+| eval three_monthsdate=strftime(relative_time(now(), "+90d@d" ), "%d-%m-%Y")
+| eval eight_monthsdate=strftime(relative_time(now(), "+240d@d" ), "%d-%m-%Y")
+|  eval one_month=relative_time(now(), "+1d@d")
+
+| eval my_local_disk_limit=round(10000/1024,3)
+
+
+| eval disk_today=(max_size_gb*1)
+| eval disk_1_month=(max_size_gb*30)
+| eval disk_3_months=(max_size_gb*90)
+| eval disk_8_months=(max_size_gb*240) 
+
+| eval disk_left_today=(my_local_disk_limit-disk_today). " Date "  .date_today
+| eval disk_left_1_month=(my_local_disk_limit-disk_1_month). " Date " .one_monthdate  
+| eval disk_left_3_month=(my_local_disk_limit-disk_3_months) . " Date " .three_monthsdate
+| eval disk_left_8_month=(my_local_disk_limit-disk_8_months) . " Date " .eight_monthsdate
+
+
+| rename title as Volume, disk_usage_gb as "Volume Usage (GB)", max_size_gb as "indexes_conf_limit", volume_path as "Volume Path"
+|  table   splunk_server "Volume Path" "Volume Usage (GB)" indexes_conf_limit, my_local_disk_limit,  disk_left_today, disk_left_1_month, disk_left_3_month, disk_left_8_month,</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">5</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="pane4">
+      <title>Alerts Status</title>
+      <input id="linkCollapse4" type="link" token="tokLinkCollapse4" searchWhenChanged="true" depends="$showCollapseLink4$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink4"></unset>
+            <set token="showExpandLink4">true</set>
+            <unset token="form.tokLinkCollapse4"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand4" type="link" token="tokLinkExpand4" searchWhenChanged="true" depends="$showExpandLink4$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink4">true</set>
+            <unset token="showExpandLink4"></unset>
+            <unset token="form.tokLinkExpand4"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink4$">
+        <search>
+          <query>index=_internal alert_actions="email" status=success OR status=failed
+| eval run_time=strftime(dispatch_time,"%d/%m/%y %H:%M:%S")
+| table _time, user, savedsearch_name, app, status, alert_actions, run_time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+      </table>
+    </panel>
+    <panel id="panel5">
+      <title>Users And Roles For Search Heads</title>
+      <input id="linkCollapse5" type="link" token="tokLinkCollapse5" searchWhenChanged="true" depends="$showCollapseLink5$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink5"></unset>
+            <set token="showExpandLink5">true</set>
+            <unset token="form.tokLinkCollapse5"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand5" type="link" token="tokLinkExpand5" searchWhenChanged="true" depends="$showExpandLink5$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink5">true</set>
+            <unset token="showExpandLink5"></unset>
+            <unset token="form.tokLinkExpand5"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink5$">
+        <search>
+          <query>| rest /services/authentication/users `my_sh_servers`
+| eval name=coalesce(realname, title) 
+| stats values(roles) as Role first(defaultApp) as "Landing App" count(capabilities) as "Number of Capabilities" by name</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel6">
+      <title>Splunk Restart Log</title>
+      <input id="linkCollapse6" type="link" token="tokLinkCollapse6" searchWhenChanged="true" depends="$showCollapseLink6$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink6"></unset>
+            <set token="showExpandLink6">true</set>
+            <unset token="form.tokLinkCollapse6"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand6" type="link" token="tokLinkExpand6" searchWhenChanged="true" depends="$showExpandLink6$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink6">true</set>
+            <unset token="showExpandLink6"></unset>
+            <unset token="form.tokLinkExpand6"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink6$">
+        <search>
+          <query>index="_audit" `all_splunk_hosts` (action="restart_splunkd" OR action="splunkStarting" OR action="splunkShuttingDown") 
+| fields _time, user, host, action
+| table _time, user, host, action,</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">5</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel id="panel8">
+      <title>Users Logged Into Splunk</title>
+      <input id="linkCollapse8" type="link" token="tokLinkCollapse8" searchWhenChanged="true" depends="$showCollapseLink8$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink8"></unset>
+            <set token="showExpandLink8">true</set>
+            <unset token="form.tokLinkCollapse8"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand8" type="link" token="tokLinkExpand8" searchWhenChanged="true" depends="$showExpandLink8$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink8">true</set>
+            <unset token="showExpandLink8"></unset>
+            <unset token="form.tokLinkExpand8"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink8$">
+        <search>
+          <query>| rest /services/authentication/httpauth-tokens `my_sh_servers`
+| search (NOT userName="splunk-system-user") searchId="" 
+| table userName splunk_server timeAccessed
+| dedup userName</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel9">
+      <title>Installed Apps - Versions On Search Heads</title>
+      <input id="linkCollapse9" type="link" token="tokLinkCollapse9" searchWhenChanged="true" depends="$showCollapseLink9$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink9"></unset>
+            <set token="showExpandLink9">true</set>
+            <unset token="form.tokLinkCollapse9"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand9" type="link" token="tokLinkExpand9" searchWhenChanged="true" depends="$showExpandLink9$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink9">true</set>
+            <unset token="showExpandLink9"></unset>
+            <unset token="form.tokLinkExpand9"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink9$">
+        <search>
+          <query>| rest /services/apps/local `my_sh_servers` 
+| table splunk_server label version  
+| dedup label</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel id="panel10">
+      <title>Installed Apps - Versions On Indexers</title>
+      <input id="linkCollapse10" type="link" token="tokLinkCollapse10" searchWhenChanged="true" depends="$showCollapseLink10$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink10"></unset>
+            <set token="showExpandLink10">true</set>
+            <unset token="form.tokLinkCollapse10"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand10" type="link" token="tokLinkExpand10" searchWhenChanged="true" depends="$showExpandLink10$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink10">true</set>
+            <unset token="showExpandLink10"></unset>
+            <unset token="form.tokLinkExpand10"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink10$">
+        <search>
+          <query>| rest /services/apps/local `my_idx_servers` 
+| table splunk_server label version  
+| dedup label</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel11">
+      <title>data hygiene checks</title>
+      <input id="linkCollapse11" type="link" token="tokLinkCollapse11" searchWhenChanged="true" depends="$showCollapseLink11$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink11"></unset>
+            <set token="showExpandLink11">true</set>
+            <unset token="form.tokLinkCollapse11"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand11" type="link" token="tokLinkExpand11" searchWhenChanged="true" depends="$showExpandLink11$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink11">true</set>
+            <unset token="showExpandLink11"></unset>
+            <unset token="form.tokLinkExpand11"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink11$">
+        <search>
+          <query>earliest=-24h index=_internal sourcetype=splunkd component=LineBreakingProcessor OR (component=DateParserVerbose NOT FileClassifier) OR component=AggregatorMiningProcessor 
+| rex "Context:\s+source[:=]{1,2}(?&lt;data_source&gt;[^\|]+)\|host[:=]{1,2}(?&lt;data_host&gt;[^\|]+)\|(?&lt;data_sourcetype&gt;[^\|]+)" 
+| where NOT match(data_sourcetype, "^splunk_") 
+| stats count AS warn_count count(eval(component=="AggregatorMiningProcessor")) AS aggregation_issues count(eval(component=="LineBreakingProcessor")) AS line_breaking_issues count(eval(component=="DateParserVerbose")) AS date_parsing_issues dc(data_host) AS data_hosts dc(data_source) AS data_sources by data_sourcetype 
+| rename data_sourcetype AS orig_sourcetype 
+| eval severity_level=2 
+| sort -warn_count 
+| appendpipe 
+    [ stats count 
+    | where count=0 
+    | fields - count 
+    | eval severity_level=-1, signature="This check did not produce results"] 
+| eval _time=if(isnull(_time), now(), _time) 
+| table * 
+| fields - _timediff _tc _key punct</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel id="panel12">
+      <title>top apps used</title>
+      <input id="linkCollapse12" type="link" token="tokLinkCollapse12" searchWhenChanged="true" depends="$showCollapseLink12$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink12"></unset>
+            <set token="showExpandLink12">true</set>
+            <unset token="form.tokLinkCollapse12"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand12" type="link" token="tokLinkExpand12" searchWhenChanged="true" depends="$showExpandLink12$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink12">true</set>
+            <unset token="showExpandLink12"></unset>
+            <unset token="form.tokLinkExpand12"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink12$">
+        <search>
+          <query>index=_internal sourcetype=splunkd_ui_access method=GET uri="*/app/*" user!=cmon_user user!="-" earliest=-7d@d 
+| rex field=uri "app/(?&lt;app&gt;[^/]+)/" 
+| stats count AS views dc(user) AS dc_users dc(host) AS dc_instance by app 
+| eventstats sum(views) AS total_view_count 
+| eval percent=round((views/total_view_count)*100,2) 
+| fields - total_view_count 
+| eval _time=if(isnull(_time), now(), _time) 
+| table * 
+| fields - _timediff _tc _key punct</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <style>
+          div[id^="linkCollapse"],
+          div[id^="linkExpand"]{
+            width: 32px !important;
+            float: right;
+          }
+          div[id^="linkCollapse"] button,
+          div[id^="linkExpand"] button{
+            flex-grow: 0;
+            border-radius: 25px;
+            border-width: thin;
+            border-color: lightgrey;
+            border-style: inset;
+            width: 32px;
+            padding: 0px;
+          }
+          div[id^="linkCollapse"] label,
+          div[id^="linkExpand"] label{
+            display:none;
+          }
+          div[id^="panel"].fieldset{
+            padding: 0px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

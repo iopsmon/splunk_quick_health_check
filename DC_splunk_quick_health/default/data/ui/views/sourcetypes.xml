@@ -3,7 +3,7 @@
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
     <set token="showExpandLink3">true</set>
-     <set token="showExpandLink4">true</set>
+    <set token="showExpandLink4">true</set>
   </init>
   <label>sourcetypes</label>
   <search id="baseSearch_2">
@@ -204,7 +204,7 @@
  | eval MB=round(b/1024/1024,0)
  | fields _time, indexname, sourcetypename, MB
  | sort - MB</query>
-        <earliest>$global_time_tok.earliest$</earliest>
+          <earliest>$global_time_tok.earliest$</earliest>
           <latest>$global_time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
         </search>
@@ -247,11 +247,9 @@
       </table>
     </panel>
   </row>
-  
-  
   <row>
     <panel id="panel4">
-      <title>bad sourcetypes </title>
+      <title>bad sourcetypes</title>
       <input id="linkCollapse4" type="link" token="tokLinkCollapse4" searchWhenChanged="true" depends="$showCollapseLink4$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -279,7 +277,7 @@
           <query>index=* (sourcetype=*-* OR sourcetype=*too_small) 
           | stats count by sourcetype
          </query>
-            <earliest>-24h@h</earliest>
+          <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
         <option name="drilldown">none</option>
@@ -316,5 +314,25 @@
       </html>
     </panel>
   </row>
-  
+  <row>
+    <panel>
+      <title>sourcetype_idx_ratio</title>
+      <table>
+        <search>
+          <query>| tstats count dc(host) AS hosts WHERE earliest=-7d@d index=* BY index sourcetype | sort - count | eventstats sum(count) AS total by index | stats sum(count) AS sum_count dc(sourcetype) AS sourcetype_count list(sourcetype) AS sourcetype  list(count) AS count list(eval(round(((count/total)*100),2)."%")) AS percent_coverage list(hosts) AS unique_hosts by index | sort - sum_count | join index [| rest /servicesNS/-/-/data/indexes splunk_server=* | fields maxDataSize title frozenTimePeriodInSecs splunk_server | eval retention_days=frozenTimePeriodInSecs/60/60/24 | stats list(maxDataSize) list(splunk_server) list(retention_days) by title | rename title AS index]</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
 </form>

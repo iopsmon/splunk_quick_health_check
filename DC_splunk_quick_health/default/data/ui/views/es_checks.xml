@@ -1,0 +1,734 @@
+<form theme="dark">
+  <label>es checks - Run on ES SH</label>
+  <!-- <This is for the latency dashboard</choice> -->-<init>
+    <set token="showExpandLink1">true</set>
+    <set token="showExpandLink2">true</set>
+    <set token="showExpandLink3">true</set>
+    <set token="showExpandLink4">true</set>
+    <set token="showExpandLink5">true</set>
+    <set token="showExpandLink6">true</set>
+    <set token="showExpandLink7">true</set>
+    <set token="showExpandLink8">true</set>
+    <set token="showExpandLink9">true</set>
+    <set token="showExpandLink10">true</set>
+    <set token="showExpandLink11">true</set>
+    <set token="showExpandLink12">true</set>
+    <set token="showExpandLink13">true</set>
+    <set token="showExpandLink14">true</set>
+    <set token="showExpandLink15">true</set>
+  </init>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <!-- This changes the font sizes -->-<html>
+
+<style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
+
+</html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>enabled_rules ES Only</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local count=0 /servicesNS/-/SplunkEnterpriseSecuritySuite/saved/searches | where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]") | where disabled=0 | eval actions=split(actions, ",") | table title,actions</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>rules_enabled_count ES Only</title>
+      <single>
+        <search>
+          <query>| rest splunk_server=local count=0 /servicesNS/-/SplunkEnterpriseSecuritySuite/saved/searches | where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]") | where disabled=0 | eval actions=split(actions, ",") | stats count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">rules_enabled</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>unique_saved_searches</title>
+      <single>
+        <search>
+          <query>index=_internal sourcetype="scheduler" host=s1sh* | stats dc(savedsearch_name)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">unique_searches</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>all_rules</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=s1sh* count=0 /services/saved/searches | where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]") | rename eai:acl.app as app, title as csearch_name, action.correlationsearch.label as csearch_label, action.notable.param.security_domain as security_domain | table csearch_name, csearch_label, app, security_domain, description</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>dm_check</title>
+      <table>
+        <search>
+          <query>| `datamodel("Splunk_Audit", "Datamodel_Acceleration")` | `drop_dm_object_name("Datamodel_Acceleration")` | join type=outer last_sid [| rest splunk_server=local count=0 /services/search/jobs reportSearch=summarize* | rename sid as last_sid | fields last_sid,runDuration] | eval "size(MB)"=round(size/1048576,1), "retention(days)"=if(retention==0,"unlimited",round(retention/86400,1)), "complete(%)"=round(complete*100,1), "runDuration(s)"=round(runDuration,1) | sort 100 + datamodel | fieldformat earliest=strftime(earliest, "%m/%d/%Y %H:%M:%S") | fieldformat latest=strftime(latest, "%m/%d/%Y %H:%M:%S") | fields datamodel,app,cron,retention(days),earliest,latest,is_inprogress,complete(%),size(MB),runDuration(s),last_error</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="complete(%)">
+          <colorPalette type="expression">if (match(value,"^100.0$"),"#228B22","#FF5733")</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>dm_performance</title>
+      <chart>
+        <search>
+          <query>index=_internal sourcetype=scheduler component=SavedSplunker ACCELERATE NOT skipped run_time=* 
+| rex field=savedsearch_id "ACCELERATE_(?:[A-F0-9\-]{36}_)?(?&lt;acceleration&gt;.*?)_ACCELERATE"
+| timechart span=5m max(run_time) AS run_time by acceleration</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>apps_installed</title>
+      <table>
+        <search>
+          <query>| rest /services/apps/local| table label version| dedup label</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>rt_concurrency_check</title>
+      <chart>
+        <search>
+          <query>index=_internal (host=s1sh1.ops.com  OR host=s1sh2.ops.com OR host=s1sh3.ops.com) source=*metrics.log group=search_concurrency "system total" NOT user=* | timechart max(active_realtime_searches) by host</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>historical_concurrency_check</title>
+      <chart>
+        <search>
+          <query>index=_internal (host=s1sh1.ops.com OR host=s1sh2.ops.com OR host=s1sh3.ops.com) source=*metrics.log group=search_concurrency
+| timechart max(active_hist_searches) by host</query>
+          <earliest>1625637600.000</earliest>
+          <latest>1625727419.000</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>skipped_searches_by_sec_sh</title>
+      <table>
+        <search>
+          <query>index=_internal earliest=-24h status=skipped  sourcetype=scheduler 
+| stats  count by host app reason | sort - count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="reason">
+          <colorPalette type="expression">if (match(value,"^.*$"),"#FF5733","#228B22")</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>app_skipped_search_check</title>
+      <input type="dropdown" token="my_app">
+        <label>apps_list</label>
+        <fieldForLabel>app</fieldForLabel>
+        <fieldForValue>app</fieldForValue>
+        <search>
+          <query>index=_internal earliest=-7d@d latest=now status=skipped sourcetype=scheduler  
+| stats count by app</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+      </input>
+      <chart>
+        <search>
+          <query>index=_internal earliest=-7d@d latest=now status=skipped sourcetype=scheduler app=$my_app$ 
+| timechart count by app</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>cron_job_stats</title>
+      <chart>
+        <search>
+          <query>index=_internal host=s1sh* sourcetype=scheduler result_count 
+| extract pairdelim=",", kvdelim="=", auto=f 
+| stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app 
+| join savedsearch_name type=outer 
+    [| rest /servicesNS/-/-/saved/searches 
+    | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search 
+    | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS owner cron_schedule AS cron_schedule dispatch.earliest_time AS "Dispatch Earliest Time" dispatch.latest_time AS "Dispatch Latest Time"] 
+| makemv delim="," values(host) 
+| sort - avg(run_time) 
+| eventstats max(cron_schedule) BY cron_schedule   | top limit=100 "max(cron_schedule)"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>searches_by_cron_jobs</title>
+      <table>
+        <search>
+          <query>index=_internal host=s1sh* sourcetype=scheduler result_count 
+| stats  count AS execution_count by savedsearch_name  
+| join savedsearch_name type=outer 
+    [| rest /servicesNS/-/-/saved/searches 
+    | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search 
+    | rename title AS savedsearch_name cron_schedule AS cron_schedule ] 
+    | eval cron_description=case(cron_schedule=="0", "At every minute.", cron_schedule=="*/15 * * * *", "At every 15th minute.",
+    cron_schedule=="*/30 * * * *", "At every 30th minute.", cron_schedule=="*/5 * * * *", "At every 5th minute.",
+    cron_schedule=="0 * * * *", "At minute 0.",
+    cron_schedule=="0 2 * * *", "At 02:00.",
+    cron_schedule=="0 3 * * *", "At 03:00.",
+    cron_schedule=="0 5 * * *", "At 05:00.",
+    cron_schedule=="1 * * * *", "At minute 1.", 
+    cron_schedule=="1 0 * * *", "At 00:01.",
+    cron_schedule=="1 1 * * *", "At 01:01.",
+    cron_schedule=="1 3 * * *", "At 03:01.",
+    cron_schedule=="1-56/5 * * * *", "At every 5th minute from 1 through 56.",
+    cron_schedule=="5 * * * *", "At minute 5.",
+    cron_schedule=="10 * * * *", "At minute 10.",
+    cron_schedule=="10 0,4,8,12,16,20 * * *", "At minute 10 past hour 0, 4, 8, 12, 16, and 20.",
+    cron_schedule=="10 3 * * *", "At 03:10.", 
+    cron_schedule=="10,25,40,55 * * * *", "At minute 10, 25, 40, and 55.", 
+    cron_schedule=="15 * * * *", "At minute 15.",
+    cron_schedule=="15 */4 * * *", "At minute 15 past every 4th hour.",
+    cron_schedule=="15 0,4,8,12,16,20 * * *", "At minute 15 past hour 0, 4, 8, 12, 16, and 20.",
+    cron_schedule=="17 * * * *", "At minute 17.",
+    cron_schedule=="20 * * * *", "At minute 20.",
+    cron_schedule=="20 3 * * *", "At 03:20.",
+    cron_schedule=="25 * * * *", "At minute 25.",
+    cron_schedule=="30 * * * *", "At minute 30.",
+    cron_schedule=="30 0,4,8,12,16,20 * * *", "At minute 30 past hour 0, 4, 8, 12, 16, and 20.",
+    cron_schedule=="30 4 * * *", "At 04:30.",
+    cron_schedule=="33 3 * * *", "At 03:33.",
+    cron_schedule=="35 * * * *", "At minute 35.",
+    cron_schedule=="35 3 * * *", "At 03:35.",
+    cron_schedule=="40 * * * *", "At minute 40.",
+    cron_schedule=="45 * * * *", "At minute 45.",
+    cron_schedule=="50 * * * *", "At minute 50.",
+    cron_schedule=="50 4 * * *", "At 04:50.",
+    cron_schedule=="55 0,6,12,18 * * *", "At minute 55 past hour 0, 6, 12, and 18."
+    ) 
+  
+| stats count by  savedsearch_name cron_schedule,cron_description
+| table savedsearch_name, cron_schedule cron_description
+| stats list(savedsearch_name) by cron_schedule cron_description | sort cron_schedule</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>bundle_size</title>
+      <chart>
+        <search>
+          <query>index=_internal host=s1sh* name=bundle_metadata source=*/metrics.log* 
+| eval size_mb=round(((bundle_bytes / 1024) / 1024),2) 
+| timechart minspan=30s avg(size_mb) by bundle_type</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>sh_skipped_searches</title>
+      <table>
+        <search>
+          <query>(earliest=-60m index=_internal host=s1sh*  sourcetype=scheduler (status="completed" OR status="skipped")) 
+| stats count(eval(status=="completed" OR status=="skipped")) AS total_executions, count(eval(status=="skipped")) AS skipped_executions by host 
+| eval skip_ratio=((skipped_executions / total_executions) * 100), severity_level=case((skip_ratio == 0),0,(skip_ratio &gt; 0),2), skip_ratio=(round(skip_ratio,2) . "%") 
+| rename host as instance 
+| fields + instance, total_executions, skipped_executions, skip_ratio, severity_level</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>non_es_apps_searches</title>
+      <table>
+        <search>
+          <query>index=_internal host=s1sh* sourcetype=scheduler result_count 
+| extract pairdelim=",", kvdelim="=", auto=f 
+| stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app 
+| join savedsearch_name type=outer 
+    [| rest /servicesNS/-/-/saved/searches 
+    | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search 
+    | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS Owner cron_schedule AS "Cron Schedule" dispatch.earliest_time AS "Dispatch Earliest Time" dispatch.latest_time AS "Dispatch Latest Time"] 
+| rename savedsearch_name AS "Saved Search Name" search AS "SPL Query" app AS App max(run_time) AS max_run_time 
+| makemv delim="," values(host) 
+| sort - avg(run_time) 
+| search App=dwp* OR App=track*
+| eval app_run_time_min = round(max_run_time/60,2) 
+| table "Saved Search Name", App, Owner, "Cron Schedule" hosts, execution_count, sparkline, app_run_time_min</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>es_splunk_apps_searches</title>
+      <table>
+        <search>
+          <query>index=_internal host=s1sh* sourcetype=scheduler result_count 
+| extract pairdelim=",", kvdelim="=", auto=f 
+| stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app 
+| join savedsearch_name type=outer 
+    [| rest /servicesNS/-/-/saved/searches 
+    | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search 
+    | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS Owner cron_schedule AS "Cron Schedule" dispatch.earliest_time AS "Dispatch Earliest Time" dispatch.latest_time AS "Dispatch Latest Time"] 
+| rename savedsearch_name AS "Saved Search Name" search AS "SPL Query" app AS App max(run_time) AS max_run_time 
+| makemv delim="," values(host) 
+| sort - avg(run_time) 
+| search App=SA* OR App=Splunk* OR Appl=DA* 
+| eval app_run_time_min = round(max_run_time/60,2) 
+| table "Saved Search Name", App, Owner, "Cron Schedule" hosts, execution_count, sparkline, app_run_time_min</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>schedule_search_check</title>
+      <table>
+        <search>
+          <query>index=_internal host=s1sh* sourcetype=scheduler result_count | extract pairdelim=",", kvdelim="=", auto=f | stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app | join savedsearch_name type=outer [| rest /servicesNS/-/-/saved/searches | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS Owner cron_schedule AS "Cron Schedule" dispatch.earliest_time AS "Dispatch Earliest Time" dispatch.latest_time AS "Dispatch Latest Time"]| rename savedsearch_name AS "Saved Search Name" search AS "SPL Query" app AS App | makemv delim="," values(host) | sort - avg(run_time) | table "Saved Search Name", App, Owner, "SPL Query", "Dispatch Earliest Time" "Dispatch Latest Time" "Cron Schedule" hosts, execution_count, sparkline, *(result_count), sum(run_time) *(run_time)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>event_types_tags_check</title>
+      <table>
+        <search>
+          <query>| rest /services/configs/conf-tags splunk_server=local 
+| search malware=enabled 
+| eval equates=split(title, "=") 
+| eval conf_key=mvindex(equates, 0) 
+| eval conf_val=mvindex(equates, 1) 
+| eval conf_key=if(conf_key="eventtype", "eventtypes", conf_key) 
+| fields conf_key, conf_val 
+| map maxsearches=40 search="| rest /services/configs/conf-$$conf_key$$/$$conf_val$$ splunk_server=local | search disabled=0 | fields title, eai:acl.app, search"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">50</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>es_extended_rules ES Only</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local count=0 /services/saved/searches 
+| where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]") 
+| rename eai:acl.app as app, title as use_case_rule, action.correlationsearch.label as csearch_label, action.notable.param.security_domain as security_domain  eai:acl.perms.write AS permissions
+| table use_case_rule csearch_label, description app, security_domain, search cron_schedule disabled, permissions updated</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">50</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>event_types_per_app_check</title>
+      <table>
+        <search>
+          <query>| rest /services/saved/eventtypes splunk_server=local | where NOT (like(search,"%index=%") OR like(search,"%index =%")) | table splunk_server title search "eai:acl.app" tags "eai:acl.owner" disabled | rename title as "Name" "eai:acl.app" as app "eai:acl.owner" as owner</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">50</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
