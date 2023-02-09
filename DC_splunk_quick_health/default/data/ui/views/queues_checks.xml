@@ -1,4 +1,4 @@
-<form theme="dark">
+<form version="1.1" theme="dark">
   <label>queues checks</label>
   <fieldset submitButton="false">
     <input type="time" token="my_time">
@@ -56,7 +56,9 @@
         <search>
           <query>index=_internal host IN ($my_server$)
 group=queue name=tcpout* | eval
-output_queue_pct=current_size/max_size*100 | timechart
+output_queue_pct=current_size/max_size*100 
+| eval host=lower(host)
+| timechart
 perc95(output_queue_pct) by host | eval bad_threshold=80</query>
           <earliest>$my_time.earliest$</earliest>
           <latest>$my_time.latest$</latest>

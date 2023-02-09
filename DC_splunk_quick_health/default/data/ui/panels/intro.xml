@@ -1,0 +1,27 @@
+<panel>
+  <title>Splunk Quick Health Check Overview</title>
+  <html>
+    <p>The below are areas of Splunk checks that will help you with your Splunk Admin work.</p>
+    <p>These panels will assit you with various checks on the health of the Splunk Platform.</p>
+    <p>It does not replace the MC, but this should be used where you do not have the MC installed or need to run some quick checks.</p>
+    <p>This app is designed for Splunk admins only as access to various internal indexes and REST/api calls.</p>
+
+    <ol>
+      <li>Quick Overview Health</li>
+      <li>Index and Indexer Health</li>
+      <li>Data Quality Checks</li>
+      <li>Disk Capacity Health</li>
+      <li>Search Health</li>
+      <li>Queues Health</li>
+      <li>Inventory</li>
+      <li>Troubleshooting Help</li>
+      <li>ES Health</li>
+      <li>Admin Checks</li> 
+      <li>Audit Checks</li>
+      <li>Config Change Checks</li>
+    </ol>
+    
+    <p>Configure the macros as per your environment, see the panel 'Macros Check' for config.</p>
+    <p>Install the apps required - see panel on App Install and Config, these will show up on the App Install check Panel.</p>
+ </html>
+</panel>

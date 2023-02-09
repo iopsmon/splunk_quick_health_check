@@ -1,0 +1,39 @@
+<!-- This shows the app version -->
+<panel>
+      <title>Macros Check</title>
+      <html>
+  </html>
+  <html depends="$macros_check_panel$">
+      <h3>No results.</h3>
+  </html>
+      <table rejects="$macros_check_panel$">
+        <search>
+		<query>
+		| rest /services/configs/conf-macros
+                | fields definition , eai:acl.app, id, title
+                | search eai:acl.app=DC_splunk_quick_health 
+                | rename eai:acl.app AS app title as macro
+                | table app, macro, definition	
+		</query>
+          <earliest>-5m@m</earliest>
+          <latest>now</latest>
+           <progress>
+            <condition match="$job.resultCount$ == 0">
+              <set token="macros_check_panel">true</set>
+            </condition>
+            <condition>
+              <unset token="macros_check_panel"/>
+            </condition>
+          </progress>
+        </search>
+        <option name="rowNumbers">true</option>
+        <option name="count">5</option>
+	<fields>app,macro,definition</fields>
+       <format type="color" field="definition">
+       <colorPalette type="expression">if (like(value,"%s1*%"),"#FF5733","#90EE90")</colorPalette>
+       </format>
+        <drilldown>
+          <link taget="_blank">$row.file$</link>
+        </drilldown>
+      </table>
+    </panel>

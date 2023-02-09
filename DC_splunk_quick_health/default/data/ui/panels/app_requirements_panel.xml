@@ -1,0 +1,37 @@
+<!-- This shows the app version -->
+<panel>
+      <title>App Install Check</title>
+      <html>
+  </html>
+  <html depends="$app_requirements_panel$">
+      <h3>No results.</h3>
+  </html>
+      <table rejects="$app_requirements_panel$">
+        <search>
+		<query>
+		| rest /services/apps/local splunk_server=local
+                | fields label, version 
+                | rename label AS app 
+                | eval app_install_check=if(app=="Splunk Add-on for Unix and Linux" OR app=="Sankey Diagram", "App Installed", "App Not Found")
+                | search (app="Splunk Add-on for Unix and Linux" OR app="Sankey Diagram")
+                | table app, version, app_install_check
+		</query>
+          <earliest>-5m@m</earliest>
+          <latest>now</latest>
+           <progress>
+            <condition match="$job.resultCount$ == 0">
+              <set token="app_requirements__panel">true</set>
+            </condition>
+            <condition>
+              <unset token="app_requirements_panel"/>
+            </condition>
+          </progress>
+        </search>
+        <option name="rowNumbers">true</option>
+        <option name="count">5</option>
+	<fields>app, version, app_install_check </fields>
+        <format type="color" field="version">
+       <colorPalette type="expression">if (like(value,"%1.0.0%"),"#FF5733","#90EE90")</colorPalette>
+       </format>
+      </table>
+    </panel>

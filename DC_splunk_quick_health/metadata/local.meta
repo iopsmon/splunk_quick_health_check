@@ -1,0 +1,71 @@
+[views/check]
+version = 9.0.1
+modtime = 1669976259.135698000
+
+[views/dma_checks]
+version = 9.0.1
+modtime = 1669899996.910314000
+
+[views/inventory]
+version = 9.0.1
+modtime = 1669969533.007096000
+
+[views/sourcetypes]
+version = 9.0.2
+modtime = 1670672793.514121000
+
+[views/assets]
+version = 9.0.1
+modtime = 1669801458.262749000
+
+[views/ingest_data_checks]
+version = 9.0.1
+modtime = 1669970519.723370000
+
+[views/compute_checks]
+version = 9.0.2
+modtime = 1670919978.267482000
+
+[views/search_checks]
+version = 9.0.1
+modtime = 1669816691.983632000
+
+[views/app_analytics_checks]
+version = 9.0.2
+modtime = 1674242604.135844000
+
+[views/disk_checks]
+version = 9.0.2
+modtime = 1670577137.873108000
+
+[views/user_search_checks]
+access = read : [ sec_ops_admin ], write : [ sec_ops_admin, admin ]
+
+[views/internal_log_checks]
+version = 9.0.2
+modtime = 1671037555.233412000
+
+[views/queues_checks]
+version = 9.0.1
+modtime = 1669968831.501906000
+
+[views/audit_user_login_status]
+access = read : [ sec_ops_admin ], write : [ admin, sec_ops_admin ]
+export = system
+owner = deepakc
+version = 9.0.1
+modtime = 1670068713.396677000
+
+[views/audit_user_login_checks]
+version = 9.0.1
+modtime = 1670071751.006698000
+
+[views/config_tracker_checks]
+version = 9.0.2
+modtime = 1671005998.745510000
+
+[nav/default]
+version = 9.0.2
+modtime = 1675966388.900365000
+
+

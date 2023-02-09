@@ -1,4 +1,4 @@
-<form theme="dark">
+<form version="1.1" theme="dark">
   <label>dma checks</label>
   <fieldset submitButton="false">
     <input type="time" token="my_time" searchWhenChanged="true">
@@ -177,7 +177,7 @@ by savedsearch_name</query>
       <title>dma_memory_check</title>
       <chart>
         <search>
-          <query>index=_introspection host=s1sh* sourcetype=splunk_resource_usage component=PerProcess data.search_props.label=*ACCEL* 
+          <query>index=_introspection `my_sh_hosts` sourcetype=splunk_resource_usage component=PerProcess data.search_props.label=*ACCEL* 
 | rex field=data.search_props.label mode=sed "s/_ACCELERATE_DM_//g"
 | rex field=data.search_props.label mode=sed "s/_ACCELERATE_//g"
 
@@ -317,7 +317,7 @@ by app</query>
       <title>cim_macro_whitelists</title>
       <table>
         <search>
-          <query>| rest /servicesNS/-/-/admin/macros splunk_server=s1sh* | search title=cim_*_indexes | table title definition</query>
+          <query>| rest /servicesNS/-/-/admin/macros splunk_server=local | search title=cim_*_indexes | table title definition</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -405,7 +405,7 @@ last_sid", "summary.access_count"
       <title>sh_mem_check</title>
       <chart>
         <search>
-          <query>index=_introspection host=s1sh* data.search_props.sid=* earliest=-24h 
+          <query>index=_introspection `my_sh_hosts` data.search_props.sid=* earliest=-24h 
 | bin _time span=10s 
 | stats latest(data.mem_used) as mem_used by data.search_props.sid, data.search_props.type, _time 
 | stats sum(mem_used) as mem_used by data.search_props.sid, data.search_props.type, _time 
@@ -452,7 +452,7 @@ last_sid", "summary.access_count"
       <title>cpu_avg</title>
       <chart>
         <search>
-          <query>index=_introspection host=s1sh* data.search_props.sid=* earliest=-24h 
+          <query>index=_introspection `my_sh_hosts` data.search_props.sid=* earliest=-24h 
 | timechart span=5m avg("data.pct_cpu") as cpu_avg_use</query>
           <earliest>$my_time.earliest$</earliest>
           <latest>$my_time.latest$</latest>
@@ -496,7 +496,7 @@ last_sid", "summary.access_count"
       <title>mem_used_by_search_type</title>
       <chart>
         <search>
-          <query>index=_introspection host=s1sh* data.search_props.sid=* earliest=-24h 
+          <query>index=_introspection `my_sh_hosts` data.search_props.sid=* earliest=-24h 
 | bin _time span=10s 
 | stats latest(data.mem_used) as mem_used by data.search_props.sid, data.search_props.type, _time 
 | stats sum(mem_used) as mem_used by data.search_props.sid, data.search_props.type, _time 

@@ -1,4 +1,4 @@
-<form theme="dark">
+<form version="1.1" theme="dark">
   <label>disk checks</label>
   <!-- <This is for the latency dashboard</choice> -->
   <init>
@@ -46,7 +46,7 @@
   </row>
   <row>
     <panel id="panel1">
-      <title>disk check</title>
+      <title>disk check IDX servers</title>
       <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -71,10 +71,10 @@
       </input>
       <table rejects="$showExpandLink1$">
         <search>
-          <query>index=linux sourcetype=df source=df host=s1idx* Avail=* FreeMBytes=* mount=/  PercentFreeSpace=*  PercentUsedSpace=* Used=* UsePct=* Size=* earliest=-5mins latest=now 
+          <query>`my_linux_index` sourcetype=df source=df `my_idx_hosts` Avail=* FreeMBytes=* mount=*  PercentFreeSpace=*  PercentUsedSpace=* Used=* UsePct=* Size=* earliest=-5mins latest=now 
 | fields host Avail FreeMBytes mount  PercentFreeSpace  PercentUsedSpace Used UsePct Size
-| rename Size AS total_volume_size UsePct AS use_pct Used AS used mount AS hot_cold_mount Avail AS free_space
-| table host hot_cold_mount total_volume_size used use_pct free_space</query>
+| rename Size AS total_volume_size UsePct AS use_pct Used AS used mount AS mount Avail AS free_space
+| table host mount total_volume_size used use_pct free_space</query>
           <earliest>-4h@m</earliest>
           <latest>now</latest>
         </search>

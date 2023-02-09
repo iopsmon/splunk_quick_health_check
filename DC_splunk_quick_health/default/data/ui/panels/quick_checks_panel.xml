@@ -1,0 +1,9 @@
+<panel>
+  <title>Quick Health Checks</title>
+  <html>
+          <ul>
+	  <li><a target="_blank" href="/app/DC_splunk_quick_health/check">Quick Health Check</a></li>
+          <li><a class="external text" target="_blank" href="http://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference/Commandsbycategory">Search Commands Reference</a></li>
+    </ul>
+  </html>
+</panel>

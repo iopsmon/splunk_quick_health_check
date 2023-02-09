@@ -1,6 +1,9 @@
 <nav search_view="search" color ="#c70000" >
-<collection label="Quick_Checks">
-<view name="check" default='true' />
+	
+<view name="home" default='true' />
+
+<collection label="Quick Checks">
+<view name="check" />
 <divider />
 <view name="indexes" />
 <divider />
@@ -31,6 +34,23 @@
         <view name="es_checks"></view>
         <view name="index_cim_data_checks"></view>
 </collection>
+
+
+<collection label="Admin">
+        <view name="user_quota_checks"></view>
+        <view name="app_analytics_checks"></view> 
+</collection>
+
+<collection label="Config Tracker">
+        <view name="config_tracker_checks"></view>
+</collection>
+
+
+<collection label="Audit">
+	<view name="user_search_checks"></view>
+        <view name="audit_user_login_checks"></view> 
+</collection>
+
 
 
 <collection label="Documentation">

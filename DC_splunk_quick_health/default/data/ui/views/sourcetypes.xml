@@ -1,9 +1,10 @@
-<form theme="dark">
+<form version="1.1" theme="dark">
   <init>
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
     <set token="showExpandLink3">true</set>
     <set token="showExpandLink4">true</set>
+    <set token="showExpandLink5">true</set>
   </init>
   <label>sourcetypes</label>
   <search id="baseSearch_2">
@@ -108,9 +109,8 @@
       <title>sourcetypes not logged data last 1 days</title>
       <single>
         <search base="baseSearch_2">
-          <query>
-| where Last_Update &lt;= relative_time(now(),"-1d") 
-| stats dc(sourcetype) as sourcetypecount</query>
+          <query>| where Last_Update &lt;= relative_time(now(),"-1d") 
+| stats dc(sourcetype) as sourcetype_stopped</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">block</option>
@@ -128,7 +128,7 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <drilldown>
-          <link target="_blank">search?q=%7C%20metadata%20type=sourcetypes%20index=*%20%7C%20%20table%20sourcetype,%20firstTime,%20lastTime,%20recentTime%0A%7C%20rename%20totalCount%20as%20Count%20firstTime%20as%20%22First_Event%22%20lastTime%20as%20%22Last_Event%22%20recentTime%20as%20%22Last_Update%22%20%0A%7C%20fieldformat%20Count=tostring(Count,%20%22commas%22)%20%0A%7C%20fieldformat%20%22First_Event%22=strftime('First_Event',%20%22%25c%22)%20%0A%7C%20fieldformat%20%22Last_Event%22=strftime('Last_Event',%20%22%25c%22)%0A%7C%20fieldformat%20%22Last_Update%22=strftime('Last_Update',%20%22%25c%22)%0A%7C%20where%20Last_Update%20%3C=%20relative_time(now(),%22-1d%22)%20%0A%7C%20stats%20dc(sourcetype)%20as%20sourcetypecount&amp;earliest=-24h@h&amp;latest=now</link>
+          <link target="_blank">search?q=%7C%20metadata%20type%3Dsourcetypes%20index%3D*%20%7C%20%20table%20sourcetype%2C%20firstTime%2C%20lastTime%2C%20recentTime%0A%7C%20rename%20totalCount%20as%20Count%20firstTime%20as%20%22First_Event%22%20lastTime%20as%20%22Last_Event%22%20recentTime%20as%20%22Last_Update%22%20%0A%7C%20fieldformat%20Count%3Dtostring(Count%2C%20%22commas%22)%20%0A%7C%20fieldformat%20%22First_Event%22%3Dstrftime('First_Event'%2C%20%22%25c%22)%20%0A%7C%20fieldformat%20%22Last_Event%22%3Dstrftime('Last_Event'%2C%20%22%25c%22)%0A%7C%20fieldformat%20%22Last_Update%22%3Dstrftime('Last_Update'%2C%20%22%25c%22)%0A%7C%20where%20Last_Update%20%3C%3D%20relative_time(now()%2C%22-1d%22)%20%0A%7C%20stats%20list(sourcetype)%20as%20sourcetype_stopped&amp;earliest=-24h@h&amp;latest=now</link>
         </drilldown>
       </single>
     </panel>
@@ -284,6 +284,49 @@
       </table>
     </panel>
   </row>
+  <row>
+    <panel id="panel5">
+      <title>index - ratio by sourcetypes</title>
+      <input id="linkCollapse5" type="link" token="tokLinkCollapse5" searchWhenChanged="true" depends="$showCollapseLink5$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink5"></unset>
+            <set token="showExpandLink5">true</set>
+            <unset token="form.tokLinkCollapse5"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand5" type="link" token="tokLinkExpand5" searchWhenChanged="true" depends="$showExpandLink5$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink5">true</set>
+            <unset token="showExpandLink5"></unset>
+            <unset token="form.tokLinkExpand5"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink5$">
+        <search>
+          <query>| tstats count dc(host) AS hosts WHERE earliest=-7d@d index=* BY index sourcetype | sort - count | eventstats sum(count) AS total by index | stats sum(count) AS sum_count dc(sourcetype) AS sourcetype_count list(sourcetype) AS sourcetype  list(count) AS count list(eval(round(((count/total)*100),2)."%")) AS percent_coverage list(hosts) AS unique_hosts by index | sort - sum_count | join index [| rest /servicesNS/-/-/data/indexes splunk_server=* | fields maxDataSize title frozenTimePeriodInSecs splunk_server | eval retention_days=frozenTimePeriodInSecs/60/60/24 | stats list(maxDataSize) list(splunk_server) list(retention_days) by title | rename title AS index]</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
   <row depends="$alwaysHideCSSStyleOverride$">
     <panel>
       <html>
@@ -312,27 +355,6 @@
           }
         </style>
       </html>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>sourcetype_idx_ratio</title>
-      <table>
-        <search>
-          <query>| tstats count dc(host) AS hosts WHERE earliest=-7d@d index=* BY index sourcetype | sort - count | eventstats sum(count) AS total by index | stats sum(count) AS sum_count dc(sourcetype) AS sourcetype_count list(sourcetype) AS sourcetype  list(count) AS count list(eval(round(((count/total)*100),2)."%")) AS percent_coverage list(hosts) AS unique_hosts by index | sort - sum_count | join index [| rest /servicesNS/-/-/data/indexes splunk_server=* | fields maxDataSize title frozenTimePeriodInSecs splunk_server | eval retention_days=frozenTimePeriodInSecs/60/60/24 | stats list(maxDataSize) list(splunk_server) list(retention_days) by title | rename title AS index]</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-      </table>
     </panel>
   </row>
 </form>

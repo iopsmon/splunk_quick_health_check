@@ -1,4 +1,4 @@
-<form theme="dark">
+<form version="1.1" theme="dark">
   <label>search checks</label>
   <!-- <This is for the latency dashboard</choice> -->
   <init>
@@ -46,7 +46,7 @@
   </row>
   <row>
     <panel>
-      <title>search avg_count</title>
+      <title>search_avg_count</title>
       <single>
         <search>
           <query>index=_audit search_id!="'rsa_*" search_id!="'RemoteStorageRetrieveBuckets_*" search_id!="'searchparsetmp_*" search_id!="'remote_*" search_id=* total_run_time earliest=-7d@d latest=@d
@@ -324,7 +324,7 @@ earliest=-1d@d latest=now
       </input>
       <chart rejects="$showExpandLink4$">
         <search>
-          <query>index=_introspection host="s1sh*"  data.search_props.sid=* earliest=-1h 
+          <query>index=_introspection `my_sh_hosts`  data.search_props.sid=* earliest=-1h 
 | bin _time span=10s|stats latest(data.mem_used) as mem_used by data.search_props.sid, data.search_props.type, _time 
 | stats sum(mem_used) as mem_used by data.search_props.sid, data.search_props.type, _time 
 | timechart median(mem_used) by data.search_props.type</query>
@@ -335,6 +335,7 @@ earliest=-1d@d latest=now
       </chart>
     </panel>
   </row>
+ 
   <row>
     <panel id="panel5">
       <title>User Searches</title>
@@ -376,11 +377,37 @@ index=_audit action=search info=granted search=* NOT "search_id='scheduler" NOT 
       </table>
     </panel>
   </row>
+ 
+ 
+ 
+ 
   <row>
-    <panel>
-      <title>search_concurrency</title>
-      <table>
-        <search>
+    <panel id="panel6">
+      <title>Search Concurrency</title>
+      <input id="linkCollapse6" type="link" token="tokLinkCollapse6" searchWhenChanged="true" depends="$showCollapseLink6$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink6"></unset>
+            <set token="showExpandLink6">true</set>
+            <unset token="form.tokLinkCollapse6"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand6" type="link" token="tokLinkExpand6" searchWhenChanged="true" depends="$showExpandLink6$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink6">true</set>
+            <unset token="showExpandLink6"></unset>
+            <unset token="form.tokLinkExpand6"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink6$">
+         <search>
           <query>index=_introspection data.search_props.sid::* component=PerProcess sourcetype=splunk_resource_usage earliest=-7d@d latest=@d 
 | eval elapsed='data.elapsed', sid='data.search_props.sid', type='data.search_props.type', search_head=coalesce('data.search_props.search_head',host) 
 | bin span=30s _time 
@@ -412,7 +439,7 @@ index=_audit action=search info=granted search=* NOT "search_id='scheduler" NOT 
       </table>
     </panel>
   </row>
-  <row>
+    <row>
     <panel>
       <html>
         <style>

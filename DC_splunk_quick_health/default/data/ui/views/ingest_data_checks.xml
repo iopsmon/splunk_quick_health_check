@@ -1,6 +1,6 @@
-<form theme="dark">
+<form version="1.1" theme="dark">
   <label>ingest data checks</label>
-  <description>Defender data - used for stats and analysis</description>
+  <description>used for stats and analysis</description>
   <fieldset submitButton="false">
     <input type="time" token="my_time">
       <label>enter_time</label>
@@ -13,6 +13,12 @@
       <label>enter_index</label>
       <fieldForLabel>index</fieldForLabel>
       <fieldForValue>index</fieldForValue>
+      <change>
+        <condition value="compare">
+          <set token="my_index">true</set>
+          <unset token="my_index"></unset>
+        </condition>
+      </change>
       <search>
         <query>| tstats count where index!=_* by index</query>
         <earliest>-24h@h</earliest>
@@ -20,22 +26,35 @@
       </search>
     </input>
     <input type="dropdown" token="my_sourcetype">
-      <label>my_sourcetype</label>
+      <label>enter_sourcetype</label>
       <fieldForLabel>sourcetype</fieldForLabel>
       <fieldForValue>sourcetype</fieldForValue>
+      <change>
+        <condition value="compare">
+          <set token="my_sourcetype">true</set>
+          <unset token="my_sourcetype"></unset>
+        </condition>
+      </change>
       <search>
-        <query>index=$my_index$ sourcetype=* | fields sourcetype | table sourcetype | dedup sourcetype</query>
+        <query>| tstats count WHERE index=$my_index$ by index sourcetype | table sourcetype</query>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
       </search>
     </input>
     <input type="dropdown" token="my_host">
-      <label>my_host</label>
+      <label>enter_host</label>
       <fieldForLabel>host</fieldForLabel>
       <fieldForValue>host</fieldForValue>
+      <change>
+        <condition value="compare">
+          <set token="my_host">true</set>
+          <unset token="my_index"></unset>
+        </condition>
+      </change>
       <search>
         <query>index=_internal source=*metrics.log group=tcpin_connections fwdType=* hostname=*   
 | rename hostname AS host
+| eval host=lower(host)
 | table host | dedup host</query>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
@@ -83,10 +102,10 @@
   </row>
   <row>
     <panel>
-      <title>mb_usage $my_index$</title>
+      <title>mb_usage $my_index$ $my_host$</title>
       <chart>
         <search>
-          <query>index=_internal  sourcetype=splunkd component=LicenseUsage idx=$my_index$ 
+          <query>index=_internal  sourcetype=splunkd component=LicenseUsage idx=$my_index$ h=$my_host$
  | eval mb_usage =round(b/1024)
 | timechart span=1d sum(mb_usage) by h</query>
           <earliest>$my_time.earliest$</earliest>
@@ -128,7 +147,7 @@
       </chart>
     </panel>
     <panel>
-      <title>avg_throughput</title>
+      <title>avg_throughput $my_host$</title>
       <chart>
         <search>
           <query>index=_internal host=$my_host$   source=*metrics.log* group=tcpout_connections
@@ -222,10 +241,10 @@
       </chart>
     </panel>
     <panel>
-      <title>event_count $my_index$</title>
+      <title>event_count $my_index$ $my_host$</title>
       <chart>
         <search>
-          <query>index=$my_index$  | timechart count by host span=30m</query>
+          <query>index=$my_index$ host=$my_host$ | timechart count by host span=30m</query>
           <earliest>$my_time.earliest$</earliest>
           <latest>$my_time.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -267,10 +286,10 @@
   </row>
   <row>
     <panel>
-      <title>events over time $my_index$</title>
+      <title>events over time $my_index$ $my_host$</title>
       <chart>
         <search>
-          <query>index=$my_index$ sourcetype=*
+          <query>index=$my_index$ host=$my_host$ sourcetype=*
 | timechart count by host</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
@@ -318,7 +337,7 @@
   </row>
   <row>
     <panel>
-      <title>events $my_index$</title>
+      <title>events $my_index$ $my_host$</title>
       <event>
         <search>
           <query>index=$my_index$ sourcetype=$my_sourcetype$   | fields _time, host, source, sourcetype _raw</query>

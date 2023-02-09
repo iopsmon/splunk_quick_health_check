@@ -1,0 +1,122 @@
+<dashboard version="1.1" theme="dark">
+  <label>user concurrency disk quota checks</label>
+  <description>checks user concurrency limits</description>
+  <row>
+    <panel>
+      <!-- This changes the font sizes -->-<html>
+<style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
+</html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>user_exceeded_count_over_1h</title>
+      <table>
+        <search>
+          <query>index=_internal  host=s1sh* component=DispatchManager concurrency_limit=* enforceQuotas: username=* reason="The maximum number of concurrent historical searches for this user based on their role quota has been reached." earliest=-1h latest=now
+| fields username concurrency_limit component reason
+```the above gets metrics from internal index when user exceeds quota over the last hour```
+| streamstats count(concurrency_limit) AS count
+````the above is the count of events for the metric concurrency_limit```
+| stats max(count) as exceeded_concurrency_limit_1h by username, concurrency_limit
+```the above shows the max time of events - indicator to show which user is reachingb limits - you must avoid spikes - if this metric is continualy high then we need to adjust```</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="exceeded_concurrency_limit_1h">
+          <colorPalette type="list">[#18C4F6,#FF8914,#F8220D]</colorPalette>
+          <scale type="threshold">5,10,15</scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>user_concurrency_view_over_1min</title>
+      <chart>
+        <search>
+          <query>index=_internal
+host=s1sh*  source=*metrics.log group="search_concurrency" 
+```the above searches internal and source metrics log for search concurrency every minute, this will look for only the security search heads and users of this cluster```
+```| stats sum(active_hist_searches) as concurrent_searches by user``` 
+| timechart span=1m sum(active_hist_searches) as concurrent_searches by user   usenull=false useother=false limit=0
+``` the timechart shows users concurrency, the current limit is 15 for the analysts```</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.axisTitleY2.visibility">collapsed</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">1</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">small</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>disk_quota_user</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local /services/search/jobs
+| eval diskUsageMB=round(diskUsage/1024/1024,00)
+| rename eai:acl.owner AS user
+| rename eai:acl.app AS app
+```| search app=my*```
+| stats sum(diskUsageMB) as diskUsageMB  by user, app
+| sort - diskUsageMB
+```This SPL runs a rest call to the local search head for search jobs based on the apps```
+
+```It then calcs the sum of the disk usage in MB by the user, this is a good average indicator of the how much disk capacity is being used for SEARCHES (nothing to do with indexer size) and helps with the jobs disk quota limit set at 500MB```</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">heatmap</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

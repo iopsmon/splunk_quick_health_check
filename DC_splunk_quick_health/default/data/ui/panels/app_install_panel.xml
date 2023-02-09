@@ -1,0 +1,35 @@
+<panel>
+  <title>App Install And Config</title>
+  <html>
+    <p>[Install App]</p>
+    <ol>
+      <li>Install this ap onto the Splunk SH / SHC / AIO as admin
+tar -cvf DC_splunk_quick_health.tar -C /opt/splunk/etc/apps
+OR use the GUI method</li>
+      <li>Install the Sankey Diagram App onto SH / SHC / AIO</li>
+      <li>Install and confgure Splunk Nix Add-on to all the Splunk servers</li>
+    </ol>
+    
+    <p>[Config]</p>
+    <p>Configure macros.conf - these are required as per your enviroment</p>
+    <ol>
+     <li>Add your license limit - eg 100 `my_lic_limit` </li>
+     <li>Add your indexers for OS disk space check eg splunk_servers=idx* `my_idx_servers` </li>
+     <li>Add your indexers hosts  eg splunk_servers=idx* `my_idx_hosts` </li>
+     <li>Add your search head to check for users login, eg splunk_servers=sh* `my_sh_servers`</li>
+     <li>Add all your Splunk servers `all_splunk_hosts`` </li>
+     <li>Add your linux index for Nix TA to `my_linux_index` </li>
+
+ </ol>
+
+ <p>[Nix TA]</p>
+    <p>Configure the Nix TA inputs.conf - these are required as per your linux environment</p>
+    <ol>
+     <li>Install the linux iostat tool - this is to collect IO stats </li>
+     <li>Set log file permissions to read for Splunk user to the target files in /var/log</li>
+     <li>Deploy Nix TA to all Splunk servers </li>
+ </ol>
+
+
+</html>
+</panel>

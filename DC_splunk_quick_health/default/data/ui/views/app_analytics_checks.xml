@@ -1,0 +1,518 @@
+<form version="1.1" theme="dark">
+  <label>app analytics</label>
+  <description>App Analytics Overview</description>
+  <fieldset submitButton="false">
+    <input type="time" token="pick_time">
+      <label>pick_time</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="app_name" searchWhenChanged="true">
+      <label>app_name</label>
+      <fieldForLabel>app</fieldForLabel>
+      <fieldForValue>app</fieldForValue>
+      <change>
+        <condition value="compare">
+          <set token="app_name">true</set>
+          <unset token="app_name"></unset>
+        </condition>
+      </change>
+      <search>
+        <query>| rest /servicesNS/-/-/admin/directory count=0 splunk_server=local 
+| fields eai:acl.app, eai:acl.owner, eai:acl.perms.*, eai:acl.sharing, title, eai:type, disabled
+| rename eai:acl.app AS app
+| table app
+| dedup app</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+      <default>search</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <!-- This changes the font sizes and colour of table text - works well with dark mode -->-<html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+     
+      </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>users_last_1hr</title>
+      <single>
+        <search>
+          <query>index=_internal sourcetype="splunk_web_access" method="GET" status="200" user!=-
+| search app=$app_name$ 
+| stats count latest(_time) as ViewTime by user app 
+| stats count by user | stats count</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>10m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x1182f3","0x1182f3"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">users_last_1hr</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>total_dashboards_in_app</title>
+      <single>
+        <search>
+          <query>| rest /servicesNS/-/-/admin/directory count=0 splunk_server=local 
+| fields eai:acl.app, title 
+| search eai:acl.app=$app_name$
+| rename title AS dashboards 
+| stats count by dashboards | stats count  
+```| table eai:acl.app, eai:acl.owner, eai:acl.perms.*, eai:acl.sharing, title, eai:type, disabled```</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x1182f3","0x1182f3"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">total_dashboards</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>total_lookups</title>
+      <single>
+        <search>
+          <query>| rest /services/data/lookup-table-files/
+| search eai:acl.app=$app_name$
+| fields eai:acl.app title 
+| rename eai:acl.app AS app title AS lookup_file 
+| stats count by lookup_file | stats count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x1182f3","0x1182f3"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">lookup_files_in_app</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>total_saved_searches</title>
+      <single>
+        <search>
+          <query>index=_internal sourcetype=scheduler result_count 
+| extract pairdelim=",", kvdelim="=", auto=f 
+| search app=$app_name$ 
+| stats dc(result_count)  by savedsearch_name, app 
+| stats count by savedsearch_name | stats sum</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x1182f3","0x1182f3"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">total_saved_searches</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>app_version</title>
+      <single>
+        <search>
+          <query>| rest /services/apps/local
+| fields title, version
+| search title=$app_name$
+| rename title AS app 
+| table version</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x1182f3","0x1182f3"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">version</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Dashboards Table Overview For App</title>
+      <table>
+        <search>
+          <query>| rest /servicesNS/-/-/admin/directory count=0 splunk_server=local 
+| fields eai:acl.app, eai:acl.owner, eai:acl.perms.*, eai:acl.sharing, title, eai:type, disabled
+| search eai:acl.app=$app_name$
+| foreach eai:*.* 
+    [ rename "&lt;&lt;FIELD&gt;&gt;" TO &lt;&lt;MATCHSEG2&gt;&gt; ] 
+| foreach eai:* 
+    [ rename "&lt;&lt;FIELD&gt;&gt;" TO &lt;&lt;MATCHSTR&gt;&gt; ] 
+| eval attribute=replace(title,"(.*:\s+)(.*)","\2") 
+| eval st=replace(title,"(.*)(\s+:.*)","\1") 
+| eval props_sourcetype=if(st==attribute,"",st) 
+| join type=outer attribute 
+    [| rest /servicesNS/-/-/admin/props-extract count=0 splunk_server=local 
+    | fields attribute value stanza type 
+    | rename value TO props_value, stanza to props_stanza, type to props_type ] 
+| join type=outer attribute 
+    [| rest /servicesNS/-/-/admin/transforms-extract count=0 splunk_server=local 
+    | fields REGEX FORMAT disabled eai:acl.app title FIELDS 
+    | makemv delim="," FIELDS 
+    | rename FIELDS to tf_fields, disabled to tf_disabled, REGEX to tf_regex, FORMAT to tf_format, title to attribute, eai:acl.app to tf_app] 
+| fillnull disabled tf_disabled 
+| table app disabled type attribute props_type props_stanza props_value props_sourcetype tf_disabled tf_format tf_fields tf_regex sharing perms.* owner 
+| search (app="*" AND (sharing="*")) AND disabled=* 
+| rename attribute TO "Object Name"</query>
+          <earliest>$pick_time.earliest$</earliest>
+          <latest>$pick_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>saved_searches_table</title>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=scheduler result_count 
+| extract pairdelim=",", kvdelim="=", auto=f 
+| search app=$app_name$ 
+| stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app 
+| join savedsearch_name type=outer 
+    [| rest /servicesNS/-/-/saved/searches 
+    | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search 
+    | rename title AS savedsearch_name eai:acl.app AS app eai:acl.owner AS owner dispatch.earliest_time AS dispatch_earliest_time dispatch.latest_time AS dispatch_latest_time] 
+| rename search AS spl_query max(run_time) AS max_run_time 
+| makemv delim="," values(host) 
+| sort - avg(run_time) 
+| eval app_run_time_min = round(max_run_time/60,2) 
+  | eval cron_description=case(cron_schedule=="0", "At every minute.", cron_schedule=="*/15 * * * *", "At every 15th minute",
+    cron_schedule=="*/30 * * * *", "At every 30th minute.", cron_schedule=="*/5 * * * *", "At every 5th minute",
+    cron_schedule=="0 * * * *", "At minute 0",
+    cron_schedule=="0 2 * * *", "At 02:00",
+    cron_schedule=="0 3 * * *", "At 03:00",
+    cron_schedule=="0 5 * * *", "At 05:00",
+    cron_schedule=="1 * * * *", "At minute 1", 
+    cron_schedule=="1 0 * * *", "At 00:01",
+    cron_schedule=="1 1 * * *", "At 01:01",
+    cron_schedule=="1 3 * * *", "At 03:01",
+    cron_schedule=="1-56/5 * * * *", "At every 5th minute from 1 through 56",
+    cron_schedule=="5 * * * *", "At minute 5",
+    cron_schedule=="10 * * * *", "At minute 10",
+    cron_schedule=="10 0,4,8,12,16,20 * * *", "At minute 10 past hour 0, 4, 8, 12, 16, and 20",
+    cron_schedule=="10 3 * * *", "At 03:10", 
+    cron_schedule=="10,25,40,55 * * * *", "At minute 10, 25, 40, and 55", 
+    cron_schedule=="15 * * * *", "At minute 15",
+    cron_schedule=="15 */4 * * *", "At minute 15 past every 4th hour",
+    cron_schedule=="15 0,4,8,12,16,20 * * *", "At minute 15 past hour 0, 4, 8, 12, 16, and 20",
+    cron_schedule=="17 * * * *", "At minute 17",
+    cron_schedule=="20 * * * *", "At minute 20",
+    cron_schedule=="20 3 * * *", "At 03:20",
+    cron_schedule=="25 * * * *", "At minute 25",
+    cron_schedule=="30 * * * *", "At minute 30",
+    cron_schedule=="30 0,4,8,12,16,20 * * *", "At minute 30 past hour 0, 4, 8, 12, 16, and 20",
+    cron_schedule=="30 4 * * *", "At 04:30",
+    cron_schedule=="33 3 * * *", "At 03:33",
+    cron_schedule=="35 * * * *", "At minute 35",
+    cron_schedule=="35 3 * * *", "At 03:35",
+    cron_schedule=="40 * * * *", "At minute 40",
+    cron_schedule=="45 * * * *", "At minute 45",
+    cron_schedule=="50 * * * *", "At minute 50",
+    cron_schedule=="50 4 * * *", "At 04:50",
+    cron_schedule=="55 0,6,12,18 * * *", "At minute 55 past hour 0, 6, 12, and 18",
+    cron_schedule=="04,34 * * * *", "At minute 4 and 34",
+    cron_schedule=="4-55/15 * * * *", "At every 15th minute from 4 through 55",
+    cron_schedule=="3-54/15 * * * *", "At every 15th minute from 3 through 54",	
+    cron_schedule=="12 03 * * *", "At 03:12",
+    cron_schedule=="37 */4 * * *", "At minute 37 past every 4th hour",
+    cron_schedule=="13-59/15 * * * *", "At every 15th minute from 13 through 59",
+    cron_schedule=="4 1-22/4 * * *", "At minute 4 past every 4th hour from 1 through 22",
+    cron_schedule=="6-53/15 * * * *", "At every 15th minute from 6 through 53",
+    cron_schedule=="6-56/15 * * * *", "At every 15th minute from 6 through 56",
+    cron_schedule=="3 1 * * *", "At 01:03",
+    cron_schedule=="5-55/15 * * * *", "At every 15th minute from 5 through 55",
+    cron_schedule=="4-54/15 * * * *", "At every 15th minute from 4 through 54",
+    cron_schedule=="1-53/10 * * * *", "At every 10th minute from 1 through 53",		
+    cron_schedule=="0 9 * * 1", "At 09:00 on Monday",		
+    cron_schedule=="5-52/15 * * * *", "At every 15th minute from 5 through 52",		
+    cron_schedule=="1-48/15 * * * *", "At every 15th minute from 1 through 48",		
+    cron_schedule=="15 */3 * * *", "At minute 15 past every 3rd hour",		
+    cron_schedule=="5-56/15 * * * *", "At every 15th minute from 5 through 56",		
+    cron_schedule=="11-57/15 * * * *", "At every 15th minute from 11 through 57",		
+    cron_schedule=="3-50/15 * * * *", "3-50/15 * * * *",		
+    cron_schedule=="4-51/15 * * * *", "At every 15th minute from 4 through 51",		
+    cron_schedule=="2-49/15 * * * *", "At every 15th minute from 2 through 49",		
+    cron_schedule=="11-53/20 * * * *", "At every 20th minute from 11 through 53",		
+    cron_schedule=="3-53/15 * * * *", "At every 15th minute from 3 through 53",		
+    cron_schedule=="8-54/15 * * * *", "At every 15th minute from 8 through 54",		
+    cron_schedule=="3-53/10 * * * *", "At every 10th minute from 3 through 53",		
+    cron_schedule=="6-54/15 * * * *", "At every 15th minute from 6 through 54",		
+    cron_schedule=="14 * * * *", "At minute 14",		
+    cron_schedule=="1-51/15 * * * *", "At every 15th minute from 1 through 51",		
+    cron_schedule=="12 * * * *", "At minute 12",		
+    cron_schedule=="12-54/20 * * * *", "At every 20th minute from 12 through 54",		
+    cron_schedule=="7-54/15 * * * *", "At every 15th minute from 7 through 54",		
+    cron_schedule=="13-50/30 * * * *", "At every 30th minute from 13 through 50",
+    cron_schedule=="3 23 * * *", "At 23:03",
+    cron_schedule=="0 */2 * * *", "At minute 0 past every 2nd hour",
+    cron_schedule=="0 12 * * 1-5", "At 12:00 on every day-of-week from Monday through Friday"
+   )
+| eval app_run_time_min = round(max_run_time/60,2) 
+| table savedsearch_name, app, owner, cron_schedule, cron_description, hosts, execution_count, sparkline, app_run_time_min</query>
+          <earliest>$pick_time.earliest$</earliest>
+          <latest>$pick_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>app_users_views</title>
+      <table>
+        <search>
+          <query>index=_internal earliest=-1d@d latest=now 
+| search app=$app_name$
+| stats latest(_time) as _time, values(view) as dashboards, values(app) as app, values(uri) as uri by user</query>
+          <earliest>$pick_time.earliest$</earliest>
+          <latest>$pick_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>app_ko_check</title>
+      <table>
+        <search>
+          <query>| rest /servicesNS/-/-/admin/directory count=0 splunk_server=local
+| rename eai:* as *, acl.* as *
+| search app=$app_name$
+| eval updated=strptime(updated,"%Y-%m-%dT%H:%M:%S%Z"), updated=if(isnull(updated),"Never",strftime(updated,"%d %b %Y"))
+| sort type
+| stats list(title) as knowledge_object, list(type) as ko_type, list(orphaned) as orphaned, list(sharing) as sharing, list(owner) as owner, list(updated) as updated by app</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>lookups_table</title>
+      <table>
+        <search>
+          <query>| rest /services/data/lookup-table-files/
+| search eai:acl.app=$app_name$
+| fields eai:acl.app eai:acl.owner eai:acl.perms.write eai:acl.sharing eai:data eai:userName title updated
+| rename eai:acl.app AS app eai:acl.owner AS owner eai:acl.perms.write AS write_perms  eai:acl.sharing AS sharing  eai:data AS data_file  eai:userName AS user  title AS lookup_name 
+| table app owner write_perms sharing data_file user lookup_name updated</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>saved_search_spl_query</title>
+      <table>
+        <search>
+          <query>index=_internal   sourcetype=scheduler result_count 
+| search app=$app_name$ 
+| extract pairdelim=",", kvdelim="=", auto=f 
+| stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app 
+| join savedsearch_name type=outer 
+    [| rest /servicesNS/-/-/saved/searches 
+    | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search 
+    | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS owner dispatch.earliest_time AS dispatch_earliest_time dispatch.latest_time AS dispatch_latest_time] 
+| rename savedsearch_name AS saved_search_name search AS "spl_query" 
+| makemv delim="," values(host) 
+| rex field=spl_query "(?&lt;index_used&gt;index=[^ ]+)" 
+| sort - avg(run_time) 
+| table saved_search_name app, index_used, spl_query, owner, cron_schedule hosts, execution_count, sparkline, sum(run_time) *(run_time)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>dashboard_checks</title>
+      <table>
+        <search>
+          <query>| rest /servicesNS/-/-/data/ui/views
+| rename eai:acl.app AS app
+| search app=$app_name$
+| rename eai:acl.perms.write as dashboard-write-permission
+| rename eai:acl.perms.read as dashboard-read-permission
+| rename eai:appName as appName
+| rename eai:data AS data
+| join type=outer appName
+[| rest /servicesNS/-/-/apps/local
+| rename title AS appName
+| rename eai:acl.perms.read AS app-read-permission
+| rename eai:acl.perms.write AS app-write-permission]
+| table app label title dashboard-read-permission dashboard-read-permission app-write-permission app-read-permission data</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">1</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

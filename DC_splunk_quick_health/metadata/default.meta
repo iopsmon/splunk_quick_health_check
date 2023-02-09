@@ -1,35 +1,50 @@
 
 # Application-level permissions
-
 []
-access = read : [ * ], write : [ admin, power ]
+access = read : [* ], write : [admin, sc_admin ]
+
+
+[savedsearches]
+owner = admin
+
+## Exclude export of custom alert actions
+[alert_actions/email]
+export = none
+
 
 ### EVENT TYPES
-
 [eventtypes]
+access = read : [ * ], write : [ admin ]
 export = system
 
 
 ### PROPS
-
 [props]
+access = read : [ * ], write : [ admin ]
 export = system
-
 
 ### TRANSFORMS
-
 [transforms]
+access = read : [ * ], write : [ admin ]
 export = system
-
 
 ### LOOKUPS
-
 [lookups]
+access = read : [ * ], write : [ admin ]
 export = system
 
-
-### VIEWSTATES: even normal users should be able to create shared viewstates
-
-[viewstates]
-access = read : [ * ], write : [ * ]
+### Views
+[views]
+access = read : [ * ], write : [ admin ]
 export = system
+
+### Macros
+[macros]
+access = read : [ * ], write : [ admin ]
+export = system
+
+### Checklists
+[checklist]
+access = read : [ * ], write : [ admin ]
+export = system
+                                                         

@@ -1,26 +1,12 @@
-<dashboard theme="dark">
+<dashboard version="1.1" theme="dark">
   <label>compute checks</label>
   <row>
     <panel>
-      <!-- This changes the font sizes -->
-      <html>
-        <style>
-          table tbody tr td{
-            font-size:120% !important;
-            }
-          table thead tr th{
-          font-size:120% !important;
-          }
-       
-         table th td {
-         color:#b3b300;
-        
-         }
-          table tr td {
-         color:#b3b300;
-         }
-         </style>
-      </html>
+      <!-- This changes the font sizes -->-<html>
+ 
+<style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
+ 
+</html>
     </panel>
   </row>
   <row>
@@ -58,12 +44,12 @@
       <title>last_30_min_io_checks</title>
       <table>
         <search>
-          <query>index=linux host=s1idx* sourcetype=iostat
+          <query>`my_linux_index` `my_idx_hosts`  sourcetype=iostat bandwUtilPct=* Device!=dm-*
 earliest=-30m latest=now
-| fields _time, latency, host 
-| stats max(latency) as io_latency by host
-| where io_latency&gt;=10
-| eval compute_high_risk = case(io_latency &lt;=10,"Idx Compute Good", io_latency &gt;=10 ,"Idx Compute High - Last 30 Mins", io_latency &gt;=20,"Idx Compute High -  Business Impact - Last 30 Mins ")</query>
+| fields _time, bandwUtilPct, host 
+| stats max(bandwUtilPct) as io_percent by host
+| where io_percent&gt;=0
+| eval compute_high_risk = case(io_percent &lt;=10,"Idx Compute Good", io_percent &gt;=15 ,"Idx Compute High  - Needs Checking - Last 30 Mins", io_percent &gt;=20,"Idx Compute High -  Business Impact - Last 30 Mins ")</query>
           <earliest>-7d@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -72,6 +58,7 @@ earliest=-30m latest=now
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
@@ -84,8 +71,9 @@ earliest=-30m latest=now
       <title>i/o_stats_by_host</title>
       <chart>
         <search>
-          <query>index=linux host=s1idx* sourcetype=iostat| timechart avg(latency) by host useother=f span=15m
-| eval bad=10</query>
+          <query>`my_linux_index` `my_idx_hosts` sourcetype=iostat bandwUtilPct=* Device!=dm-*
+| timechart avg(bandwUtilPct) by host useother=f span=15m
+| eval bad=50 ."%"</query>
           <earliest>-7d@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -219,10 +207,11 @@ earliest=-30m latest=now
   </row>
   <row>
     <panel>
+      <title>If you dont have SH cluster then local SH will show stats</title>
       <single>
         <search>
           <query>| makeresults 
-| eval env="ES Cluster Stats" | fields - _time</query>
+| eval env="SH Cluster Stats" | fields - _time</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -233,6 +222,7 @@ earliest=-30m latest=now
         <option name="numberPrecision">0</option>
         <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
         <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
         <option name="showSparkline">1</option>
         <option name="showTrendIndicator">1</option>
         <option name="trellis.enabled">0</option>
@@ -248,10 +238,10 @@ earliest=-30m latest=now
   </row>
   <row>
     <panel>
-      <title>es_shc_mem_stats</title>
+      <title>shc_mem_stats</title>
       <table>
         <search>
-          <query>| rest splunk_server=s1sh* /services/server/status/resource-usage/hostwide
+          <query>| rest `my_sh_servers` /services/server/status/resource-usage/hostwide
 | eval percentage = round(mem_used/mem,3)*100
 | eval severity_level = if(percentage &gt;= 60,  "Critical", "OK") 
 | fields splunk_server, mem, mem_used, , percentage, severity_level
@@ -276,10 +266,10 @@ earliest=-30m latest=now
       </table>
     </panel>
     <panel>
-      <title>es_shc_cpu_stats</title>
+      <title>shc_cpu_stats</title>
       <table>
         <search>
-          <query>| rest splunk_server=s1sh* /services/server/status/resource-usage/hostwide
+          <query>| rest `my_sh_servers` /services/server/status/resource-usage/hostwide
 | eval normalized_load_avg_1min = if(isnull(normalized_load_avg_1min), "N/A", normalized_load_avg_1min)
 | eval core_info = if(isnull(cpu_count), "N/A", cpu_count)." / ".if(isnull(virtual_cpu_count), "N/A", virtual_cpu_count)
 | eval cpu_usage = 'cpu_system_pct' + 'cpu_user_pct'

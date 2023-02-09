@@ -1,0 +1,16 @@
+<panel>
+  <title>External Communities</title>
+  <html>        
+        <ul>
+          <li>
+            <a target="_blank" href="https://docs.splunk.com/Documentation/Community/current/community/Chat">Splunk Slack Community</a>
+          </li>
+          <li>
+            <a target="_blank" href="https://community.splunk.com/t5/Community/ct-p/en-us">Splunk Answers</a>
+          </li>
+          <li>
+            <a target="_blank" href="https://docs.splunk.com/Documentation">Splunk Docs</a>
+          </li>
+        </ul>
+      </html>
+</panel>

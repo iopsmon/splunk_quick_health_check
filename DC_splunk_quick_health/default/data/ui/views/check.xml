@@ -1,4 +1,4 @@
-<form theme="dark">
+<form version="1.1" theme="dark">
   <label>quick health check</label>
   <!-- <This is for the latency dashboard</choice> -->
   <init>
@@ -24,8 +24,7 @@
   <fieldset submitButton="false"></fieldset>
   <row>
     <panel>
-      <!-- This changes the font sizes -->
-      <html>
+      <!-- This changes the font sizes -->-<html>
         <style>
           table tbody tr td{
             font-size:120% !important;
@@ -48,30 +47,39 @@
   </row>
   <row>
     <panel>
-      <html>
-            <h1>
-                Quick Health Check App 
-            </h1>
-            <p>The dashboards will provide the below details:</p>
-            <ul>
-           <li>Quick overview of the enviroments health</li>
-           <li>Index and Indexer health</li>
-           <li>Disk capacity health</li>
-           <li>Search health</li>
-           <li>Queues health</li>
-           <li>Inventory</li> 
-           <li>Troubleshooting help</li>
-           <li>ES Health </li> 
-         
-</ul>
-            
-        </html>
-    </panel>
-    <panel>
-      <title>check splunk server status</title>
+      <title>Splunk Version</title>
       <single>
         <search>
-          <query>index="_audit"  host=s1* (action=splunkShuttingDown OR action=splunkStarting)  earliest=-5m@m latest=now
+          <query>| rest /services/server/info splunk_server=local  
+| fields splunk_server, version 
+| table version</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051", "0x0877a6", "0xf8be34", "0xf1813f", "0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Check splunk server status - stopped / restarted</title>
+      <single>
+        <search>
+          <query>index="_audit"  host=trinity (action=splunkShuttingDown OR action=splunkStarting)  earliest=-5m@m latest=now
 | stats count BY host action _time 
 | eval color=case(action == "splunkStarting", 1,  action == "splunkShuttingDown", 3)
 | rangemap field=color low=1-1 severe=3-3
@@ -153,7 +161,7 @@
       </chart>
     </panel>
     <panel>
-      <title>search avg count</title>
+      <title>Search AVG Count</title>
       <single>
         <search>
           <query>index=_audit search_id!="'rsa_*" search_id!="'RemoteStorageRetrieveBuckets_*" search_id!="'searchparsetmp_*" search_id!="'remote_*" search_id=* total_run_time earliest=-7d@d latest=@d
@@ -215,7 +223,7 @@ earliest=-1d@d latest=now
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
         <option name="underLabel">license usage 1d</option>
-        <option name="unit">GB</option>
+        <option name="unit">MB</option>
         <option name="unitPosition">after</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
@@ -278,7 +286,7 @@ earliest=-1d@d latest=now
       </single>
     </panel>
     <panel>
-      <title>distinct_users</title>
+      <title>Distinct Users</title>
       <single>
         <search>
           <query>index=_internal sourcetype=splunk_web_access | timechart span=1d dc(user) as distinct_user | fields - _time</query>
@@ -336,8 +344,8 @@ earliest=-1d@d latest=now
       </input>
       <table rejects="$showExpandLink1$">
         <search>
-          <query>
-index=_internal (log_level=ERROR OR log_level=WARN) 
+          <query>index=_internal (log_level=ERROR OR log_level=WARN) 
+| eval host=lower(host)
 | fields _time, component, event_message, log_level, source, host
 | table _time, component, event_message, log_level, source, host
 | stats count by log_level, component, event_message, source, host
@@ -346,10 +354,16 @@ index=_internal (log_level=ERROR OR log_level=WARN)
           <latest>now</latest>
         </search>
         <option name="count">5</option>
-        <option name="drilldown">none</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
         <format type="color" field="log_level">
           <colorPalette type="expression">case (like(value,"ERROR%"),"#FF3300")</colorPalette>
         </format>
+        <drilldown>
+          <condition field="host">
+            <link target="_blank">/app/DC_splunk_quick_health/internal_log_checks?form.my_host=$click.value2$</link>
+          </condition>
+        </drilldown>
       </table>
     </panel>
   </row>
@@ -385,8 +399,8 @@ index=_internal (log_level=ERROR OR log_level=WARN)
 | eval myFreeGB=round(free/1024)
 | eval space_free_GB = (myCapacityGB-myFreeGB)
 | eval pct_usage = round(myFreeGB/myCapacityGB*100,2)
-| stats first(fs_type) as fs_type first(myCapacityGB) as capacity_GB first(myFreeGB) as usage_GB  
-  first(pct_usage) as pct_usage_% first(space_free_GB) as free_space by mount_point, splunk_server</query>
+| stats first(fs_type) as fs_type first(myCapacityGB) as capacity_GB first(myFreeGB) as aval_GB  
+  first(pct_usage) as %_free first(space_free_GB) as GB_used by mount_point, splunk_server</query>
           <earliest>-60m@m</earliest>
           <latest>now</latest>
         </search>
@@ -538,8 +552,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
         <label></label>
         <choice value="collapse">-</choice>
         <change>
-          <condition value="collapse">
-            <unset token="showCollapseLink6"></unset>
+          <condition value="collapse">app<unset token="showCollapseLink6"></unset>
             <set token="showExpandLink6">true</set>
             <unset token="form.tokLinkCollapse6"></unset>
           </condition>
@@ -558,10 +571,10 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </input>
       <table rejects="$showExpandLink6$">
         <search>
-          <query>index="_audit" `all_splunk_hosts` (action="restart_splunkd" OR action="splunkStarting" OR action="splunkShuttingDown") 
+          <query>index="_audit" `all_splunk_hosts` (action="splunkStarting" OR action="splunkShuttingDown") 
 | fields _time, user, host, action
 | table _time, user, host, action,</query>
-          <earliest>-60m@m</earliest>
+          <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
         <option name="count">5</option>
@@ -634,13 +647,18 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       <table rejects="$showExpandLink9$">
         <search>
           <query>| rest /services/apps/local `my_sh_servers` 
-| table splunk_server label version  
+| table splunk_server label version, title 
+| rename title AS app 
 | dedup label</query>
           <earliest>-30m</earliest>
           <latest>now</latest>
         </search>
-        <option name="drilldown">none</option>
-        <option name="refresh.display">progressbar</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <condition field="app">
+            <link target="_blank">/app/DC_splunk_quick_health/app_analytics_checks?form.app_name=$click.value2$</link>
+          </condition>
+        </drilldown>
       </table>
     </panel>
     <panel id="panel10">
@@ -682,7 +700,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
   </row>
   <row>
     <panel id="panel11">
-      <title>data hygiene checks</title>
+      <title>Data Hygiene Checks</title>
       <input id="linkCollapse11" type="link" token="tokLinkCollapse11" searchWhenChanged="true" depends="$showCollapseLink11$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -737,7 +755,7 @@ index=_internal (log_level=ERROR OR log_level=WARN)
       </table>
     </panel>
     <panel id="panel12">
-      <title>top apps used</title>
+      <title>Top Apps Used</title>
       <input id="linkCollapse12" type="link" token="tokLinkCollapse12" searchWhenChanged="true" depends="$showCollapseLink12$">
         <label></label>
         <choice value="collapse">-</choice>
@@ -783,6 +801,171 @@ index=_internal (log_level=ERROR OR log_level=WARN)
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
       </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel13">
+      <title>Event Delay Checks</title>
+      <input id="linkCollapse13" type="link" token="tokLinkCollapse13" searchWhenChanged="true" depends="$showCollapseLink13$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink13"></unset>
+            <set token="showExpandLink13">true</set>
+            <unset token="form.tokLinkCollapse13"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand13" type="link" token="tokLinkExpand13" searchWhenChanged="true" depends="$showExpandLink13$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink13">true</set>
+            <unset token="showExpandLink13"></unset>
+            <unset token="form.tokLinkExpand13"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink13$">
+        <search>
+          <query>| tstats max(_indextime) as indexed_time count WHERE index=* latest=+1day earliest=-1day _index_latest=-1sec _index_earliest=-2sec
+BY index host splunk_server _time span=1s
+| eval _time=round(_time), delay=indexed_time-_time, delay_str=tostring(delay,"duration")
+| eventstats max(delay) AS max_delay max(_time) AS max_time count AS eps BY host index
+| where max_delay = delay
+| eval max_time=_time
+| sort - delay
+
+</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel id="panel18">
+      <title>CPU Load</title>
+      <input id="linkCollapse18" type="link" token="tokLinkCollapse18" searchWhenChanged="true" depends="$showCollapseLink18$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink18"></unset>
+            <set token="showExpandLink18">true</set>
+            <unset token="form.tokLinkCollapse18"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand18" type="link" token="tokLinkExpand18" searchWhenChanged="true" depends="$showExpandLink18$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink18">true</set>
+            <unset token="showExpandLink18"></unset>
+            <unset token="form.tokLinkExpand18"></unset>
+          </condition>
+        </change>
+      </input>
+      <chart rejects="$showExpandLink18$">
+        <search>
+          <query>
+            index=_introspection sourcetype=splunk_resource_usage component=PerProcess host=trinity 
+| eval process = 'data.process' 
+| eval args = 'data.args' 
+| eval pid = 'data.pid' 
+| eval ppid = 'data.ppid' 
+| eval elapsed = 'data.elapsed' 
+| eval mem_used = 'data.mem_used' 
+| eval mem = 'data.mem' 
+| eval pct_memory = 'data.pct_memory' 
+| eval normalized_pct_cpu = 'data.normalized_pct_cpu' 
+| eval pct_cpu = 'data.pct_cpu' 
+| eval sid = 'data.search_props.sid' 
+| eval app = 'data.search_props.app' 
+| eval label = 'data.search_props.label' 
+| eval type = 'data.search_props.type' 
+| eval mode = 'data.search_props.mode' 
+| eval user = 'data.search_props.user' 
+| eval role = 'data.search_props.role' 
+| eval label = if(isnotnull('data.search_props.label'), 'data.search_props.label', "") 
+| eval provenance = if(isnotnull('data.search_props.provenance'), 'data.search_props.provenance', "unknown") 
+| eval search_head = case(isnotnull('data.search_props.search_head') AND 'data.search_props.role' == "peer", 'data.search_props.search_head', isnull('data.search_props.search_head') AND 'data.search_props.role' == "head", "_self", isnull('data.search_props.search_head') AND 'data.search_props.role' == "peer", "_unknown") 
+| eval workload_pool = if(isnotnull('data.workload_pool'), 'data.workload_pool', "UNDEFINED") 
+| eval process_class = case( process=="splunk-optimize","index service", process=="sh" OR process=="ksh" OR process=="bash" OR like(process,"python%") OR process=="powershell","scripted input", process=="mongod", "KVStore") 
+| eval process_class = case( process=="splunkd" AND (like(args,"-p %start%") OR like(args,"service") OR like(args,"%_internal_launch_under_systemd%")),"splunkd server", process=="splunkd" AND isnotnull(sid),"search", process=="splunkd" AND (like(args,"fsck%") OR like(args,"recover-metadata%") OR like(args,"cluster_thing")),"index service", process=="splunkd" AND args=="instrument-resource-usage", "scripted input", (like(process,"python%") AND like(args,"%/appserver/mrsparkle/root.py%")) OR like(process,"splunkweb"),"Splunk Web", isnotnull(process_class), process_class) 
+| eval process_class = if(isnull(process_class),"other",process_class) 
+| bin _time span=10s 
+| eval process = 'data.process' 
+| eval args = 'data.args' 
+| eval pid = 'data.pid' 
+| eval ppid = 'data.ppid' 
+| eval elapsed = 'data.elapsed' 
+| eval mem_used = 'data.mem_used' 
+| eval mem = 'data.mem' 
+| eval pct_memory = 'data.pct_memory' 
+| eval normalized_pct_cpu = 'data.normalized_pct_cpu' 
+| eval pct_cpu = 'data.pct_cpu' 
+| eval sid = 'data.search_props.sid' 
+| eval app = 'data.search_props.app' 
+| eval label = 'data.search_props.label' 
+| eval type = 'data.search_props.type' 
+| eval mode = 'data.search_props.mode' 
+| eval user = 'data.search_props.user' 
+| eval role = 'data.search_props.role' 
+| eval label = if(isnotnull('data.search_props.label'), 'data.search_props.label', "") 
+| eval provenance = if(isnotnull('data.search_props.provenance'), 'data.search_props.provenance', "unknown") 
+| eval search_head = case(isnotnull('data.search_props.search_head') AND 'data.search_props.role' == "peer", 'data.search_props.search_head', isnull('data.search_props.search_head') AND 'data.search_props.role' == "head", "_self", isnull('data.search_props.search_head') AND 'data.search_props.role' == "peer", "_unknown") 
+| eval workload_pool = if(isnotnull('data.workload_pool'), 'data.workload_pool', "UNDEFINED") 
+| stats latest(pct_cpu) AS resource_usage_dedup latest(process_class) AS process_class by pid, _time 
+| stats sum(resource_usage_dedup) AS resource_usage by _time, process_class 
+| timechart minspan=10s Median(resource_usage) AS "Resource Usage" by process_class
+          </query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
     </panel>
   </row>
   <row>

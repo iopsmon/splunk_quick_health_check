@@ -1,14 +1,17 @@
-<form theme="dark">
+<form version="1.1" theme="dark">
   <init>
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
     <set token="showExpandLink3">true</set>
+    <set token="showExpandLink4">true</set>
+    <set token="showExpandLink5">true</set>
+    <set token="showExpandLink6">true</set>
   </init>
   <label>splunk inventory and uf status</label>
   <fieldset submitButton="false"></fieldset>
   <row>
     <panel>
-      <!-- This changes the font sizes -->
+      <!-- This changes the colour and font sizes -->
       <html>
         <style>
           table tbody tr td{
@@ -119,7 +122,8 @@
       </input>
       <chart rejects="$showExpandLink2$">
         <search>
-          <query>index=_internal  source="*metrics.log" sourcetype=splunkd  group=per_host_thruput 
+          <query>index=_internal  source="*metrics.log" sourcetype=splunkd  group=per_host_thruput
+| eval host=lower(host)
 | eval megabytes=round(kb/1024,0)
 | timechart  sum(megabytes) as MB by host  useother=false limit=10</query>
           <earliest>-60m@m</earliest>
@@ -128,6 +132,7 @@
         </search>
         <option name="charting.chart">line</option>
         <option name="charting.drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
   </row>
@@ -158,17 +163,102 @@
       </input>
       <table rejects="$showExpandLink3$">
         <search>
-          <query>
-           index=_internal source=*metrics.log group=tcpin_connections fwdType=uf hostname=*   
+          <query>index=_internal source=*metrics.log group=tcpin_connections fwdType=uf hostname=* | eval hostname=lower(hostname)  
 | fields _time hostname sourceIp arch destPort fwdType os ssl version
-| table _time hostname sourceIp arch destPort fwdType os ssl version
-
-</query>
+| table _time hostname sourceIp arch destPort fwdType os ssl version</query>
           <earliest>-60m@m</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel4">
+      <title>fowarder_send_status_idx</title>
+      <input id="linkCollapse4" type="link" token="tokLinkCollapse4" searchWhenChanged="true" depends="$showCollapseLink4$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink4"></unset>
+            <set token="showExpandLink4">true</set>
+            <unset token="form.tokLinkCollapse4"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand4" type="link" token="tokLinkExpand4" searchWhenChanged="true" depends="$showExpandLink4$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink4">true</set>
+            <unset token="showExpandLink4"></unset>
+            <unset token="form.tokLinkExpand4"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink4$">
+        <search>
+          <query>index=_internal sourcetype=splunkd log_level=INFO TcpOutputProc Connected 
+| eval host=lower(host)  
+| stats dc(idx) AS idx_count values(idx) by host  | eventstats mode(idx_count) AS mode_idx | eval Status=if(mode_idx!=idx_count, "severe", "low")  | eval indexer_deviation=idx_count-mode_idx  | fields - mode* | sort 0 Status  | where 1==1</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="panel5">
+      <title>throttle_checks</title>
+      <input id="linkCollapse5" type="link" token="tokLinkCollapse5" searchWhenChanged="true" depends="$showCollapseLink5$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink5"></unset>
+            <set token="showExpandLink5">true</set>
+            <unset token="form.tokLinkCollapse5"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand5" type="link" token="tokLinkExpand5" searchWhenChanged="true" depends="$showExpandLink5$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink5">true</set>
+            <unset token="showExpandLink5"></unset>
+            <unset token="form.tokLinkExpand5"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink5$">
+        <search>
+          <query>index=_internal earliest=-24h sourcetype=splunkd ThruputProcessor data maxKBps | rex "throughput\s\((?&lt;maxKBps&gt;\d+)" | stats count sparkline(count) avg(maxKBps) by host | eval avg(maxKBps)=round('avg(maxKBps)', 2) | sort 0 - count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
       </table>
     </panel>
   </row>
@@ -200,46 +290,6 @@
           }
         </style>
       </html>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>fowarder_send_status_idx</title>
-      <table>
-        <search>
-          <query>index=_internal sourcetype=splunkd log_level=INFO TcpOutputProc Connected | stats dc(idx) AS idx_count values(idx) by host  | eventstats mode(idx_count) AS mode_idx | eval Status=if(mode_idx!=idx_count, "severe", "low")  | eval indexer_deviation=idx_count-mode_idx  | fields - mode* | sort 0 Status  | where 1==1</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-      </table>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>throttle_checks</title>
-      <table>
-        <search>
-          <query>index=_internal earliest=-24h sourcetype=splunkd ThruputProcessor data maxKBps | rex "throughput\s\((?&lt;maxKBps&gt;\d+)" | stats count sparkline(count) avg(maxKBps) by host | eval avg(maxKBps)=round('avg(maxKBps)', 2) | sort 0 - count</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-      </table>
     </panel>
   </row>
 </form>

@@ -1,4 +1,4 @@
-<form theme="dark">
+<form version="1.1" theme="dark">
   <label>internal logs by hosts</label>
   <description>internal_logs_checks</description>
   <fieldset submitButton="false"></fieldset>
@@ -25,8 +25,15 @@
         <label>select_host</label>
         <fieldForLabel>host</fieldForLabel>
         <fieldForValue>host</fieldForValue>
+        <change>
+          <condition value="compare">
+            <set token="my_host">true</set>
+            <unset token="my_host"></unset>
+          </condition>
+        </change>
         <search>
-          <query>| tstats count where index=_internal by host</query>
+          <query>| tstats count where index=_internal by host
+| eval host=lower(host)</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
@@ -34,18 +41,26 @@
       <table>
         <search>
           <query>index=_internal sourcetype=splunkd host=$my_host$
-| stats count by host, sourcetype, source, _time</query>
+| eval host= lower(host)
+| stats count by host, sourcetype, source, _time
+| sort - _time</query>
           <earliest>$field1.earliest$</earliest>
           <latest>$field1.latest$</latest>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
+        <option name="drilldown">cell</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
+        <drilldown>
+          <condition field="host">
+            <link target="_blank">/app/DC_splunk_quick_health/queues_checks?form.my_server=$click.value2$</link>
+          </condition>
+        </drilldown>
       </table>
     </panel>
   </row>
@@ -103,7 +118,8 @@
       <table>
         <search>
           <query>index=_internal sourcetype=splunkd host=$my_host$ log_level=INFO component=WatchedFile 
-| table host, _time, component, event_message, log_level</query>
+| table host, _time, component, event_message, log_level
+| sort - _time</query>
           <earliest>$field1.earliest$</earliest>
           <latest>$field1.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -125,7 +141,8 @@
       <table>
         <search>
           <query>index=_internal host=$my_host$  sourcetype=splunkd log_level=ERROR
-| table host, _time, log_level, component, event_message, log_level</query>
+| table host, _time, log_level, component, event_message, log_level
+| sort - _time</query>
           <earliest>$field1.earliest$</earliest>
           <latest>$field1.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -138,7 +155,6 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <option name="drilldown">none</option>
         <format type="color" field="log_level">
           <colorPalette type="expression">case (like(value,"ERROR%"),"#FF3300")</colorPalette>
         </format>

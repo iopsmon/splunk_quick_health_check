@@ -1,0 +1,26 @@
+<panel>
+  <title>Splunk Reference - Documents </title>
+  <html>
+	  <ul> 
+	  <li><a class="external text" target="_blank" href="https://docs.splunk.com/Documentation/Splunk">Splunk Docs Reference</a></li>
+	  <li><a class="external text" target="_blank" href="http://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference/Commandsbycategory">Search Commands Reference</a></li>
+	  <li><a class="external text" target="_blank" href="https://www.splunk.com/content/dam/splunk2/pdfs/solution-guides/splunk-quick-reference-guide.pdf">Splunk Quick Reference Guide</a></li>
+	  <li><a class="external text" target="_blank" href="https://docs.splunk.com/Documentation/Splunk/9.0.2/Admin/Alertactionsconf">Splunk Conf File Reference</a></li>
+ 
+	  <li><a class="external text" target="_blank" href="https://www.splunk.com/pdfs/technical-briefs/splunk-validated-architectures.pdf">Splunk SVA Reference</a></li>
+          <li><a class="external text" target="_blank" href="https://splunk.github.io/splunk-connect-for-syslog/main/">Splunk SC4S Reference</a></li>
+	  <li><a class="external text" target="_blank" href="https://docs.splunk.com/Documentation/Splunk/9.0.2/RESTREF/RESTlist#MLOC">Splunk API Reference</a></li>
+	  <li><a class="external text" target="_blank" href="https://docs.splunk.com/Documentation/CIM/5.0.2/User/Howtousethesereferencetables">Splunk Data Models Reference</a></li>
+	  <li><a class="external text" target="_blank" href="https://lantern.splunk.com/">Splunk Lantern</a></li>
+	  <li><a class="external text" target="_blank" href="https://docs.splunk.com/Documentation/ES/7.0.2/User/Overview">Splunk ES Reference</a></li>
+	  <li><a class="external text" target="_blank" href="https://research.splunk.com/">Splunk Security Research</a></li>
+	  <li><a class="external text" target="_blank" href="https://github.com/splunk">Splunk GIT Reference</a></li>
+	  <li><a class="external text" target="_blank" href="https://docs.splunk.com/Documentation/VersionCompatibility/current/Matrix/CompatMatrix">Splunk Versions Matrix Reference</a></li>
+	  <li><a class="external text" target="_blank" href="https://www.splunk.com/en_us/download/splunk-enterprise.html">Splunk Downloads - Requires Login</a></li>
+
+
+
+
+	   </ul>
+  </html>
+</panel>

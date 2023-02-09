@@ -1,0 +1,36 @@
+<!-- This shows the app version -->
+<panel>
+      <title>App Version</title>
+      <html>
+  </html>
+  <html depends="$app_version$">
+      <h3>No results.</h3>
+  </html>
+      <table rejects="$app_version_panel$">
+        <search>
+		<query>| rest /services/apps/local
+                       | fields description, label, version
+                       | rename label AS app 
+                       | search app="iOps Splunk Quick Health Check"
+                       | table app description, version
+			
+		</query>
+          <earliest>-5m@m</earliest>
+          <latest>now</latest>
+           <progress>
+            <condition match="$job.resultCount$ == 0">
+              <set token="app_version_panel">true</set>
+            </condition>
+            <condition>
+              <unset token="app_version_panel"/>
+            </condition>
+          </progress>
+        </search>
+        <option name="rowNumbers">true</option>
+        <option name="count">5</option>
+	<fields>app, description, version</fields>
+        <format type="color" field="version">
+       <colorPalette type="expression">if (like(value,"%1.0.0%"),"#FF5733","#90EE90")</colorPalette>
+       </format>
+      </table>
+    </panel>

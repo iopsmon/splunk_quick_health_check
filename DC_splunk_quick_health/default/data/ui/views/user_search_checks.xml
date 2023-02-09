@@ -1,0 +1,67 @@
+<form version="1.1" theme="dark">
+  <label>audit search tracking checks</label>
+  <description>Tracks Audit Information</description>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="my_user">
+      <label>user</label>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <search>
+        <query>index="_audit" action=search
+| fields user
+| table  user
+| dedup user</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+      <choice value="*">all</choice>
+      <default>*</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <!-- This changes the font - colour - good for dark mode use -->-<html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+     
+      </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>user_search_audit</title>
+      <table>
+        <search>
+          <query>index="_audit" action=search user=$my_user$
+| fields _time, user, action, app,  info savedsearch_name, search,  mode, dest
+| table  _time, user, action, app,  info savedsearch_name, search, mode, dest</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

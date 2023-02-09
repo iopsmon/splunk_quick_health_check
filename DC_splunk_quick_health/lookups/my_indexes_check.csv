@@ -1,0 +1,6 @@
+index,access,notes
+_internal,yes,"This is required for logs to metrics and other panels"
+_audit,yes,"This is required for audit panels"
+_configtracker,yes,"This is required for changes panels" 
+_introspection,yes,"This is required for various metric panels"
+main,yes,"This is where alarms events are sent,you should configure your own index"

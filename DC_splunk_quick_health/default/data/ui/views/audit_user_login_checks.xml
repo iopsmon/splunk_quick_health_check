@@ -1,0 +1,84 @@
+<form version="1.1" theme="dark">
+  <label>audit user login checks</label>
+  <description>Tracks Login Information</description>
+  <fieldset submitButton="false">
+    <input type="time" token="my_time">
+      <label>enter_time</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="my_user">
+      <label>enter_user</label>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <change>
+        <condition value="compare">
+          <set token="my_user">true</set>
+          <unset token="my_user"></unset>
+        </condition>
+      </change>
+      <search>
+        <query>(index=_audit sourcetype=audittrail) OR (index=_internal sourcetype=splunk_web_service) user=*
+| fields user 
+| dedup user 
+| table user</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+      <choice value="*">all</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <!-- This changes the font - colour - good for dark mode use -->-<html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+     
+      </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>user_login_status</title>
+      <table>
+        <search>
+          <query>(index=_audit sourcetype=audittrail) OR (index=_internal sourcetype=splunk_web_service) user=$my_user$
+| fields user, action, reason, info, useragent 
+| rex "action=(?&lt;login_action&gt;\w+)" 
+| search login_action=login OR action=logout 
+| rename info AS status, useragent AS browser
+| table _time, user, login_action, status, browser</query>
+          <earliest>$my_time.earliest$</earliest>
+          <latest>$my_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

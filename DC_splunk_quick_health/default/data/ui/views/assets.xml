@@ -1,4 +1,35 @@
-<dashboard theme="dark">
+<dashboard version="1.1" theme="dark">
+   <init>
+    <set token="showExpandLink1">true</set>
+    <set token="showExpandLink2">true</set>
+    <set token="showExpandLink3">true</set>
+    <set token="showExpandLink4">true</set>
+    <set token="showExpandLink5">true</set>
+    <set token="showExpandLink6">true</set>
+  </init>
+    <row>
+    <panel>
+      <!-- This changes the colour and font sizes -->
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+         </style>
+      </html>
+    </panel>
+  </row>
   <label>assets</label>
   <search id="baseSearch_1">
     <query>| metadata type=hosts index=*
@@ -138,13 +169,35 @@
     </panel>
   </row>
   <row>
-    <panel>
-      <title>all hosts</title>
-      <table>
+    <panel id="panel1">
+      <title>forwarders audit</title>
+      <input id="linkCollapse3" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink1"></unset>
+            <set token="showExpandLink1">true</set>
+            <unset token="form.tokLinkCollapse1"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="linkExpand1" type="link" token="tokLinkExpand1" searchWhenChanged="true" depends="$showExpandLink1$">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink1">true</set>
+            <unset token="showExpandLink1"></unset>
+            <unset token="form.tokLinkExpand1"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink1$">
         <search base="baseSearch_1">
           <query>| table host, First_Event, Last_Event </query>
         </search>
-        <option name="count">20</option>
+       <option name="count">20</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
         <option name="percentagesRow">false</option>
@@ -152,6 +205,43 @@
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
       </table>
+    </panel>
+  </row>
+  
+  
+  
+  
+  
+  
+  
+     <row depends="$alwaysHideCSSStyleOverride$">
+    <panel>
+      <html>
+        <style>
+          div[id^="linkCollapse"],
+          div[id^="linkExpand"]{
+            width: 32px !important;
+            float: right;
+          }
+          div[id^="linkCollapse"] button,
+          div[id^="linkExpand"] button{
+            flex-grow: 0;
+            border-radius: 25px;
+            border-width: thin;
+            border-color: lightgrey;
+            border-style: inset;
+            width: 32px;
+            padding: 0px;
+          }
+          div[id^="linkCollapse"] label,
+          div[id^="linkExpand"] label{
+            display:none;
+          }
+          div[id^="panel"].fieldset{
+            padding: 0px;
+          }
+        </style>
+      </html>
     </panel>
   </row>
 </dashboard>

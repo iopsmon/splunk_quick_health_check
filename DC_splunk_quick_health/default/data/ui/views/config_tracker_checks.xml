@@ -1,0 +1,85 @@
+<form version="1.1" theme="dark">
+  <label>config tracker changes</label>
+  <description>Config Tracker Changes</description>
+  <fieldset submitButton="false">
+    <input type="time" token="my_time">
+      <label>enter_time</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="my_app">
+      <label>enter_app</label>
+      <fieldForLabel>app</fieldForLabel>
+      <fieldForValue>app</fieldForValue>
+      <search>
+        <query>index=_configtracker "data.action"=update  data.changes{}.stanza!=/opt/splunk/var/log/splunk/*  
+| fields _time, splunk_server, data.path  
+| rename data.path AS data_file_path  
+| rex field=data_file_path "\/\w+\/\w+\/\w+\/apps\/(?&lt;app&gt;[^ ]\w+)"
+| rex field=data_file_path "\/\w+\/\w+\/\w+\/users\/\w+\/(?&lt;private_local_app&gt;[^ ]\w+)"
+| table app
+| dedup app</query>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </search>
+      <choice value="*">all</choice>
+      <default>*</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <!-- This changes the colour font sizes  - good for dark mode  -->
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+         </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>current_changes</title>
+      <table>
+        <search>
+          <query>index=_configtracker "data.action"=update  data.changes{}.stanza!=/opt/splunk/var/log/splunk/*  
+| fields _time, splunk_server, data.path  data.changes{}.properties{}.name, data.changes{}.stanza,, data.changes{}.properties{}.new_value, data.changes{}.properties{}.old_value, data.modtime
+| rename data.path AS data_file_path  data.changes{}.properties{}.name AS name, data.changes{}.stanza, AS stanza, data.changes{}.properties{}.new_value AS new_value, data.changes{}.properties{}.old_value AS old_value, data.modtime AS mod_time
+| rex field=data_file_path "(?&lt;conf_file&gt;\w+[^ ].conf$$)"
+| rex field=data_file_path "\/\w+\/\w+\/\w+\/apps\/(?&lt;app&gt;[^ ]\w+)"
+```| rex field=data_file_path "\/\w+\/\w+\/\w+\/users\/\w+\/(?&lt;private_local_app&gt;[^ ]\w+)"```
+| search app=$my_app$
+| table  _time, splunk_server, app, data_file_path, conf_file, name, stanza, new_value, old_value, mod_time</query>
+          <earliest>$my_time.earliest$</earliest>
+          <latest>$my_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="new_value">
+          <colorPalette type="minMidMax" maxColor="#FFBF00" minColor="#FFBF00"></colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>
