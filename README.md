@@ -15,7 +15,8 @@ Dashboard Features:
     DMA health
     Compute health
     Internal Logs Check 
-    Data Quality Checks 
+    Data Quality Checks
+    Config Tracker Changes  
 
 
 
