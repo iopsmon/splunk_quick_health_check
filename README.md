@@ -31,7 +31,7 @@ Update the macros.conf with your indexers and search heads or if its an AIO, see
 
 Installation Guide:
 
-Install this on the MC OR AIO
+Install this on the SH/SHC / AIO / OR MC If you have one
 
     Download the zip and extract the file, copy the DC_splunk_quick_health to the Splunk Server
     sudo cp -R DC_splunk_quick_health /opt/splunk/etc/apps
