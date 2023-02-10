@@ -1,4 +1,4 @@
-# Splunk Quick Health Check App H1
+# Splunk Quick Health Check App
 
 This apps provides a quick health assessment of the Splunk enviroment and some basic statistics. Its useful during Splunk delivery and where the Splunk Monitoring Console has not been factored into the solution. The app also provides a dashboard which shows all Splunk managed assets and source types.
 
