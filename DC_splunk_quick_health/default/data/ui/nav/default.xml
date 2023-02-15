@@ -1,5 +1,5 @@
 <nav search_view="search" color ="#c70000" >
-	
+
 <view name="home" default='true' />
 
 <collection label="Quick Checks">
@@ -15,13 +15,13 @@
 <divider />
 </collection>
 <collection label="Troubleshooting">
-	<view name="dma_checks"></view>
-	<view name="core_checks"></view>
-	<view name="compute_checks"></view>
+        <view name="dma_checks"></view>
+        <view name="core_checks"></view>
+        <view name="compute_checks"></view>
         <view name="search_checks"></view>
         <view name="disk_checks"></view>
         <view name="queues_checks"></view>
-        <view name="internal_log_checks"></view> 
+        <view name="internal_log_checks"></view>
 </collection>
 
 <collection label="Data Checks">
@@ -38,7 +38,8 @@
 
 <collection label="Admin">
         <view name="user_quota_checks"></view>
-        <view name="app_analytics_checks"></view> 
+        <view name="app_analytics_checks"></view>
+        <view name="user_roles_checks"></view>
 </collection>
 
 <collection label="Config Tracker">
@@ -47,8 +48,8 @@
 
 
 <collection label="Audit">
-	<view name="user_search_checks"></view>
-        <view name="audit_user_login_checks"></view> 
+        <view name="user_search_checks"></view>
+        <view name="audit_user_login_checks"></view>
 </collection>
 
 
@@ -60,8 +61,8 @@
   <a target="_blank" href="https://docs.splunk.com/Documentation/ES">ES Docs</a>
 
 
-  </collection> 
-  
+  </collection>
+
 <collection label="Search">
         <view name="dashboards"/>
         <view name="reports"/>

@@ -1,0 +1,73 @@
+<form version="1.1" theme="dark">
+  <label>user roles info</label>
+  <description>Shows User Roles and Capabilities</description>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="my_user">
+      <label>user_name</label>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <search>
+        <query>| rest /services/authentication/users splunk_server=local
+| fields title
+| rename title AS user
+| dedup user</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <!-- This changes the font sizes and colour of table text - works well with dark mode -->-<html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+
+         table th td {
+         color:#b3b300;
+
+         }
+          table tr td {
+         color:#b3b300;
+         }
+
+      </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Roles Overview</title>
+      <table>
+        <search>
+          <query>| rest /services/authentication/users splunk_server=local
+| rename title as user
+| search user=$my_user$
+| mvexpand roles
+| table $my_user$, realname, roles, email
+| join roles
+    [ rest /services/authorization/roles
+    | rename title as roles
+    | search srchIndexesAllowed=*
+    | table roles srchIndexesAllowed, srchIndexesDefault, capabilities, _imported_capabilities, imported_roles,
+srchDiskQuota, srchJobsQuota]</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
