@@ -24,5 +24,9 @@ Add your search head to check for users login, eg splunk_servers=sh*
 
 Add all your Splunk servers 
 [my_sh_servers]
+
+Add all your ES Splunk servers
+[my_es_sh]
+
 =======================================================================
  
