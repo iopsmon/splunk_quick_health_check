@@ -1,0 +1,72 @@
+<dashboard version="1.1" theme="dark">
+  <label>es lookups and collection info Run on ES </label>
+  <description>Check's Lookups and Collections Info</description>
+  <row>
+    <panel>
+      <title>Collections Info</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local /services/server/introspection/kvstore/collectionstats
+| mvexpand data
+| spath input=data
+| rex field=ns "(?&lt;App&gt;.*)\.(?&lt;Collection&gt;.*)"
+| eval dbsize=round(size/1024/1024, 2)
+| eval indexsize=round(totalIndexSize/1024/1024, 2)
+| stats first(count) AS "Number of Objects" first(nindexes) AS Accelerations first(indexsize) AS "Acceleration Size (MB)" first(dbsize) AS "Collection Size (MB)" by App, Collection
+| search App=DA* OR App=SA* OR App=SplunkEnterpriseSecuritySuite
+| table App, Collection, "Collection Size (MB)"
+| sort - "Collection Size (MB)"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">highlow</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Lookups Info - click on the lookup name to see results</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local /servicesNS/-/-/data/transforms/lookups
+```This calls rest to loook for all the lookups and kvstore within ES context Apps Only```
+```It shows the App name which contains the lookups, the lookup name, filename and type ```
+```Note the Kvstore lookups do not contain a _time stamp - so it will not show when last updated - only the csv files```
+| fields eai:acl.app, title, filename, type, collection, updated 
+| rename eai:acl.app AS App title AS lookup_name 
+| search App=DA* OR App=SA* OR App=SplunkEnterpriseSecuritySuite
+| table App, lookup_name, filename, type, collection, updated
+| sort - updated</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <drilldown>
+          <set token="selected_value">$click.value2$</set>
+          <set token="show_panel">true</set>
+        </drilldown>
+      </table>
+    </panel>
+    </row>
+    <row>
+    <panel depends="$show_panel$">
+      <table>
+        <title>Recent events for $selected_value$</title>
+        <search>
+          <query>| inputlookup $selected_value$ </query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="count">5</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

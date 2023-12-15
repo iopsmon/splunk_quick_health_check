@@ -813,8 +813,7 @@ BY index host splunk_server _time span=1s
       </input>
       <chart rejects="$showExpandLink18$">
         <search>
-          <query>
-            index=_introspection sourcetype=splunk_resource_usage component=PerProcess host=trinity 
+          <query>index=_introspection sourcetype=splunk_resource_usage component=PerProcess host=s1se1.ops.com 
 | eval process = 'data.process' 
 | eval args = 'data.args' 
 | eval pid = 'data.pid' 
@@ -863,8 +862,7 @@ BY index host splunk_server _time span=1s
 | eval workload_pool = if(isnotnull('data.workload_pool'), 'data.workload_pool', "UNDEFINED") 
 | stats latest(pct_cpu) AS resource_usage_dedup latest(process_class) AS process_class by pid, _time 
 | stats sum(resource_usage_dedup) AS resource_usage by _time, process_class 
-| timechart minspan=10s Median(resource_usage) AS "Resource Usage" by process_class
-          </query>
+| timechart minspan=10s Median(resource_usage) AS "Resource Usage" by process_class</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -897,6 +895,7 @@ BY index host splunk_server _time span=1s
         <option name="charting.legend.mode">standard</option>
         <option name="charting.legend.placement">right</option>
         <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>

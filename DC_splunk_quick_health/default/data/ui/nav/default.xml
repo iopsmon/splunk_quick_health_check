@@ -33,6 +33,7 @@
 <collection label="ES Checks">
         <view name="es_checks"></view>
         <view name="index_cim_data_checks"></view>
+        <view name="es_lookups_checks"></view>
 </collection>
 
 

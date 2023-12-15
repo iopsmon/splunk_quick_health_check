@@ -95,7 +95,7 @@
       </input>
       <table>
         <search>
-          <query>| rest splunk_server=s1sh1.ops.com count=0 /services/data/models/$my_dm$ | rename title as model,eai:data as data | spath input=data output=objects path=objects{} | mvexpand objects | spath input=objects output=object_name path=objectName | spath input=objects output=fields path=fields{} | appendpipe [| spath input=objects output=fields path=calculations{}.outputFields{}] | mvexpand fields | spath input=fields output=field_name path=fieldName | spath input=fields output=recommended path=comment.recommended | table model,object_name,field_name,recommended | sort model,object_name,field_name</query>
+          <query>| rest splunk_server=s1se1.ops.com count=0 /services/data/models/$my_dm$ | rename title as model,eai:data as data | spath input=data output=objects path=objects{} | mvexpand objects | spath input=objects output=object_name path=objectName | spath input=objects output=fields path=fields{} | appendpipe [| spath input=objects output=fields path=calculations{}.outputFields{}] | mvexpand fields | spath input=fields output=field_name path=fieldName | spath input=fields output=recommended path=comment.recommended | table model,object_name,field_name,recommended | sort model,object_name,field_name</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
