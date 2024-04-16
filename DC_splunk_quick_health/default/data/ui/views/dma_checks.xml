@@ -1,7 +1,8 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>dma checks</label>
   <fieldset submitButton="false">
-    <input type="time" token="my_time" searchWhenChanged="true">
+    <input searchWhenChanged="true" token="my_time" type="time">
       <label>change_time</label>
       <default>
         <earliest>-24h@h</earliest>
@@ -11,7 +12,7 @@
   </fieldset>
   <row>
     <panel>
-      <!-- This changes the font sizes -->
+      
       <html>
         <style>
           table tbody tr td{

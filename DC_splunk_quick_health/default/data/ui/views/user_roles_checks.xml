@@ -1,15 +1,16 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>user roles info</label>
   <description>Shows User Roles and Capabilities</description>
   <fieldset submitButton="false">
-    <input type="dropdown" token="my_user">
+    <input token="my_user" type="dropdown">
       <label>user_name</label>
       <fieldForLabel>user</fieldForLabel>
       <fieldForValue>user</fieldForValue>
       <search>
         <query>| rest /services/authentication/users splunk_server=local
-| fields title
-| rename title AS user
+| fields title 
+| rename title AS user 
 | dedup user</query>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
@@ -18,7 +19,7 @@
   </fieldset>
   <row>
     <panel>
-      <!-- This changes the font sizes and colour of table text - works well with dark mode -->-<html>
+      -<html>
         <style>
           table tbody tr td{
             font-size:120% !important;
@@ -26,15 +27,15 @@
           table thead tr th{
           font-size:120% !important;
           }
-
+       
          table th td {
          color:#b3b300;
-
+        
          }
           table tr td {
          color:#b3b300;
          }
-
+     
       </style>
       </html>
     </panel>
@@ -45,14 +46,14 @@
       <table>
         <search>
           <query>| rest /services/authentication/users splunk_server=local
-| rename title as user
+| rename title as user 
 | search user=$my_user$
-| mvexpand roles
-| table $my_user$, realname, roles, email
-| join roles
-    [ rest /services/authorization/roles
-    | rename title as roles
-    | search srchIndexesAllowed=*
+| mvexpand roles 
+| table $my_user$, realname, roles, email 
+| join roles 
+    [ rest /services/authorization/roles 
+    | rename title as roles 
+    | search srchIndexesAllowed=* 
     | table roles srchIndexesAllowed, srchIndexesDefault, capabilities, _imported_capabilities, imported_roles,
 srchDiskQuota, srchJobsQuota]</query>
           <earliest>$earliest$</earliest>

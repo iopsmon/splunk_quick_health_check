@@ -1,22 +1,23 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>app analytics</label>
   <description>App Analytics Overview</description>
   <fieldset submitButton="false">
-    <input type="time" token="pick_time">
+    <input token="pick_time" type="time">
       <label>pick_time</label>
       <default>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
       </default>
     </input>
-    <input type="dropdown" token="app_name" searchWhenChanged="true">
+    <input searchWhenChanged="true" token="app_name" type="dropdown">
       <label>app_name</label>
       <fieldForLabel>app</fieldForLabel>
       <fieldForValue>app</fieldForValue>
       <change>
         <condition value="compare">
           <set token="app_name">true</set>
-          <unset token="app_name"></unset>
+          <unset token="app_name" />
         </condition>
       </change>
       <search>
@@ -33,7 +34,7 @@
   </fieldset>
   <row>
     <panel>
-      <!-- This changes the font sizes and colour of table text - works well with dark mode -->-<html>
+      -<html>
         <style>
           table tbody tr td{
             font-size:120% !important;

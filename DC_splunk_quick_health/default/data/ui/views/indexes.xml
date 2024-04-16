@@ -1,14 +1,17 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>index Information</label>
   <init>
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
     <set token="showExpandLink3">true</set>
+    <set token="showExpandLink4">true</set>
+    <set token="showExpandLink5">true</set>
+    <set token="showExpandLink6">true</set>
   </init>
   <fieldset submitButton="false"></fieldset>
   <row>
     <panel>
-      <!-- This changes the font sizes -->
       <html>
         <style>
           table tbody tr td{
@@ -34,7 +37,13 @@
       <title>indexing queue sizes</title>
       <chart>
         <search>
-          <query>index=_internal source=*metrics.log group=queue (name=parsingqueue OR name=indexqueue OR name=typingqueue OR name=aggqueue) | timechart avg(current_size) by name</query>
+          <query>index=_internal source=*metrics.log group=queue (name IN (parsingqueue, indexqueue, typingqueue, aggqueue)) earliest=-24h latest=now 
+```The above code looks at the internal index and queues```
+| fields _time, source group, current_size, name, name_sort_order
+```The fields narrows the raneg of fields improves search```
+```| eval name_sort_order=case(name=="parsingqueue", 1, name=="aggqueue", 2, name=="typingqueue", 3, name=="indexqueue", 4, true(), 5)```
+| timechart  avg(current_size) BY name
+```the timechart command is used to display over time the average memory queue size by the queue name - spikes are ok blocks require investigation```</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -62,6 +71,7 @@
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
+        <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
     <panel>
@@ -111,7 +121,7 @@ sum(count) by splunk_server</query>
   <row>
     <panel id="panel1">
       <title>Index Sizes</title>
-      <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
+      <input depends="$showCollapseLink1$" id="linkCollapse1" searchWhenChanged="true" token="tokLinkCollapse1" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -122,7 +132,7 @@ sum(count) by splunk_server</query>
           </condition>
         </change>
       </input>
-      <input id="linkExpand1" type="link" token="tokLinkExpand1" searchWhenChanged="true" depends="$showExpandLink1$">
+      <input depends="$showExpandLink1$" id="linkExpand1" searchWhenChanged="true" token="tokLinkExpand1" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -152,7 +162,7 @@ sum(count) by splunk_server</query>
   <row>
     <panel id="panel2">
       <title>Index Retention Days</title>
-      <input id="linkCollapse2" type="link" token="tokLinkCollapse2" searchWhenChanged="true" depends="$showCollapseLink2$">
+      <input depends="$showCollapseLink2$" id="linkCollapse2" searchWhenChanged="true" token="tokLinkCollapse2" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -163,7 +173,7 @@ sum(count) by splunk_server</query>
           </condition>
         </change>
       </input>
-      <input id="linkExpand2" type="link" token="tokLinkExpand2" searchWhenChanged="true" depends="$showExpandLink2$">
+      <input depends="$showExpandLink2$" id="linkExpand2" searchWhenChanged="true" token="tokLinkExpand2" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -193,7 +203,7 @@ sum(count) by splunk_server</query>
   <row>
     <panel id="panel3">
       <title>Index Age</title>
-      <input id="linkCollapse3" type="link" token="tokLinkCollapse3" searchWhenChanged="true" depends="$showCollapseLink3$">
+      <input depends="$showCollapseLink3$" id="linkCollapse3" searchWhenChanged="true" token="tokLinkCollapse3" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -204,7 +214,7 @@ sum(count) by splunk_server</query>
           </condition>
         </change>
       </input>
-      <input id="linkExpand3" type="link" token="tokLinkExpand3" searchWhenChanged="true" depends="$showExpandLink3$">
+      <input depends="$showExpandLink3$" id="linkExpand3" searchWhenChanged="true" token="tokLinkExpand3" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -217,9 +227,9 @@ sum(count) by splunk_server</query>
       </input>
       <table rejects="$showExpandLink3$">
         <search>
-          <query>| rest splunk_server=* /services/data/indexes
+          <query>| rest `my_idx_servers` /services/data/indexes
 | join title type=outer [
-| rest splunk_server=s1idx1.ops.com /services/data/indexes-extended
+| rest `my_idx_servers` /services/data/indexes-extended
 | eval cold_bucket_size = if(isnotnull('bucket_dirs.cold.bucket_size'), 'bucket_dirs.cold.bucket_size', 'bucket_dirs.cold.size')
 | fields title, cold_bucket_size, total_size, total_bucket_count]
 | eval _dmc_title = if(isnotnull(title), title, 'data.name') | where NOT (_dmc_title == "history" OR _dmc_title == "_thefishbucket" OR _dmc_title == "_blocksignature") | fields - _dmc_title
@@ -251,9 +261,153 @@ sum(count) by splunk_server</query>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
   </row>
+  <row>
+    <panel id="panel4">
+      <title>Index Size Data</title>
+      <input depends="$showCollapseLink4$" id="linkCollapse4" searchWhenChanged="true" token="tokLinkCollapse4" type="link">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink4"></unset>
+            <set token="showExpandLink4">true</set>
+            <unset token="form.tokLinkCollapse4"></unset>
+          </condition>
+        </change>
+      </input>
+      <input depends="$showExpandLink4$" id="linkExpand4" searchWhenChanged="true" token="tokLinkExpand4" type="link">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink4">true</set>
+            <unset token="showExpandLink4"></unset>
+            <unset token="form.tokLinkExpand4"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink4$">
+        <search>
+          <query>index=_internal sourcetype=splunkd source=*license* TERM(LicenseUsage) type=Usage splunk_server=* earliest=-1w@d 
+| fields, _time, sourcetype, source, type, splunk_server, idx, b, Date, volume  
+| eval Date=strftime(_time, "%Y/%m/%d") 
+| eventstats sum(b) as volume by idx, Date 
+| eval MB=round(volume/1024/1024/2) 
+| timechart first(MB) AS volume by idx 
+| addtotals
+          </query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  
+  
+  
+   <row>
+    <panel id="panel5">
+      <title>Index Config Info </title>
+      <input depends="$showCollapseLink5$" id="linkCollapse5" searchWhenChanged="true" token="tokLinkCollapse5" type="link">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink5"></unset>
+            <set token="showExpandLink5">true</set>
+            <unset token="form.tokLinkCollapse5"></unset>
+          </condition>
+        </change>
+      </input>
+      <input depends="$showExpandLink5$" id="linkExpand5" searchWhenChanged="true" token="tokLinkExpand5" type="link">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink5">true</set>
+            <unset token="showExpandLink5"></unset>
+            <unset token="form.tokLinkExpand5"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink5$">
+        <search>
+          <query>| rest `my_idx_servers` /services/data/indexes-extended datatype=all
+| fields maxDataSize, currentDBSizeMB, datatype, eai:acl.app frozenTimePeriodInSecs	homePath.maxDataSizeMB, coldPath.maxDataSizeMB, maxDataSize, maxHotBuckets, maxHotSpanSecs, maxTotalDataSizeMB, maxWarmDBCount, title
+| rename title AS index
+|  eval maxHotSpanSecs_days = maxHotSpanSecs/86400
+|  eval frozenTimePeriodInSecs_days = frozenTimePeriodInSecs/86400
+| table index maxDataSize, currentDBSizeMB, datatype, eai:acl.app frozenTimePeriodInSecs, frozenTimePeriodInSecs_days, homePath.maxDataSizeMB, coldPath.maxDataSizeMB, maxDataSize, maxHotBuckets, maxHotSpanSecs, maxHotSpanSecs_days maxTotalDataSizeMB, maxWarmDBCount
+          </query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel id="panel6">
+      <title>Bucket Status 24hr</title>
+      <input depends="$showCollapseLink6$" id="linkCollapse6" searchWhenChanged="true" token="tokLinkCollapse6" type="link">
+        <label></label>
+        <choice value="collapse">-</choice>
+        <change>
+          <condition value="collapse">
+            <unset token="showCollapseLink6"></unset>
+            <set token="showExpandLink6">true</set>
+            <unset token="form.tokLinkCollapse6"></unset>
+          </condition>
+        </change>
+      </input>
+      <input depends="$showExpandLink6$" id="linkExpand6" searchWhenChanged="true" token="tokLinkExpand6" type="link">
+        <label></label>
+        <choice value="expand">+</choice>
+        <change>
+          <condition value="expand">
+            <set token="showCollapseLink6">true</set>
+            <unset token="showExpandLink6"></unset>
+            <unset token="form.tokLinkExpand6"></unset>
+          </condition>
+        </change>
+      </input>
+      <table rejects="$showExpandLink6$">
+        <search>
+          <query>index=_internal sourcetype=splunkd component=BucketMover 
+| fields _time, bucket, candidate, component, event_message, from, frozenTimePeriodInSecs, host, idx,latest, log_level, now, reason, splunk_server, to 
+| fieldformat "now"=strftime('now', "%Y/%m/%d %H:%M:%S") 
+| fieldformat "latest"=strftime('latest', "%Y/%m/%d %H:%M:%S") 
+| eval retention_days = frozenTimePeriodInSecs / 86400 ```Convert retention period from seconds to days``` 
+| table _time component, bucket, from, to, candidate, event_message, from, frozenTimePeriodInSecs, retention_days, host, idx, now, latest, reason, splunk_server,  log_level
+          </query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+
+   <row>
+    <panel>
+      <html src="html/index_config.html">
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel ref="ext_docs_panel" app="DC_splunk_quick_health"></panel>
+  </row>
+
   <row depends="$alwaysHideCSSStyleOverride$">
     <panel>
       <html>

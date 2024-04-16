@@ -1,4 +1,5 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <init>
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
@@ -20,8 +21,8 @@
     <latest>now</latest>
     <sampleRatio>1</sampleRatio>
   </search>
-  <fieldset submitButton="false" autoRun="true">
-    <input type="time" token="global_time_tok" searchWhenChanged="true">
+  <fieldset autoRun="true" submitButton="false">
+    <input searchWhenChanged="true" token="global_time_tok" type="time">
       <label>Time</label>
       <default>
         <earliest>-60m@m</earliest>
@@ -31,7 +32,7 @@
   </fieldset>
   <row>
     <panel>
-      <!-- This changes the font sizes -->
+      
       <html>
         <style>
           table tbody tr td{
@@ -136,25 +137,25 @@
   <row>
     <panel id="panel1">
       <title>top_sourcetypes</title>
-      <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
-        <label></label>
+      <input depends="$showCollapseLink1$" id="linkCollapse1" searchWhenChanged="true" token="tokLinkCollapse1" type="link">
+        <label />
         <choice value="collapse">-</choice>
         <change>
           <condition value="collapse">
-            <unset token="showCollapseLink1"></unset>
+            <unset token="showCollapseLink1" />
             <set token="showExpandLink1">true</set>
-            <unset token="form.tokLinkCollapse1"></unset>
+            <unset token="form.tokLinkCollapse1" />
           </condition>
         </change>
       </input>
-      <input id="linkExpand1" type="link" token="tokLinkExpand1" searchWhenChanged="true" depends="$showExpandLink1$">
-        <label></label>
+      <input depends="$showExpandLink1$" id="linkExpand1" searchWhenChanged="true" token="tokLinkExpand1" type="link">
+        <label />
         <choice value="expand">+</choice>
         <change>
           <condition value="expand">
             <set token="showCollapseLink1">true</set>
-            <unset token="showExpandLink1"></unset>
-            <unset token="form.tokLinkExpand1"></unset>
+            <unset token="showExpandLink1" />
+            <unset token="form.tokLinkExpand1" />
           </condition>
         </change>
       </input>
@@ -172,25 +173,25 @@
   <row>
     <panel id="panel2">
       <title>licence_usage_by_sourcetype</title>
-      <input id="linkCollapse2" type="link" token="tokLinkCollapse2" searchWhenChanged="true" depends="$showCollapseLink2$">
-        <label></label>
+      <input depends="$showCollapseLink2$" id="linkCollapse2" searchWhenChanged="true" token="tokLinkCollapse2" type="link">
+        <label />
         <choice value="collapse">-</choice>
         <change>
           <condition value="collapse">
-            <unset token="showCollapseLink2"></unset>
+            <unset token="showCollapseLink2" />
             <set token="showExpandLink2">true</set>
-            <unset token="form.tokLinkCollapse2"></unset>
+            <unset token="form.tokLinkCollapse2" />
           </condition>
         </change>
       </input>
-      <input id="linkExpand2" type="link" token="tokLinkExpand2" searchWhenChanged="true" depends="$showExpandLink2$">
-        <label></label>
+      <input depends="$showExpandLink2$" id="linkExpand2" searchWhenChanged="true" token="tokLinkExpand2" type="link">
+        <label />
         <choice value="expand">+</choice>
         <change>
           <condition value="expand">
             <set token="showCollapseLink2">true</set>
-            <unset token="showExpandLink2"></unset>
-            <unset token="form.tokLinkExpand2"></unset>
+            <unset token="showExpandLink2" />
+            <unset token="form.tokLinkExpand2" />
           </condition>
         </change>
       </input>
@@ -216,25 +217,25 @@
   <row>
     <panel id="panel3">
       <title>all sourcetypes</title>
-      <input id="linkCollapse3" type="link" token="tokLinkCollapse3" searchWhenChanged="true" depends="$showCollapseLink3$">
-        <label></label>
+      <input depends="$showCollapseLink3$" id="linkCollapse3" searchWhenChanged="true" token="tokLinkCollapse3" type="link">
+        <label />
         <choice value="collapse">-</choice>
         <change>
           <condition value="collapse">
-            <unset token="showCollapseLink3"></unset>
+            <unset token="showCollapseLink3" />
             <set token="showExpandLink3">true</set>
-            <unset token="form.tokLinkCollapse3"></unset>
+            <unset token="form.tokLinkCollapse3" />
           </condition>
         </change>
       </input>
-      <input id="linkExpand3" type="link" token="tokLinkExpand3" searchWhenChanged="true" depends="$showExpandLink3$">
-        <label></label>
+      <input depends="$showExpandLink3$" id="linkExpand3" searchWhenChanged="true" token="tokLinkExpand3" type="link">
+        <label />
         <choice value="expand">+</choice>
         <change>
           <condition value="expand">
             <set token="showCollapseLink3">true</set>
-            <unset token="showExpandLink3"></unset>
-            <unset token="form.tokLinkExpand3"></unset>
+            <unset token="showExpandLink3" />
+            <unset token="form.tokLinkExpand3" />
           </condition>
         </change>
       </input>
@@ -250,25 +251,25 @@
   <row>
     <panel id="panel4">
       <title>bad sourcetypes</title>
-      <input id="linkCollapse4" type="link" token="tokLinkCollapse4" searchWhenChanged="true" depends="$showCollapseLink4$">
-        <label></label>
+      <input depends="$showCollapseLink4$" id="linkCollapse4" searchWhenChanged="true" token="tokLinkCollapse4" type="link">
+        <label />
         <choice value="collapse">-</choice>
         <change>
           <condition value="collapse">
-            <unset token="showCollapseLink4"></unset>
+            <unset token="showCollapseLink4" />
             <set token="showExpandLink4">true</set>
-            <unset token="form.tokLinkCollapse4"></unset>
+            <unset token="form.tokLinkCollapse4" />
           </condition>
         </change>
       </input>
-      <input id="linkExpand4" type="link" token="tokLinkExpand4" searchWhenChanged="true" depends="$showExpandLink4$">
-        <label></label>
+      <input depends="$showExpandLink4$" id="linkExpand4" searchWhenChanged="true" token="tokLinkExpand4" type="link">
+        <label />
         <choice value="expand">+</choice>
         <change>
           <condition value="expand">
             <set token="showCollapseLink4">true</set>
-            <unset token="showExpandLink4"></unset>
-            <unset token="form.tokLinkExpand4"></unset>
+            <unset token="showExpandLink4" />
+            <unset token="form.tokLinkExpand4" />
           </condition>
         </change>
       </input>
@@ -287,25 +288,25 @@
   <row>
     <panel id="panel5">
       <title>index - ratio by sourcetypes</title>
-      <input id="linkCollapse5" type="link" token="tokLinkCollapse5" searchWhenChanged="true" depends="$showCollapseLink5$">
-        <label></label>
+      <input depends="$showCollapseLink5$" id="linkCollapse5" searchWhenChanged="true" token="tokLinkCollapse5" type="link">
+        <label />
         <choice value="collapse">-</choice>
         <change>
           <condition value="collapse">
-            <unset token="showCollapseLink5"></unset>
+            <unset token="showCollapseLink5" />
             <set token="showExpandLink5">true</set>
-            <unset token="form.tokLinkCollapse5"></unset>
+            <unset token="form.tokLinkCollapse5" />
           </condition>
         </change>
       </input>
-      <input id="linkExpand5" type="link" token="tokLinkExpand5" searchWhenChanged="true" depends="$showExpandLink5$">
-        <label></label>
+      <input depends="$showExpandLink5$" id="linkExpand5" searchWhenChanged="true" token="tokLinkExpand5" type="link">
+        <label />
         <choice value="expand">+</choice>
         <change>
           <condition value="expand">
             <set token="showCollapseLink5">true</set>
-            <unset token="showExpandLink5"></unset>
-            <unset token="form.tokLinkExpand5"></unset>
+            <unset token="showExpandLink5" />
+            <unset token="form.tokLinkExpand5" />
           </condition>
         </change>
       </input>

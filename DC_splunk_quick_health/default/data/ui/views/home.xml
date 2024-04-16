@@ -1,19 +1,20 @@
-<dashboard version="1.1" hideEdit="true">
+<dashboard hideEdit="true" version="1.1">
+  <tags>mobile</tags>
   <label>Intro </label>
   <description>This app is to help you run various checks related to the health of Splunk.</description>
   <row>
-	  <panel ref="intro" app="DC_splunk_quick_health"></panel>
-	  <panel ref="app_version_panel" app="DC_splunk_quick_health"></panel>
+	  <panel app="DC_splunk_quick_health" ref="intro" />
+	  <panel app="DC_splunk_quick_health" ref="app_version_panel" />
   </row>
   <row>
-    <panel ref="ext_docs_panel" app="DC_splunk_quick_health"></panel>
-    <panel ref="ext_community_panel" app="DC_splunk_quick_health"></panel>
+    <panel app="DC_splunk_quick_health" ref="ext_docs_panel" />
+    <panel app="DC_splunk_quick_health" ref="ext_community_panel" />
   </row>
 
   <row>
-	  <panel ref="app_install_panel" app="DC_splunk_quick_health"></panel>
-	  <panel ref="macros_check_panel" app="DC_splunk_quick_health"></panel>
-          <panel ref="app_requirements_panel" app="DC_splunk_quick_health"></panel>
+	  <panel app="DC_splunk_quick_health" ref="app_install_panel" />
+	  <panel app="DC_splunk_quick_health" ref="macros_check_panel" />
+          <panel app="DC_splunk_quick_health" ref="app_requirements_panel" />
   </row>
 
 </dashboard>

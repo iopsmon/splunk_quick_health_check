@@ -1,15 +1,16 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>ingest data checks</label>
   <description>used for stats and analysis</description>
   <fieldset submitButton="false">
-    <input type="time" token="my_time">
+    <input token="my_time" type="time">
       <label>enter_time</label>
       <default>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
       </default>
     </input>
-    <input type="dropdown" token="my_index">
+    <input token="my_index" type="dropdown">
       <label>enter_index</label>
       <fieldForLabel>index</fieldForLabel>
       <fieldForValue>index</fieldForValue>
@@ -20,12 +21,12 @@
         </condition>
       </change>
       <search>
-        <query>| tstats count where index!=_* by index</query>
+        <query>| tstats count where index=* by index</query>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
       </search>
     </input>
-    <input type="dropdown" token="my_sourcetype">
+    <input token="my_sourcetype" type="dropdown">
       <label>enter_sourcetype</label>
       <fieldForLabel>sourcetype</fieldForLabel>
       <fieldForValue>sourcetype</fieldForValue>
@@ -41,7 +42,7 @@
         <latest>now</latest>
       </search>
     </input>
-    <input type="dropdown" token="my_host">
+    <input token="my_host" type="dropdown">
       <label>enter_host</label>
       <fieldForLabel>host</fieldForLabel>
       <fieldForValue>host</fieldForValue>
@@ -62,8 +63,7 @@
     </input>
   </fieldset>
   <row>
-    <panel>
-      <!-- This changes the font sizes -->-<html>
+    <panel>-<html>
  
 <style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
  

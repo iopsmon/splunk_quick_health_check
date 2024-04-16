@@ -1,8 +1,9 @@
-<dashboard version="1.1" theme="dark">
+<dashboard theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>compute checks</label>
   <row>
     <panel>
-      <!-- This changes the font sizes -->-<html>
+      -<html>
  
 <style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
  
@@ -62,7 +63,7 @@ earliest=-30m latest=now
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="compute_high_risk">
+        <format field="compute_high_risk" type="color">
           <colorPalette type="expression">if (match(value,"High"),"#FF5733","#228B22")</colorPalette>
         </format>
       </table>
@@ -167,7 +168,7 @@ earliest=-30m latest=now
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="severity_level">
+        <format field="severity_level" type="color">
           <colorPalette type="expression">if (match(value,"Critical"),"#FF5733","#228B22")</colorPalette>
         </format>
       </table>
@@ -199,7 +200,7 @@ earliest=-30m latest=now
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="severity_level">
+        <format field="severity_level" type="color">
           <colorPalette type="expression">if (match(value,"Critical"),"#FF5733","#228B22")</colorPalette>
         </format>
       </table>
@@ -260,7 +261,7 @@ earliest=-30m latest=now
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="severity_level">
+        <format field="severity_level" type="color">
           <colorPalette type="expression">if (match(value,"Critical"),"#FF5733","#228B22")</colorPalette>
         </format>
       </table>
@@ -292,7 +293,7 @@ earliest=-30m latest=now
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="severity_level">
+        <format field="severity_level" type="color">
           <colorPalette type="expression">if (match(value,"Critical"),"#FF5733","#228B22")</colorPalette>
         </format>
       </table>

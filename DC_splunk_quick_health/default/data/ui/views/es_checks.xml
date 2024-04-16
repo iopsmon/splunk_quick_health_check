@@ -1,6 +1,5 @@
-<form version="1.1" theme="dark">
-  <label>es checks - Run on ES SH</label>
-  <!-- <This is for the latency dashboard</choice> -->-<init>
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>-<label>es checks - Run on ES SH</label>-<init>
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
     <set token="showExpandLink3">true</set>
@@ -19,8 +18,7 @@
   </init>
   <fieldset submitButton="false"></fieldset>
   <row>
-    <panel>
-      <!-- This changes the font sizes -->-<html>
+    <panel>-<html>
 
 <style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
 
@@ -28,6 +26,24 @@
     </panel>
   </row>
   <row>
+    <panel>
+      <title>enabled_rules ES Only</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local count=0 /servicesNS/-/SplunkEnterpriseSecuritySuite/saved/searches | where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]") | where disabled=0 | eval actions=split(actions, ",") | table title,actions</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
     <panel>
       <title>rules_enabled_count ES Only</title>
       <single>
@@ -57,12 +73,10 @@
       </single>
     </panel>
     <panel>
-      <title>rules_enabled_count ES Content Update Only</title>
+      <title>unique_saved_searches</title>
       <single>
         <search>
-          <query>| rest splunk_server=local count=0 /servicesNS/-/DA-ESS-ContentUpdate/saved/searches
-| search eai:acl.app=DA-ESS-ContentUpdate  
-| where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]") | where disabled=0 | eval actions=split(actions, ",") | table eai:acl.app,title,actions| stats count</query>
+          <query>index=_internal sourcetype="scheduler" host=s1sh* | stats dc(savedsearch_name)</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -70,35 +84,6 @@
         <option name="colorBy">value</option>
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
-        <option name="numberPrecision">0</option>
-        <option name="rangeColors">["0x53a051","0x53a051"]</option>
-        <option name="rangeValues">[0]</option>
-        <option name="showSparkline">1</option>
-        <option name="showTrendIndicator">1</option>
-        <option name="trellis.enabled">0</option>
-        <option name="trellis.scales.shared">1</option>
-        <option name="trellis.size">medium</option>
-        <option name="trendColorInterpretation">standard</option>
-        <option name="trendDisplayMode">absolute</option>
-        <option name="underLabel">rules_enabled</option>
-        <option name="unitPosition">after</option>
-        <option name="useColors">1</option>
-        <option name="useThousandSeparators">1</option>
-      </single>
-    </panel>
-    <panel>
-      <title>total_schedule_saved_searches</title>
-      <single>
-        <search>
-          <query>index=_internal sourcetype="scheduler" `my_es_sh` | stats dc(savedsearch_name)</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="colorBy">value</option>
-        <option name="colorMode">block</option>
-        <option name="drilldown">all</option>
-        <option name="height">108</option>
         <option name="numberPrecision">0</option>
         <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
         <option name="rangeValues">[0]</option>
@@ -114,57 +99,7 @@
         <option name="unitPosition">after</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
-        <drilldown>
-          <link target="_blank">search?q=index%3D_internal%20host%3Ds1se1.ops.com%20sourcetype%3Dscheduler%0A%60%60%60This%20search%20lists%20%20all%20the%20total%20current%20schedule%20searches%20%5C%20%60%60%60%0A%60%60%60Running%20on%20the%20SH%60%60%60%0A%7C%20rex%20field%3D_raw%20%22savedsearch_id%3D%5C%22nobody%3B(%3F%3Capp%3E%5B%5E%3B%5D%2B)%3B%22%0A%7C%20eval%20search_schedule_time%3Dstrftime(scheduled_time%2C%22%25d%2F%25m%2F%25y%20%25H%3A%25M%3A%25S%22)%0A%7C%20fields%20%20_time%20user%20app%20savedsearch_name%20status%20search_schedule_time%20run_time%20result_count%20%0A%7C%20table%20_time%20user%20app%20savedsearch_name%20status%20search_schedule_time%20run_time%20result_count%0A%7C%20dedup%20savedsearch_name%0A%7C%20sort%20-%20app&amp;earliest=-24h@h&amp;latest=now</link>
-        </drilldown>
       </single>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>enabled_rules ES Only</title>
-      <table>
-        <search>
-          <query>| rest splunk_server=local count=0 /servicesNS/-/SplunkEnterpriseSecuritySuite/saved/searches | where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]") | where disabled=0 | eval actions=split(actions, ",") | table title,actions</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-      </table>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>enabled_rules ES Content Update Only</title>
-      <table>
-        <search>
-          <query>| rest splunk_server=local count=0 /servicesNS/-/DA-ESS-ContentUpdate/saved/searches
-    ```This search shows only the enabled searches from the Splunk ES Content Update App```
-    | rename eai:acl.app AS app 
-| search app=DA-ESS-ContentUpdate  
-| where disabled=0 
-| eval actions=split(actions, ",") 
-| table app,title,actions</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-      </table>
     </panel>
   </row>
   <row>
@@ -172,7 +107,7 @@
       <title>all_rules</title>
       <table>
         <search>
-          <query>| rest splunk_server=local count=0 /services/saved/searches | where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]") | rename eai:acl.app as app, title as csearch_name, action.correlationsearch.label as csearch_label, action.notable.param.security_domain as security_domain | table csearch_name, csearch_label, app, security_domain, description</query>
+          <query>| rest splunk_server=s1sh* count=0 /services/saved/searches | where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]") | rename eai:acl.app as app, title as csearch_name, action.correlationsearch.label as csearch_label, action.notable.param.security_domain as security_domain | table csearch_name, csearch_label, app, security_domain, description</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -205,7 +140,7 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="complete(%)">
+        <format field="complete(%)" type="color">
           <colorPalette type="expression">if (match(value,"^100.0$"),"#228B22","#FF5733")</colorPalette>
         </format>
       </table>
@@ -262,7 +197,7 @@
       <title>apps_installed</title>
       <table>
         <search>
-          <query>| rest splunk_server=local /services/apps/local| table label version| dedup label</query>
+          <query>| rest /services/apps/local| table label version| dedup label</query>
           <earliest>-30m</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -282,7 +217,7 @@
       <title>rt_concurrency_check</title>
       <chart>
         <search>
-          <query>index=_internal `my_es_sh` source=*metrics.log group=search_concurrency "system total" NOT user=* | timechart max(active_realtime_searches) by host</query>
+          <query>index=_internal (host=s1sh1.ops.com  OR host=s1sh2.ops.com OR host=s1sh3.ops.com) source=*metrics.log group=search_concurrency "system total" NOT user=* | timechart max(active_realtime_searches) by host</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -327,7 +262,7 @@
       <title>historical_concurrency_check</title>
       <chart>
         <search>
-          <query>index=_internal `my_es_sh` source=*metrics.log group=search_concurrency
+          <query>index=_internal (host=s1sh1.ops.com OR host=s1sh2.ops.com OR host=s1sh3.ops.com) source=*metrics.log group=search_concurrency
 | timechart max(active_hist_searches) by host</query>
           <earliest>1625637600.000</earliest>
           <latest>1625727419.000</latest>
@@ -387,7 +322,7 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="reason">
+        <format field="reason" type="color">
           <colorPalette type="expression">if (match(value,"^.*$"),"#FF5733","#228B22")</colorPalette>
         </format>
       </table>
@@ -396,7 +331,7 @@
   <row>
     <panel>
       <title>app_skipped_search_check</title>
-      <input type="dropdown" token="my_app">
+      <input token="my_app" type="dropdown">
         <label>apps_list</label>
         <fieldForLabel>app</fieldForLabel>
         <fieldForValue>app</fieldForValue>
@@ -455,7 +390,7 @@
       <title>cron_job_stats</title>
       <chart>
         <search>
-          <query>index=_internal `my_es_sh` sourcetype=scheduler result_count 
+          <query>index=_internal host=s1sh* sourcetype=scheduler result_count 
 | extract pairdelim=",", kvdelim="=", auto=f 
 | stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app 
 | join savedsearch_name type=outer 
@@ -509,51 +444,17 @@
       <title>searches_by_cron_jobs</title>
       <table>
         <search>
-          <query>index=_internal `my_es_sh` sourcetype=scheduler result_count 
-| stats  count AS execution_count by savedsearch_name  
+          <query>index=_internal sourcetype=scheduler result_count earliest=-30m@m latest=now
+| stats count AS execution_count by savedsearch_name
 | join savedsearch_name type=outer 
     [| rest /servicesNS/-/-/saved/searches 
     | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search 
-    | rename title AS savedsearch_name cron_schedule AS cron_schedule ] 
-    | eval cron_description=case(cron_schedule=="0", "At every minute.", cron_schedule=="*/15 * * * *", "At every 15th minute.",
-    cron_schedule=="*/30 * * * *", "At every 30th minute.", cron_schedule=="*/5 * * * *", "At every 5th minute.",
-    cron_schedule=="0 * * * *", "At minute 0.",
-    cron_schedule=="0 2 * * *", "At 02:00.",
-    cron_schedule=="0 3 * * *", "At 03:00.",
-    cron_schedule=="0 5 * * *", "At 05:00.",
-    cron_schedule=="1 * * * *", "At minute 1.", 
-    cron_schedule=="1 0 * * *", "At 00:01.",
-    cron_schedule=="1 1 * * *", "At 01:01.",
-    cron_schedule=="1 3 * * *", "At 03:01.",
-    cron_schedule=="1-56/5 * * * *", "At every 5th minute from 1 through 56.",
-    cron_schedule=="5 * * * *", "At minute 5.",
-    cron_schedule=="10 * * * *", "At minute 10.",
-    cron_schedule=="10 0,4,8,12,16,20 * * *", "At minute 10 past hour 0, 4, 8, 12, 16, and 20.",
-    cron_schedule=="10 3 * * *", "At 03:10.", 
-    cron_schedule=="10,25,40,55 * * * *", "At minute 10, 25, 40, and 55.", 
-    cron_schedule=="15 * * * *", "At minute 15.",
-    cron_schedule=="15 */4 * * *", "At minute 15 past every 4th hour.",
-    cron_schedule=="15 0,4,8,12,16,20 * * *", "At minute 15 past hour 0, 4, 8, 12, 16, and 20.",
-    cron_schedule=="17 * * * *", "At minute 17.",
-    cron_schedule=="20 * * * *", "At minute 20.",
-    cron_schedule=="20 3 * * *", "At 03:20.",
-    cron_schedule=="25 * * * *", "At minute 25.",
-    cron_schedule=="30 * * * *", "At minute 30.",
-    cron_schedule=="30 0,4,8,12,16,20 * * *", "At minute 30 past hour 0, 4, 8, 12, 16, and 20.",
-    cron_schedule=="30 4 * * *", "At 04:30.",
-    cron_schedule=="33 3 * * *", "At 03:33.",
-    cron_schedule=="35 * * * *", "At minute 35.",
-    cron_schedule=="35 3 * * *", "At 03:35.",
-    cron_schedule=="40 * * * *", "At minute 40.",
-    cron_schedule=="45 * * * *", "At minute 45.",
-    cron_schedule=="50 * * * *", "At minute 50.",
-    cron_schedule=="50 4 * * *", "At 04:50.",
-    cron_schedule=="55 0,6,12,18 * * *", "At minute 55 past hour 0, 6, 12, and 18."
-    ) 
-  
-| stats count by  savedsearch_name cron_schedule,cron_description
-| table savedsearch_name, cron_schedule cron_description
-| stats list(savedsearch_name) by cron_schedule cron_description | sort cron_schedule</query>
+    | rename title AS savedsearch_name cron_schedule AS cron_job] 
+    |  lookup cron_jobs_collection_lookup cron_job OUTPUT cron_job, description 
+| stats count by savedsearch_name cron_job description 
+| table savedsearch_name, cron_job description 
+| stats list(savedsearch_name) by cron_job description 
+| sort cron_job</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -574,7 +475,7 @@
       <title>bundle_size</title>
       <chart>
         <search>
-          <query>index=_internal `my_es_sh` name=bundle_metadata source=*/metrics.log* 
+          <query>index=_internal host=s1sh* name=bundle_metadata source=*/metrics.log* 
 | eval size_mb=round(((bundle_bytes / 1024) / 1024),2) 
 | timechart minspan=30s avg(size_mb) by bundle_type</query>
           <earliest>-24h@h</earliest>
@@ -620,7 +521,7 @@
       <title>sh_skipped_searches</title>
       <table>
         <search>
-          <query>(earliest=-60m index=_internal `my_es_sh`  sourcetype=scheduler (status="completed" OR status="skipped")) 
+          <query>(earliest=-60m index=_internal host=s1sh*  sourcetype=scheduler (status="completed" OR status="skipped")) 
 | stats count(eval(status=="completed" OR status=="skipped")) AS total_executions, count(eval(status=="skipped")) AS skipped_executions by host 
 | eval skip_ratio=((skipped_executions / total_executions) * 100), severity_level=case((skip_ratio == 0),0,(skip_ratio &gt; 0),2), skip_ratio=(round(skip_ratio,2) . "%") 
 | rename host as instance 
@@ -645,7 +546,7 @@
       <title>non_es_apps_searches</title>
       <table>
         <search>
-          <query>index=_internal `my_es_sh` sourcetype=scheduler result_count 
+          <query>index=_internal host=s1sh* sourcetype=scheduler result_count 
 | extract pairdelim=",", kvdelim="=", auto=f 
 | stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app 
 | join savedsearch_name type=outer 
@@ -675,7 +576,7 @@
       <title>es_splunk_apps_searches</title>
       <table>
         <search>
-          <query>index=_internal host=s1se1.ops.com sourcetype=scheduler result_count 
+          <query>index=_internal host=s1sh* sourcetype=scheduler result_count 
 | extract pairdelim=",", kvdelim="=", auto=f 
 | stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app 
 | join savedsearch_name type=outer 
@@ -708,7 +609,7 @@
       <title>schedule_search_check</title>
       <table>
         <search>
-          <query>index=_internal `my_es_sh` sourcetype=scheduler result_count | extract pairdelim=",", kvdelim="=", auto=f | stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app | join savedsearch_name type=outer [| rest /servicesNS/-/-/saved/searches | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS Owner cron_schedule AS "Cron Schedule" dispatch.earliest_time AS "Dispatch Earliest Time" dispatch.latest_time AS "Dispatch Latest Time"]| rename savedsearch_name AS "Saved Search Name" search AS "SPL Query" app AS App | makemv delim="," values(host) | sort - avg(run_time) | table "Saved Search Name", App, Owner, "SPL Query", "Dispatch Earliest Time" "Dispatch Latest Time" "Cron Schedule" hosts, execution_count, sparkline, *(result_count), sum(run_time) *(run_time)</query>
+          <query>index=_internal host=s1sh* sourcetype=scheduler result_count | extract pairdelim=",", kvdelim="=", auto=f | stats avg(result_count) min(result_count) max(result_count), sparkline avg(run_time) min(run_time) max(run_time) sum(run_time) values(host) AS hosts count AS execution_count by savedsearch_name, app | join savedsearch_name type=outer [| rest /servicesNS/-/-/saved/searches | fields title eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time search | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS Owner cron_schedule AS "Cron Schedule" dispatch.earliest_time AS "Dispatch Earliest Time" dispatch.latest_time AS "Dispatch Latest Time"]| rename savedsearch_name AS "Saved Search Name" search AS "SPL Query" app AS App | makemv delim="," values(host) | sort - avg(run_time) | table "Saved Search Name", App, Owner, "SPL Query", "Dispatch Earliest Time" "Dispatch Latest Time" "Cron Schedule" hosts, execution_count, sparkline, *(result_count), sum(run_time) *(run_time)</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>

@@ -1,10 +1,11 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>internal logs by hosts</label>
   <description>internal_logs_checks</description>
-  <fieldset submitButton="false"></fieldset>
+  <fieldset submitButton="false" />
   <row>
     <panel>
-      <!-- This changes the font sizes -->-<html>
+      -<html>
  
 <style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
  
@@ -14,21 +15,21 @@
   <row>
     <panel>
       <title>internal_logs_checks</title>
-      <input type="time" token="field1" searchWhenChanged="true">
-        <label></label>
+      <input searchWhenChanged="true" token="field1" type="time">
+        <label />
         <default>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </default>
       </input>
-      <input type="dropdown" token="my_host" searchWhenChanged="true">
+      <input searchWhenChanged="true" token="my_host" type="dropdown">
         <label>select_host</label>
         <fieldForLabel>host</fieldForLabel>
         <fieldForValue>host</fieldForValue>
         <change>
           <condition value="compare">
             <set token="my_host">true</set>
-            <unset token="my_host"></unset>
+            <unset token="my_host" />
           </condition>
         </change>
         <search>
@@ -84,7 +85,7 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="log_level">
+        <format field="log_level" type="color">
           <colorPalette type="expression">case (like(value,"ERROR%"),"#FF3300")</colorPalette>
         </format>
       </table>
@@ -155,7 +156,7 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="log_level">
+        <format field="log_level" type="color">
           <colorPalette type="expression">case (like(value,"ERROR%"),"#FF3300")</colorPalette>
         </format>
       </table>

@@ -1,5 +1,6 @@
-<dashboard version="1.1" theme="dark">
-   <init>
+<dashboard theme="dark" version="1.1">
+   <tags>mobile</tags>
+    <init>
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
     <set token="showExpandLink3">true</set>
@@ -9,7 +10,7 @@
   </init>
     <row>
     <panel>
-      <!-- This changes the colour and font sizes -->
+      
       <html>
         <style>
           table tbody tr td{
@@ -147,7 +148,7 @@
           <query>index=_internal fwdType=uf 
 | dedup hostname | stats count</query>
           <earliest>0</earliest>
-          <latest></latest>
+          <latest />
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="colorBy">value</option>
@@ -171,25 +172,25 @@
   <row>
     <panel id="panel1">
       <title>forwarders audit</title>
-      <input id="linkCollapse3" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
-        <label></label>
+      <input depends="$showCollapseLink1$" id="linkCollapse3" searchWhenChanged="true" token="tokLinkCollapse1" type="link">
+        <label />
         <choice value="collapse">-</choice>
         <change>
           <condition value="collapse">
-            <unset token="showCollapseLink1"></unset>
+            <unset token="showCollapseLink1" />
             <set token="showExpandLink1">true</set>
-            <unset token="form.tokLinkCollapse1"></unset>
+            <unset token="form.tokLinkCollapse1" />
           </condition>
         </change>
       </input>
-      <input id="linkExpand1" type="link" token="tokLinkExpand1" searchWhenChanged="true" depends="$showExpandLink1$">
-        <label></label>
+      <input depends="$showExpandLink1$" id="linkExpand1" searchWhenChanged="true" token="tokLinkExpand1" type="link">
+        <label />
         <choice value="expand">+</choice>
         <change>
           <condition value="expand">
             <set token="showCollapseLink1">true</set>
-            <unset token="showExpandLink1"></unset>
-            <unset token="form.tokLinkExpand1"></unset>
+            <unset token="showExpandLink1" />
+            <unset token="form.tokLinkExpand1" />
           </condition>
         </change>
       </input>

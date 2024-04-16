@@ -1,6 +1,6 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>quick health check</label>
-  <!-- <This is for the latency dashboard</choice> -->
   <init>
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
@@ -23,8 +23,7 @@
   </init>
   <fieldset submitButton="false"></fieldset>
   <row>
-    <panel>
-      <!-- This changes the font sizes -->-<html>
+    <panel>-<html>
         <style>
           table tbody tr td{
             font-size:120% !important;
@@ -79,7 +78,7 @@
       <title>Check splunk server status - stopped / restarted</title>
       <single>
         <search>
-          <query>index="_audit"  host=trinity (action=splunkShuttingDown OR action=splunkStarting)  earliest=-5m@m latest=now
+          <query>index="_audit"  `all_splunk_hosts` (action=splunkShuttingDown OR action=splunkStarting)  earliest=-5m@m latest=now
 | stats count BY host action _time 
 | eval color=case(action == "splunkStarting", 1,  action == "splunkShuttingDown", 3)
 | rangemap field=color low=1-1 severe=3-3
@@ -119,16 +118,21 @@
       <title>GB Volume Limit</title>
       <chart>
         <search>
-          <query>index=_internal source="*metrics.log" group=per_index_thruput NOT series=_* earliest=-7d 
-| eval GB=kb/1024/1024 
-| timechart span=1d sum(GB) | `my_lic_limit`</query>
+          <query>index=_internal source="*metrics.log" group=per_index_thruput NOT series=_* earliest=-7d latest=now 
+|  fields, _time, source, kb, group
+| eval GB=round(kb/1024/1024,3)  
+| eval MB=round(kb/1024,0)  
+| timechart span=1d sum(GB) sum(MB) 
+| `my_lic_limit`</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.text">7 Days</option>
         <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">data_thruput</option>
         <option name="charting.axisTitleY.visibility">visible</option>
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.axisX.abbreviation">none</option>
@@ -199,8 +203,8 @@
       <title>license Usage</title>
       <single>
         <search>
-          <query>index=_internal source=*license_usage.log* type=Usage 
-earliest=-1d@d latest=now 
+          <query>index=_internal source=*license_usage.log* type=Usage earliest=-1d@d latest=now
+| fields _time type, st, b 
 | eval My_Size_GB=round(b/1024/1024,0)
 | rename st AS Sourcetype
 | stats sum(My_Size_GB) AS Size_GB by Sourcetype   
@@ -259,7 +263,8 @@ earliest=-1d@d latest=now
       <title>Dispatcher Queue - Max Jobs Reached</title>
       <single>
         <search>
-          <query>index=_internal source=*splunkd.log* log_level!=info   DispatchManager - Queued job id sourcetype=splunkd reason="The maximum number of concurrent historical searches on this instance has been reached*"
+          <query>index=_internal splunk_server=local sourcetype= splunkd source=*splunkd.log* log_level!=info   DispatchManager - Queued job id sourcetype=splunkd reason="The maximum number of concurrent historical searches on this instance has been reached*"
+| fields _time, source, log_level, reason, DispatchManager, sourcetype 
 | stats count as jobs
 | eval queue=if((jobs==0), "GOOD", "BAD")
 | eval severity=case(queue="GOOD", 0, queue="BAD", 1)
@@ -289,7 +294,10 @@ earliest=-1d@d latest=now
       <title>Distinct Users</title>
       <single>
         <search>
-          <query>index=_internal sourcetype=splunk_web_access | timechart span=1d dc(user) as distinct_user | fields - _time</query>
+          <query>index=_internal sourcetype=splunk_web_access  
+| fields _time, user
+| timechart span=1d dc(user) as distinct_user 
+| fields - _time</query>
           <earliest>-15m</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -300,6 +308,7 @@ earliest=-1d@d latest=now
         <option name="numberPrecision">0</option>
         <option name="rangeColors">["0x53a051","0x53a051"]</option>
         <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
         <option name="showSparkline">1</option>
         <option name="showTrendIndicator">1</option>
         <option name="trellis.enabled">0</option>
@@ -320,7 +329,7 @@ earliest=-1d@d latest=now
   <row>
     <panel id="panel1">
       <title>Internal Index ERROR / WARN</title>
-      <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
+      <input depends="$showCollapseLink1$" id="linkCollapse1" searchWhenChanged="true" token="tokLinkCollapse1" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -331,7 +340,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand1" type="link" token="tokLinkExpand1" searchWhenChanged="true" depends="$showExpandLink1$">
+      <input depends="$showExpandLink1$" id="linkExpand1" searchWhenChanged="true" token="tokLinkExpand1" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -344,11 +353,11 @@ earliest=-1d@d latest=now
       </input>
       <table rejects="$showExpandLink1$">
         <search>
-          <query>index=_internal (log_level=ERROR OR log_level=WARN) 
+          <query>index=_internal (log_level=ERROR OR log_level=WARN) earliest=-24h@h latest=now 
 | eval host=lower(host)
 | fields _time, component, event_message, log_level, source, host
-| table _time, component, event_message, log_level, source, host
-| stats count by log_level, component, event_message, source, host
+| stats count BY log_level, component, event_message, source, host
+| table component, event_message, log_level, source, host, count 
 | sort - count</query>
           <earliest>-60m@m</earliest>
           <latest>now</latest>
@@ -370,7 +379,7 @@ earliest=-1d@d latest=now
   <row>
     <panel id="panel2">
       <title>Splunk OS File System Usage For  Indexers</title>
-      <input id="linkCollapse2" type="link" token="tokLinkCollapse2" searchWhenChanged="true" depends="$showCollapseLink2$">
+      <input depends="$showCollapseLink2$" id="linkCollapse2" searchWhenChanged="true" token="tokLinkCollapse2" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -381,7 +390,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand2" type="link" token="tokLinkExpand2" searchWhenChanged="true" depends="$showExpandLink2$">
+      <input depends="$showExpandLink2$" id="linkExpand2" searchWhenChanged="true" token="tokLinkExpand2" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -395,12 +404,14 @@ earliest=-1d@d latest=now
       <table rejects="$showExpandLink2$">
         <search>
           <query>| rest  /services/server/status/partitions-space `my_idx_servers`
+| fields capacity, free, pct_usage, fs_type, mount_point, splunk_server 
 | eval myCapacityGB=round(capacity/1024)
 | eval myFreeGB=round(free/1024)
 | eval space_free_GB = (myCapacityGB-myFreeGB)
 | eval pct_usage = round(myFreeGB/myCapacityGB*100,2)
-| stats first(fs_type) as fs_type first(myCapacityGB) as capacity_GB first(myFreeGB) as aval_GB  
-  first(pct_usage) as %_free first(space_free_GB) as GB_used by mount_point, splunk_server</query>
+| stats first(fs_type) AS fs_type first(myCapacityGB) AS capacity_GB first(myFreeGB) AS avail_GB  
+  first(pct_usage) AS %_free first(space_free_GB) AS used_GB BY mount_point, splunk_server
+|  table splunk_server  mount_point, fs_type, capacity_GB, avail_GB, %_free, used_GB</query>
           <earliest>-60m@m</earliest>
           <latest>now</latest>
         </search>
@@ -412,7 +423,7 @@ earliest=-1d@d latest=now
   <row>
     <panel id="pane4">
       <title>Alerts Status</title>
-      <input id="linkCollapse4" type="link" token="tokLinkCollapse4" searchWhenChanged="true" depends="$showCollapseLink4$">
+      <input depends="$showCollapseLink4$" id="linkCollapse4" searchWhenChanged="true" token="tokLinkCollapse4" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -423,7 +434,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand4" type="link" token="tokLinkExpand4" searchWhenChanged="true" depends="$showExpandLink4$">
+      <input depends="$showExpandLink4$" id="linkExpand4" searchWhenChanged="true" token="tokLinkExpand4" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -436,17 +447,19 @@ earliest=-1d@d latest=now
       </input>
       <table rejects="$showExpandLink4$">
         <search>
-          <query>index=_internal alert_actions="email" status=success OR status=failed
+          <query>index=_internal alert_actions="email" status=success OR status=failed earliest=-24h@h latest=now
+| fields _time, alert_actions, status, dispatch_time, user, savedsearch_name, app     
 | eval run_time=strftime(dispatch_time,"%d/%m/%y %H:%M:%S")
 | table _time, user, savedsearch_name, app, status, alert_actions, run_time</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
     <panel id="panel5">
       <title>Users And Roles For Search Heads</title>
-      <input id="linkCollapse5" type="link" token="tokLinkCollapse5" searchWhenChanged="true" depends="$showCollapseLink5$">
+      <input depends="$showCollapseLink5$" id="linkCollapse5" searchWhenChanged="true" token="tokLinkCollapse5" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -457,7 +470,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand5" type="link" token="tokLinkExpand5" searchWhenChanged="true" depends="$showExpandLink5$">
+      <input depends="$showExpandLink5$" id="linkExpand5" searchWhenChanged="true" token="tokLinkExpand5" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -471,19 +484,21 @@ earliest=-1d@d latest=now
       <table rejects="$showExpandLink5$">
         <search>
           <query>| rest /services/authentication/users `my_sh_servers`
+| fields realname, title, roles, defaultApp, capabilities
 | eval name=coalesce(realname, title) 
 | stats values(roles) as Role first(defaultApp) as "Landing App" count(capabilities) as "Number of Capabilities" by name</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
         <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
   </row>
   <row>
     <panel id="panel6">
       <title>Splunk Restart Log</title>
-      <input id="linkCollapse6" type="link" token="tokLinkCollapse6" searchWhenChanged="true" depends="$showCollapseLink6$">
+      <input depends="$showCollapseLink6$" id="linkCollapse6" searchWhenChanged="true" token="tokLinkCollapse6" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -493,7 +508,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand6" type="link" token="tokLinkExpand6" searchWhenChanged="true" depends="$showExpandLink6$">
+      <input depends="$showExpandLink6$" id="linkExpand6" searchWhenChanged="true" token="tokLinkExpand6" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -506,9 +521,9 @@ earliest=-1d@d latest=now
       </input>
       <table rejects="$showExpandLink6$">
         <search>
-          <query>index="_audit" `all_splunk_hosts` (action="splunkStarting" OR action="splunkShuttingDown") 
-| fields _time, user, host, action
-| table _time, user, host, action,</query>
+          <query>index="_audit" `all_splunk_hosts` (action="splunkStarting" OR action="splunkShuttingDown") earliest=-1d@d latest=now 
+| fields _time, host, action
+| table _time, host, action,</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
@@ -518,7 +533,7 @@ earliest=-1d@d latest=now
     </panel>
     <panel id="panel8">
       <title>Users Logged Into Splunk</title>
-      <input id="linkCollapse8" type="link" token="tokLinkCollapse8" searchWhenChanged="true" depends="$showCollapseLink8$">
+      <input depends="$showCollapseLink8$" id="linkCollapse8" searchWhenChanged="true" token="tokLinkCollapse8" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -529,7 +544,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand8" type="link" token="tokLinkExpand8" searchWhenChanged="true" depends="$showExpandLink8$">
+      <input depends="$showExpandLink8$" id="linkExpand8" searchWhenChanged="true" token="tokLinkExpand8" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -543,7 +558,8 @@ earliest=-1d@d latest=now
       <table rejects="$showExpandLink8$">
         <search>
           <query>| rest /services/authentication/httpauth-tokens `my_sh_servers`
-| search (NOT userName="splunk-system-user") searchId="" 
+| fields  _time userName splunk_server timeAccessed, searchId 
+| search userName!=splunk-system-user searchId=*  
 | table userName splunk_server timeAccessed
 | dedup userName</query>
           <earliest>-15m</earliest>
@@ -557,7 +573,7 @@ earliest=-1d@d latest=now
   <row>
     <panel id="panel9">
       <title>Installed Apps - Versions On Search Heads</title>
-      <input id="linkCollapse9" type="link" token="tokLinkCollapse9" searchWhenChanged="true" depends="$showCollapseLink9$">
+      <input depends="$showCollapseLink9$" id="linkCollapse9" searchWhenChanged="true" token="tokLinkCollapse9" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -568,7 +584,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand9" type="link" token="tokLinkExpand9" searchWhenChanged="true" depends="$showExpandLink9$">
+      <input depends="$showExpandLink9$" id="linkExpand9" searchWhenChanged="true" token="tokLinkExpand9" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -582,6 +598,7 @@ earliest=-1d@d latest=now
       <table rejects="$showExpandLink9$">
         <search>
           <query>| rest /services/apps/local `my_sh_servers` 
+| fields splunk_server label version, title
 | table splunk_server label version, title 
 | rename title AS app 
 | dedup label</query>
@@ -589,6 +606,7 @@ earliest=-1d@d latest=now
           <latest>now</latest>
         </search>
         <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
         <drilldown>
           <condition field="app">
             <link target="_blank">/app/DC_splunk_quick_health/app_analytics_checks?form.app_name=$click.value2$</link>
@@ -598,7 +616,7 @@ earliest=-1d@d latest=now
     </panel>
     <panel id="panel10">
       <title>Installed Apps - Versions On Indexers</title>
-      <input id="linkCollapse10" type="link" token="tokLinkCollapse10" searchWhenChanged="true" depends="$showCollapseLink10$">
+      <input depends="$showCollapseLink10$" id="linkCollapse10" searchWhenChanged="true" token="tokLinkCollapse10" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -609,7 +627,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand10" type="link" token="tokLinkExpand10" searchWhenChanged="true" depends="$showExpandLink10$">
+      <input depends="$showExpandLink10$" id="linkExpand10" searchWhenChanged="true" token="tokLinkExpand10" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -636,7 +654,7 @@ earliest=-1d@d latest=now
   <row>
     <panel id="panel11">
       <title>Data Hygiene Checks</title>
-      <input id="linkCollapse11" type="link" token="tokLinkCollapse11" searchWhenChanged="true" depends="$showCollapseLink11$">
+      <input depends="$showCollapseLink11$" id="linkCollapse11" searchWhenChanged="true" token="tokLinkCollapse11" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -647,7 +665,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand11" type="link" token="tokLinkExpand11" searchWhenChanged="true" depends="$showExpandLink11$">
+      <input depends="$showExpandLink11$" id="linkExpand11" searchWhenChanged="true" token="tokLinkExpand11" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -660,7 +678,8 @@ earliest=-1d@d latest=now
       </input>
       <table rejects="$showExpandLink11$">
         <search>
-          <query>earliest=-24h index=_internal sourcetype=splunkd component=LineBreakingProcessor OR (component=DateParserVerbose NOT FileClassifier) OR component=AggregatorMiningProcessor 
+          <query>index=_internal sourcetype=splunkd component=LineBreakingProcessor OR (component=DateParserVerbose NOT FileClassifier) OR component=AggregatorMiningProcessor earliest=-24h 
+| fields _time, sourcetype, component, _timediff _tc _key punct, host, splunk_server, splunk_group, data_sourcetype, data_source  
 | rex "Context:\s+source[:=]{1,2}(?&lt;data_source&gt;[^\|]+)\|host[:=]{1,2}(?&lt;data_host&gt;[^\|]+)\|(?&lt;data_sourcetype&gt;[^\|]+)" 
 | where NOT match(data_sourcetype, "^splunk_") 
 | stats count AS warn_count count(eval(component=="AggregatorMiningProcessor")) AS aggregation_issues count(eval(component=="LineBreakingProcessor")) AS line_breaking_issues count(eval(component=="DateParserVerbose")) AS date_parsing_issues dc(data_host) AS data_hosts dc(data_source) AS data_sources by data_sourcetype 
@@ -691,7 +710,7 @@ earliest=-1d@d latest=now
     </panel>
     <panel id="panel12">
       <title>Top Apps Used</title>
-      <input id="linkCollapse12" type="link" token="tokLinkCollapse12" searchWhenChanged="true" depends="$showCollapseLink12$">
+      <input depends="$showCollapseLink12$" id="linkCollapse12" searchWhenChanged="true" token="tokLinkCollapse12" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -702,7 +721,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand12" type="link" token="tokLinkExpand12" searchWhenChanged="true" depends="$showExpandLink12$">
+      <input depends="$showExpandLink12$" id="linkExpand12" searchWhenChanged="true" token="tokLinkExpand12" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -715,15 +734,15 @@ earliest=-1d@d latest=now
       </input>
       <table rejects="$showExpandLink12$">
         <search>
-          <query>index=_internal sourcetype=splunkd_ui_access method=GET uri="*/app/*" user!=cmon_user user!="-" earliest=-7d@d 
+          <query>index=_internal sourcetype=splunkd_ui_access source=/opt/splunk/var/log/splunk/splunkd_ui_access.log method=GET uri="*/app/*" user!=cmon_user user!="-" earliest=-7d@d 
+| fields _time, sourcetype, source method, user, views, _timediff, percent, uri  
 | rex field=uri "app/(?&lt;app&gt;[^/]+)/" 
 | stats count AS views dc(user) AS dc_users dc(host) AS dc_instance by app 
 | eventstats sum(views) AS total_view_count 
 | eval percent=round((views/total_view_count)*100,2) 
-| fields - total_view_count 
 | eval _time=if(isnull(_time), now(), _time) 
-| table * 
-| fields - _timediff _tc _key punct</query>
+| table app, dc_instance dc_users, percent, views, _time
+| sort -percent</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -732,6 +751,7 @@ earliest=-1d@d latest=now
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
@@ -741,7 +761,7 @@ earliest=-1d@d latest=now
   <row>
     <panel id="panel13">
       <title>Event Delay Checks</title>
-      <input id="linkCollapse13" type="link" token="tokLinkCollapse13" searchWhenChanged="true" depends="$showCollapseLink13$">
+      <input depends="$showCollapseLink13$" id="linkCollapse13" searchWhenChanged="true" token="tokLinkCollapse13" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -752,7 +772,7 @@ earliest=-1d@d latest=now
           </condition>
         </change>
       </input>
-      <input id="linkExpand13" type="link" token="tokLinkExpand13" searchWhenChanged="true" depends="$showExpandLink13$">
+      <input depends="$showExpandLink13$" id="linkExpand13" searchWhenChanged="true" token="tokLinkExpand13" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -766,14 +786,12 @@ earliest=-1d@d latest=now
       <table rejects="$showExpandLink13$">
         <search>
           <query>| tstats max(_indextime) as indexed_time count WHERE index=* latest=+1day earliest=-1day _index_latest=-1sec _index_earliest=-2sec
-BY index host splunk_server _time span=1s
-| eval _time=round(_time), delay=indexed_time-_time, delay_str=tostring(delay,"duration")
-| eventstats max(delay) AS max_delay max(_time) AS max_time count AS eps BY host index
-| where max_delay = delay
-| eval max_time=_time
-| sort - delay
-
-</query>
+    BY index host splunk_server _time span=1s 
+| eval _time=round(_time), delay=indexed_time-_time, delay_str=tostring(delay,"duration") 
+| eventstats max(delay) AS max_delay max(_time) AS max_time count AS eps BY host index 
+| where max_delay = delay 
+| eval max_time=_time 
+| sort - delay</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -782,6 +800,7 @@ BY index host splunk_server _time span=1s
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
@@ -789,7 +808,7 @@ BY index host splunk_server _time span=1s
     </panel>
     <panel id="panel18">
       <title>CPU Load</title>
-      <input id="linkCollapse18" type="link" token="tokLinkCollapse18" searchWhenChanged="true" depends="$showCollapseLink18$">
+      <input depends="$showCollapseLink18$" id="linkCollapse18" searchWhenChanged="true" token="tokLinkCollapse18" type="link">
         <label></label>
         <choice value="collapse">-</choice>
         <change>
@@ -800,7 +819,7 @@ BY index host splunk_server _time span=1s
           </condition>
         </change>
       </input>
-      <input id="linkExpand18" type="link" token="tokLinkExpand18" searchWhenChanged="true" depends="$showExpandLink18$">
+      <input depends="$showExpandLink18$" id="linkExpand18" searchWhenChanged="true" token="tokLinkExpand18" type="link">
         <label></label>
         <choice value="expand">+</choice>
         <change>
@@ -813,7 +832,8 @@ BY index host splunk_server _time span=1s
       </input>
       <chart rejects="$showExpandLink18$">
         <search>
-          <query>index=_introspection sourcetype=splunk_resource_usage component=PerProcess host=s1se1.ops.com 
+          <query>index=_introspection sourcetype=splunk_resource_usage component=PerProcess `my_sh_hosts`  
+| fields _time, data.process, data.args, data.pid, data.ppid, data.elapsed, data.mem_used, data.mem, data.pct_memory, data.normalized_pct_cpu, data.pct_cpu, data.search_props.sid, data.search_props.app, data.search_props.label, data.search_props.type, data.search_props.mode, data.search_props.user, data.search_props.role, data.search_props.provenance, data.search_props.search_head, data.search_props.role, data.workload_pool, data.args, process_class 
 | eval process = 'data.process' 
 | eval args = 'data.args' 
 | eval pid = 'data.pid' 
@@ -860,9 +880,9 @@ BY index host splunk_server _time span=1s
 | eval provenance = if(isnotnull('data.search_props.provenance'), 'data.search_props.provenance', "unknown") 
 | eval search_head = case(isnotnull('data.search_props.search_head') AND 'data.search_props.role' == "peer", 'data.search_props.search_head', isnull('data.search_props.search_head') AND 'data.search_props.role' == "head", "_self", isnull('data.search_props.search_head') AND 'data.search_props.role' == "peer", "_unknown") 
 | eval workload_pool = if(isnotnull('data.workload_pool'), 'data.workload_pool', "UNDEFINED") 
-| stats latest(pct_cpu) AS resource_usage_dedup latest(process_class) AS process_class by pid, _time 
-| stats sum(resource_usage_dedup) AS resource_usage by _time, process_class 
-| timechart minspan=10s Median(resource_usage) AS "Resource Usage" by process_class</query>
+| stats latest(pct_cpu) AS resource_usage_dedup latest(process_class) AS process_class BY pid, _time 
+| stats sum(resource_usage_dedup) AS resource_usage BY _time, process_class 
+| timechart minspan=10s Median(resource_usage) AS "Resource Usage" BY process_class</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>

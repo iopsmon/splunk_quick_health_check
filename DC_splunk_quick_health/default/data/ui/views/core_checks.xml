@@ -1,8 +1,9 @@
-<dashboard version="1.1" theme="dark">
+<dashboard theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>core checks</label>
   <row>
     <panel>
-      <!-- This changes the font sizes -->
+      
       <html>
         <style>
           table tbody tr td{

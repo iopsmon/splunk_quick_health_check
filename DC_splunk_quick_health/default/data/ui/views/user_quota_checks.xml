@@ -1,9 +1,10 @@
-<dashboard version="1.1" theme="dark">
+<dashboard theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>user concurrency disk quota checks</label>
   <description>checks user concurrency limits</description>
   <row>
     <panel>
-      <!-- This changes the font sizes -->-<html>
+      -<html>
 <style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
 </html>
     </panel>
@@ -32,7 +33,7 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="exceeded_concurrency_limit_1h">
+        <format field="exceeded_concurrency_limit_1h" type="color">
           <colorPalette type="list">[#18C4F6,#FF8914,#F8220D]</colorPalette>
           <scale type="threshold">5,10,15</scale>
         </format>

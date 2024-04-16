@@ -1,15 +1,16 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>config tracker changes</label>
   <description>Config Tracker Changes</description>
   <fieldset submitButton="false">
-    <input type="time" token="my_time">
+    <input token="my_time" type="time">
       <label>enter_time</label>
       <default>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
       </default>
     </input>
-    <input type="dropdown" token="my_app">
+    <input token="my_app" type="dropdown">
       <label>enter_app</label>
       <fieldForLabel>app</fieldForLabel>
       <fieldForValue>app</fieldForValue>
@@ -30,7 +31,7 @@
   </fieldset>
   <row>
     <panel>
-      <!-- This changes the colour font sizes  - good for dark mode  -->
+      
       <html>
         <style>
           table tbody tr td{
@@ -76,8 +77,8 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="new_value">
-          <colorPalette type="minMidMax" maxColor="#FFBF00" minColor="#FFBF00"></colorPalette>
+        <format field="new_value" type="color">
+          <colorPalette maxColor="#FFBF00" minColor="#FFBF00" type="minMidMax" />
         </format>
       </table>
     </panel>

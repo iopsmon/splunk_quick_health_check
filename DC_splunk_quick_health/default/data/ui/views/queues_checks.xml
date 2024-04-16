@@ -1,7 +1,8 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>queues checks</label>
   <fieldset submitButton="false">
-    <input type="time" token="my_time">
+    <input token="my_time" type="time">
       <label>select_time</label>
       <default>
         <earliest>-24h@h</earliest>
@@ -13,7 +14,7 @@
         </condition>
       </change>
     </input>
-    <input type="dropdown" token="my_server">
+    <input token="my_server" type="dropdown">
       <label>select_host</label>
       <fieldForLabel>server</fieldForLabel>
       <fieldForValue>server</fieldForValue>
@@ -28,7 +29,6 @@
   </fieldset>
   <row>
     <panel>
-      <!-- This changes the font sizes -->
       <html>
         <style>
           table tbody tr td{
@@ -51,7 +51,7 @@
   </row>
   <row>
     <panel>
-      <title>ouput_queue_check $my_server$</title>
+      <title>output_queue_check $my_server$</title>
       <chart>
         <search>
           <query>index=_internal host IN ($my_server$)

@@ -1,22 +1,23 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>audit user login checks</label>
   <description>Tracks Login Information</description>
   <fieldset submitButton="false">
-    <input type="time" token="my_time">
+    <input token="my_time" type="time">
       <label>enter_time</label>
       <default>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
       </default>
     </input>
-    <input type="dropdown" token="my_user">
+    <input token="my_user" type="dropdown">
       <label>enter_user</label>
       <fieldForLabel>user</fieldForLabel>
       <fieldForValue>user</fieldForValue>
       <change>
         <condition value="compare">
           <set token="my_user">true</set>
-          <unset token="my_user"></unset>
+          <unset token="my_user" />
         </condition>
       </change>
       <search>
@@ -34,7 +35,7 @@
   </fieldset>
   <row>
     <panel>
-      <!-- This changes the font - colour - good for dark mode use -->-<html>
+      -<html>
         <style>
           table tbody tr td{
             font-size:120% !important;

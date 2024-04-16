@@ -1,6 +1,8 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
+  
   <label>disk checks</label>
-  <!-- <This is for the latency dashboard</choice> -->
+  
   <init>
     <set token="showExpandLink1">true</set>
     <set token="showExpandLink2">true</set>
@@ -19,10 +21,10 @@
     <set token="showExpandLink15">true</set>
     <set token="showExpandLink16">true</set>
   </init>
-  <fieldset submitButton="false"></fieldset>
+  <fieldset submitButton="false" />
   <row>
     <panel>
-      <!-- This changes the font sizes -->
+      
       <html>
         <style>
           table tbody tr td{
@@ -47,25 +49,25 @@
   <row>
     <panel id="panel1">
       <title>disk check IDX servers</title>
-      <input id="linkCollapse1" type="link" token="tokLinkCollapse1" searchWhenChanged="true" depends="$showCollapseLink1$">
-        <label></label>
+      <input depends="$showCollapseLink1$" id="linkCollapse1" searchWhenChanged="true" token="tokLinkCollapse1" type="link">
+        <label />
         <choice value="collapse">-</choice>
         <change>
           <condition value="collapse">
-            <unset token="showCollapseLink1"></unset>
+            <unset token="showCollapseLink1" />
             <set token="showExpandLink1">true</set>
-            <unset token="form.tokLinkCollapse1"></unset>
+            <unset token="form.tokLinkCollapse1" />
           </condition>
         </change>
       </input>
-      <input id="linkExpand1" type="link" token="tokLinkExpand1" searchWhenChanged="true" depends="$showExpandLink1$">
-        <label></label>
+      <input depends="$showExpandLink1$" id="linkExpand1" searchWhenChanged="true" token="tokLinkExpand1" type="link">
+        <label />
         <choice value="expand">+</choice>
         <change>
           <condition value="expand">
             <set token="showCollapseLink1">true</set>
-            <unset token="showExpandLink1"></unset>
-            <unset token="form.tokLinkExpand1"></unset>
+            <unset token="showExpandLink1" />
+            <unset token="form.tokLinkExpand1" />
           </condition>
         </change>
       </input>

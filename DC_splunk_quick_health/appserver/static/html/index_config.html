@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk Index Configuration Parameters</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        th, td {
+            border: 1px solid white;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Splunk Index Configuration Parameters</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Simple Terms</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>maxDataSize</td>
+            <td>The maximum size, in megabytes.</td>
+            <td>Specifies that a hot bucket can reach before splunkd triggers a roll to warm</td>
+        </tr>
+        <tr>
+            <td>FrozenTimePeriodInSecs</td>
+            <td>Time period, in seconds, after which data is considered "frozen."</td>
+            <td>Determines how long data is retained in the index before becoming non-searchable.</td>
+        </tr>
+        <tr>
+            <td>homePath.maxDataSizeMB</td>
+            <td>Maximum size of the home path for an index (in megabytes).</td>
+            <td>Limits the size of the directory where raw data resides for an index.</td>
+        </tr>
+        <tr>
+            <td>coldPath.maxDataSizeMB</td>
+            <td>Maximum size of the cold path for an index (in megabytes).</td>
+            <td>Limits the size of the directory where frozen (non-searchable) data is stored.</td>
+         </tr>
+        <tr>
+            <td>maxHotBuckets</td>
+            <td>Maximum number of hot buckets (actively being written to) allowed for an index.</td>
+            <td>Limits the number of actively written buckets to avoid excessive resource usage.</td>
+        </tr>
+        <tr>
+            <td>maxHotSpanSecs</td>
+            <td>Maximum time period (in seconds) for which a bucket is considered "hot.</td>
+            <td>Specifies how long a bucket remains in the hot/warm state before moving to cold.</td>
+        </tr>
+        <tr>
+            <td>maxTotalDataSizeMB</td>
+            <td>Total maximum size of an index, including both home path and cold path (in megabytes).</td>
+            <td>Limits the overall size of the index, including raw and frozen data.</td>
+        </tr>
+        <tr>
+            <td>maxWarmDBCount</td>
+            <td>Maximum number of warm buckets allowed for an index.</td>
+            <td>Limits the number of warm buckets that can exist simultaneously.</td>
+        </tr>
+
+        
+
+
+
+
+
+
+
+        <!-- ... Repeat rows for other parameters ... -->
+    </tbody>
+</table>
+
+</body>
+</html>
+

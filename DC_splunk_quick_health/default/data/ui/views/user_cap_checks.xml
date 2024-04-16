@@ -1,0 +1,481 @@
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
+    <label>user capability list checks</label>
+    <row>
+    <panel>
+      
+      <html>
+        <style>
+          table tbody tr td{
+            font-size:120% !important;
+            }
+          table thead tr th{
+          font-size:120% !important;
+          }
+       
+         table th td {
+         color:#b3b300;
+        
+         }
+          table tr td {
+         color:#b3b300;
+         }
+         </style>
+      </html>
+    </panel>
+  </row>
+  <fieldset submitButton="false">
+    <input searchWhenChanged="true" token="user" type="dropdown">
+      <label>User</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <search>
+        <query>| rest /services/authentication/users splunk_server=local 
+| table defaultApp id realname email roles type splunk_server capabilities 
+| replace "*%40*" with "*@*" in id 
+| rex field=id "/users/(?&lt;user&gt;.+)$"
+| table user
+| sort user</query>
+      </search>
+    </input>
+    <input searchWhenChanged="true" token="user_pattern" type="text">
+      <label>User Pattern</label>
+      <default>*</default>
+    </input>
+    <input searchWhenChanged="true" token="user_list" type="text">
+      <label>User List (comma seperated)</label>
+      <default>*</default>
+    </input>
+    <input searchWhenChanged="true" token="real_name" type="dropdown">
+      <label>Real Name</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <fieldForLabel>realname</fieldForLabel>
+      <fieldForValue>realname</fieldForValue>
+      <search>
+        <query>| rest /services/authentication/users splunk_server=local
+| dedup realname
+| table realname
+| sort realname</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input searchWhenChanged="true" token="real_name_pattern" type="text">
+      <label>Real Name Pattern</label>
+      <default>*</default>
+    </input>
+    <input searchWhenChanged="true" token="email" type="dropdown">
+      <label>Email</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>email</fieldForLabel>
+      <fieldForValue>email</fieldForValue>
+      <default>*</default>
+      <search>
+        <query>| rest /services/authentication/users splunk_server=local
+| dedup email
+| table email
+| sort email</query>
+      </search>
+    </input>
+    <input searchWhenChanged="true" token="email_pattern" type="text">
+      <label>Email Pattern</label>
+      <default>*</default>
+    </input>
+    <input searchWhenChanged="true" token="type" type="dropdown">
+      <label>Type</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <fieldForLabel>type</fieldForLabel>
+      <fieldForValue>type</fieldForValue>
+      <search>
+        <query>| rest /services/authentication/users splunk_server=local
+| dedup type
+| table type
+| sort type</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input searchWhenChanged="true" token="role" type="dropdown">
+      <label>Role</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>roles</fieldForLabel>
+      <fieldForValue>roles</fieldForValue>
+      <search>
+        <query>| rest /services/authentication/users splunk_server=local 
+| table roles
+| mvexpand roles
+| dedup roles
+| table roles
+| sort roles</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+      <default>*</default>
+    </input>
+    <input searchWhenChanged="true" token="role_pattern" type="text">
+      <label>Role Pattern</label>
+      <default>*</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>User Accounts</title>
+      <table>
+        <title>(click row for specific user detail)</title>
+        <search>
+          <query>| rest /services/authentication/users splunk_server=local 
+| search realname="$real_name$" realname="*$real_name_pattern$*" email="$email$" email="*$email_pattern$*" roles="$role$" roles="*$role_pattern$*" type="$type$" 
+| table defaultApp id realname email roles type splunk_server capabilities 
+| replace "*%40*" with "*@*" in id 
+| rex field=id "/users/(?&lt;user&gt;.+)$" 
+| table user realname email type roles splunk_server 
+| search user="$user$" user="*$user_pattern$*" user IN ($user_list$) 
+| sort -type user</query>
+          <earliest>0</earliest>
+          <latest />
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <format field="action" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="host" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="type" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="roles" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="splunk_server" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <drilldown>
+          <unset token="user" />
+          <set token="user">$click.value$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Role Capabilities</title>
+      <table>
+        <search>
+          <query>| rest /services/authentication/users splunk_server=local 
+| search realname="$real_name$" realname="*$real_name_pattern$*" email="$email$" email="*$email_pattern$*" roles="$role$" roles="*$role_pattern$*" type="$type$" 
+| table defaultApp id realname email roles type splunk_server 
+| replace "*%40*" with "*@*" in id 
+| rex field=id "/users/(?&lt;user&gt;.+)$" 
+| table user realname email type roles splunk_server 
+| search user="$user$" user="***" user IN (*) 
+| rename roles as role 
+| table role 
+| mvexpand role 
+| dedup role 
+| join role 
+    [| rest /services/authorization/roles 
+    | table title capabilities imported_roles imported_capabilities 
+    | dedup title 
+    | rename title as role 
+    | table role capabilities imported_roles imported_capabilities ] 
+| table role capabilities imported_roles imported_capabilities 
+| sort role 
+| transpose 1000 column_name=role header_field=role</query>
+          <earliest>0</earliest>
+          <latest />
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format field="action" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="host" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="type" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="roles" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="splunk_server" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Role Index Access</title>
+      <table>
+        <search>
+          <query>| rest /services/authentication/users splunk_server=local 
+| search realname="$real_name$" realname="*$real_name_pattern$*" email="$email$" email="*$email_pattern$*" roles="$role$" roles="*$role_pattern$*" type="$type$" 
+| table defaultApp id realname email roles type splunk_server 
+| replace "*%40*" with "*@*" in id 
+| rex field=id "/users/(?&lt;user&gt;.+)$" 
+| table user realname email type roles splunk_server 
+| search user="$user$" user="***" user IN (*) 
+| rename roles as role 
+| table role 
+| mvexpand role 
+| dedup role 
+| join role 
+    [| rest /services/authorization/roles 
+    | table title srchIndexesAllowed imported_roles imported_srchIndexesAllowed 
+    | dedup title 
+    | rename title as role 
+    | table role srchIndexesAllowed imported_roles imported_srchIndexesAllowed ] 
+| table role srchIndexesAllowed imported_roles imported_srchIndexesAllowed 
+| sort role 
+| transpose 1000 column_name=role header_field=role</query>
+          <earliest>0</earliest>
+          <latest />
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format field="action" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="host" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="type" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="roles" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+        <format field="splunk_server" type="color">
+          <colorPalette type="sharedList" />
+          <scale type="sharedCategory" />
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input token="field1" type="dropdown">
+        <label>User</label>
+        <choice value="*">All</choice>
+        <search>
+          <query>|rest /services/authentication/users splunk_server=local|table title</query>
+        </search>
+        <fieldForLabel>title</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <default>*</default>
+      </input>
+      <input token="field3" type="time">
+        <label>Date</label>
+        <default>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <table>
+        <title>Top 10 Searches - ExecutionTime</title>
+        <search>
+          <query>index=_audit source=audittrail sourcetype=audittrail search_id=* NOT user="splunk-system-user" NOT user="n/a" NOT search_id=rt_*  info=completed NOT savedsearch_name=""  user=$field1$ |eval total_run_time=(total_run_time/60)|stats max(total_run_time) AS max_runtime,avg(total_run_time) as avg_Runtime_Min by savedsearch_name splunk_server user|eval avg_Runtime_Min =round(avg_Runtime_Min ,2)|sort - avg_Runtime_Min|head 10</query>
+          <earliest>$field3.earliest$</earliest>
+          <latest>$field3.latest$</latest>
+        </search>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+    <panel>
+      <input token="field2" type="dropdown">
+        <label>User</label>
+        <choice value="*">All</choice>
+        <search>
+          <query>|rest /services/authentication/users splunk_server=local|table title</query>
+        </search>
+        <fieldForLabel>title</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <default>*</default>
+      </input>
+      <input searchWhenChanged="true" token="field4" type="time">
+        <label>Date</label>
+        <default>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <table>
+        <title>Top 10 Searches - No of Runs</title>
+        <search>
+          <query>index=_audit source=audittrail sourcetype=audittrail search_id=* NOT user="splunk-system-user" NOT user="n/a" NOT search_id=rt_*  info=completed NOT savedsearch_name="" user=$field2$ |eval total_run_time=(total_run_time/60)|stats  count AS No_Runs by savedsearch_name splunk_server user|eval RunTime_Min=round(RunTime_Min,2)|sort - No_Runs |head 10</query>
+          <earliest>$field4.earliest$</earliest>
+          <latest>$field4.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">cell</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>user disk usage</title>
+      <input token="field7" type="dropdown">
+        <label>User</label>
+        <choice value="*">All</choice>
+        <search>
+          <query>|rest /services/authentication/users splunk_server=local|table title</query>
+        </search>
+        <fieldForLabel>title</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <default>*</default>
+      </input>
+      <input searchWhenChanged="true" token="field8" type="time">
+        <label>Date</label>
+        <default>
+          <earliest>-1d@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <chart>
+        <search>
+          <query>| rest /servicesNS/-/-/search/jobs 
+| rename eai:acl.owner as user 
+| stats sum(diskUsage) as diskUsage by user 
+| search user=$field7$
+| sort - diskUsage 
+| eval diskUsage=round(diskUsage/1024/1024,0)</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="height">281</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>search status user</title>
+      <input token="field9" type="dropdown">
+        <label>User</label>
+        <choice value="*">All</choice>
+        <search>
+          <query>|rest /services/authentication/users splunk_server=local|table title</query>
+        </search>
+        <fieldForLabel>title</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <default>*</default>
+      </input>
+      <input searchWhenChanged="true" token="field10" type="time">
+        <label>Date</label>
+        <default>
+          <earliest>-1d@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <chart>
+        <search>
+          <query>index=_audit action=search info=granted search=* NOT "search_id='scheduler" NOT "search='|history" NOT "user=splunk-system-user" NOT "search='typeahead" NOT "search='| metadata type=* | search totalCount&gt;0"
+| search user=$field9$
+| fields user, search, _time, search_id 
+| eval search_id = trim(replace(search_id, "\'", "")) 
+| timechart count by user limit=10</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+</form>

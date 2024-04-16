@@ -1,8 +1,9 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>audit search tracking checks</label>
   <description>Tracks Audit Information</description>
   <fieldset submitButton="false">
-    <input type="dropdown" token="my_user">
+    <input token="my_user" type="dropdown">
       <label>user</label>
       <fieldForLabel>user</fieldForLabel>
       <fieldForValue>user</fieldForValue>
@@ -20,7 +21,7 @@
   </fieldset>
   <row>
     <panel>
-      <!-- This changes the font - colour - good for dark mode use -->-<html>
+      -<html>
         <style>
           table tbody tr td{
             font-size:120% !important;

@@ -1,4 +1,5 @@
-<form version="1.1" theme="dark">
+<form theme="dark" version="1.1">
+  <tags>mobile</tags>
   <label>cim checks recommended fields - Run on ES SH</label>
   <init>
     <set token="showExpandLink1">true</set>
@@ -18,10 +19,10 @@
     <set token="showExpandLink15">true</set>
     <set token="showExpandLink16">true</set>
   </init>
-  <fieldset submitButton="false"></fieldset>
+  <fieldset submitButton="false" />
   <row>
     <panel>
-      <!-- This changes the font sizes -->-<html>
+      -<html>
  
 <style>table tbody tr td{font-size:120% !important;}table thead tr th{font-size:120% !important;}table th td {color:#b3b300;}table tr td {color:#b3b300;} </style>
  
@@ -31,7 +32,7 @@
   <row>
     <panel>
       <title>check_dma_data - After Dma has been generated</title>
-      <input type="dropdown" token="dm_model" searchWhenChanged="true">
+      <input searchWhenChanged="true" token="dm_model" type="dropdown">
         <label>dm_model</label>
         <fieldForLabel>dm_model</fieldForLabel>
         <fieldForValue>dm_model</fieldForValue>
@@ -41,7 +42,7 @@
           <latest>now</latest>
         </search>
       </input>
-      <input type="dropdown" token="my_index">
+      <input token="my_index" type="dropdown">
         <label>index</label>
         <fieldForLabel>index</fieldForLabel>
         <fieldForValue>index</fieldForValue>
@@ -51,7 +52,7 @@
           <latest>now</latest>
         </search>
       </input>
-      <input type="dropdown" token="my_sourcetype">
+      <input token="my_sourcetype" type="dropdown">
         <label>sourcetype</label>
         <fieldForLabel>sourcetype</fieldForLabel>
         <fieldForValue>sourcetype</fieldForValue>
@@ -83,7 +84,7 @@
     </panel>
     <panel>
       <title>cim_get_recommnded_fields</title>
-      <input type="dropdown" token="my_dm" searchWhenChanged="true">
+      <input searchWhenChanged="true" token="my_dm" type="dropdown">
         <label>dm</label>
         <fieldForLabel>model</fieldForLabel>
         <fieldForValue>model</fieldForValue>
@@ -95,7 +96,7 @@
       </input>
       <table>
         <search>
-          <query>| rest splunk_server=s1se1.ops.com count=0 /services/data/models/$my_dm$ | rename title as model,eai:data as data | spath input=data output=objects path=objects{} | mvexpand objects | spath input=objects output=object_name path=objectName | spath input=objects output=fields path=fields{} | appendpipe [| spath input=objects output=fields path=calculations{}.outputFields{}] | mvexpand fields | spath input=fields output=field_name path=fieldName | spath input=fields output=recommended path=comment.recommended | table model,object_name,field_name,recommended | sort model,object_name,field_name</query>
+          <query>| rest splunk_server=s1sh1.ops.com count=0 /services/data/models/$my_dm$ | rename title as model,eai:data as data | spath input=data output=objects path=objects{} | mvexpand objects | spath input=objects output=object_name path=objectName | spath input=objects output=fields path=fields{} | appendpipe [| spath input=objects output=fields path=calculations{}.outputFields{}] | mvexpand fields | spath input=fields output=field_name path=fieldName | spath input=fields output=recommended path=comment.recommended | table model,object_name,field_name,recommended | sort model,object_name,field_name</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -113,21 +114,21 @@
   </row>
   <row>
     <panel id="panel">
-      <title>windows_authentication index=wineventlog sourcetype=xmlwineventlog tag=authentication</title>--<input token="tokLinkCollapse1" id="linkCollapse1" depends="$showCollapseLink1$" searchWhenChanged="true" type="link">
-        <label></label>
+      <title>windows_authentication index=wineventlog sourcetype=xmlwineventlog tag=authentication</title>--<input depends="$showCollapseLink1$" id="linkCollapse1" searchWhenChanged="true" token="tokLinkCollapse1" type="link">
+        <label />
         <choice value="collapse">-</choice>-<change>-<condition value="collapse">
-            <unset token="showCollapseLink1"></unset>
+            <unset token="showCollapseLink1" />
             <set token="showExpandLink1">true</set>
-            <unset token="form.tokLinkCollapse1"></unset>
+            <unset token="form.tokLinkCollapse1" />
           </condition>
         </change>
       </input>
-      <input token="tokLinkExpand1" id="linkExpand1" depends="$showExpandLink1$" searchWhenChanged="true" type="link">
-        <label></label>
+      <input depends="$showExpandLink1$" id="linkExpand1" searchWhenChanged="true" token="tokLinkExpand1" type="link">
+        <label />
         <choice value="expand">+</choice>-<change>-<condition value="expand">
             <set token="showCollapseLink1">true</set>
-            <unset token="showExpandLink1"></unset>
-            <unset token="form.tokLinkExpand1"></unset>
+            <unset token="showExpandLink1" />
+            <unset token="form.tokLinkExpand1" />
           </condition>
         </change>
       </input>
@@ -147,21 +148,21 @@
   </row>
   <row>
     <panel id="pane2">
-      <title>cisco_asa_network - index=cisco sourcetype=cisco:asa tag=network</title>--<input token="tokLinkCollapse2" id="linkCollapse2" depends="$showCollapseLink2$" searchWhenChanged="true" type="link">
-        <label></label>
+      <title>cisco_asa_network - index=cisco sourcetype=cisco:asa tag=network</title>--<input depends="$showCollapseLink2$" id="linkCollapse2" searchWhenChanged="true" token="tokLinkCollapse2" type="link">
+        <label />
         <choice value="collapse">-</choice>-<change>-<condition value="collapse">
-            <unset token="showCollapseLink2"></unset>
+            <unset token="showCollapseLink2" />
             <set token="showExpandLink2">true</set>
-            <unset token="form.tokLinkCollapse2"></unset>
+            <unset token="form.tokLinkCollapse2" />
           </condition>
         </change>
       </input>
-      <input token="tokLinkExpand2" id="linkExpand2" depends="$showExpandLink2$" searchWhenChanged="true" type="link">
-        <label></label>
+      <input depends="$showExpandLink2$" id="linkExpand2" searchWhenChanged="true" token="tokLinkExpand2" type="link">
+        <label />
         <choice value="expand">+</choice>-<change>-<condition value="expand">
             <set token="showCollapseLink2">true</set>
-            <unset token="showExpandLink2"></unset>
-            <unset token="form.tokLinkExpand2"></unset>
+            <unset token="showExpandLink2" />
+            <unset token="form.tokLinkExpand2" />
           </condition>
         </change>
       </input>
@@ -181,21 +182,21 @@
   </row>
   <row>
     <panel id="pane3">
-      <title>cisco_asa_change index=cisco sourcetype=cisco:asa tag=change</title>--<input token="tokLinkCollapse3" id="linkCollapse3" depends="$showCollapseLink3$" searchWhenChanged="true" type="link">
-        <label></label>
+      <title>cisco_asa_change index=cisco sourcetype=cisco:asa tag=change</title>--<input depends="$showCollapseLink3$" id="linkCollapse3" searchWhenChanged="true" token="tokLinkCollapse3" type="link">
+        <label />
         <choice value="collapse">-</choice>-<change>-<condition value="collapse">
-            <unset token="showCollapseLink3"></unset>
+            <unset token="showCollapseLink3" />
             <set token="showExpandLink3">true</set>
-            <unset token="form.tokLinkCollapse3"></unset>
+            <unset token="form.tokLinkCollapse3" />
           </condition>
         </change>
       </input>
-      <input token="tokLinkExpand3" id="linkExpand3" depends="$showExpandLink3$" searchWhenChanged="true" type="link">
-        <label></label>
+      <input depends="$showExpandLink3$" id="linkExpand3" searchWhenChanged="true" token="tokLinkExpand3" type="link">
+        <label />
         <choice value="expand">+</choice>-<change>-<condition value="expand">
             <set token="showCollapseLink3">true</set>
-            <unset token="showExpandLink3"></unset>
-            <unset token="form.tokLinkExpand3"></unset>
+            <unset token="showExpandLink3" />
+            <unset token="form.tokLinkExpand3" />
           </condition>
         </change>
       </input>
@@ -215,21 +216,21 @@
   </row>
   <row>
     <panel id="pane4">
-      <title>mcafee_epo_syslog index=mcafee sourcetype="mcafee:epo:syslog" tag=attack</title>--<input token="tokLinkCollapse4" id="linkCollapse4" depends="$showCollapseLink4$" searchWhenChanged="true" type="link">
-        <label></label>
+      <title>mcafee_epo_syslog index=mcafee sourcetype="mcafee:epo:syslog" tag=attack</title>--<input depends="$showCollapseLink4$" id="linkCollapse4" searchWhenChanged="true" token="tokLinkCollapse4" type="link">
+        <label />
         <choice value="collapse">-</choice>-<change>-<condition value="collapse">
-            <unset token="showCollapseLink4"></unset>
+            <unset token="showCollapseLink4" />
             <set token="showExpandLink4">true</set>
-            <unset token="form.tokLinkCollapse4"></unset>
+            <unset token="form.tokLinkCollapse4" />
           </condition>
         </change>
       </input>
-      <input token="tokLinkExpand4" id="linkExpand4" depends="$showExpandLink4$" searchWhenChanged="true" type="link">
-        <label></label>
+      <input depends="$showExpandLink4$" id="linkExpand4" searchWhenChanged="true" token="tokLinkExpand4" type="link">
+        <label />
         <choice value="expand">+</choice>-<change>-<condition value="expand">
             <set token="showCollapseLink4">true</set>
-            <unset token="showExpandLink4"></unset>
-            <unset token="form.tokLinkExpand4"></unset>
+            <unset token="showExpandLink4" />
+            <unset token="form.tokLinkExpand4" />
           </condition>
         </change>
       </input>
